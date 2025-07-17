@@ -60,13 +60,14 @@ app.add_middleware(
 app.include_router(chat_router, prefix="/api/chat", tags=["chat"])
 
 @app.get("/")
-async def root():
-    """Simple root endpoint for health checks"""
-    return {"status": "ok", "service": "judas-legal-api"}
+def root():
+    """Simple root endpoint for health checks - synchronous for speed"""
+    return {"status": "ok"}
 
 @app.get("/health")
-async def health_check():
-    return {"status": "healthy", "message": "API is running"}
+def health_check():
+    """Fast health check endpoint"""
+    return {"status": "healthy"}
 
 @app.get("/api/status")
 async def api_status():

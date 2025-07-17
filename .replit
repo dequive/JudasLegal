@@ -14,20 +14,11 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Backend API"
+args = "Frontend App"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Frontend App"
-
-[[workflows.workflow]]
-name = "Backend API"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "bash start.sh"
-waitForPort = 80
+args = "Backend API"
 
 [[workflows.workflow]]
 name = "Frontend App"
@@ -37,6 +28,15 @@ author = "agent"
 task = "shell.exec"
 args = "./start-frontend.sh"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Backend API"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 app.py"
+waitForPort = 80
 
 [[ports]]
 localPort = 80
