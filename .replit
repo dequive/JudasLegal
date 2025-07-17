@@ -26,8 +26,8 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python main.py"
-waitForPort = 8000
+args = "bash start.sh"
+waitForPort = 80
 
 [[workflows.workflow]]
 name = "Frontend App"

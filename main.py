@@ -92,8 +92,8 @@ async def api_status():
         )
 
 if __name__ == "__main__":
-    # Get port from environment variable (for deployment) or default to 8000
-    port = int(os.getenv("PORT", 8000))
+    # For deployment, use port 80, otherwise default to 8000
+    port = int(os.getenv("PORT", 80))
     
     # Check if we're in production mode
     is_production = os.getenv("REPL_DEPLOYMENT", "false").lower() == "true"
@@ -102,8 +102,8 @@ if __name__ == "__main__":
         "main:app",
         host="0.0.0.0",
         port=port,
-        reload=not is_production,  # Only reload in development
-        workers=1 if is_production else 1,
+        reload=False,  # Always disable reload for deployment
+        workers=1,
         access_log=True,
         log_level="info"
     )
