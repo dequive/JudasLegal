@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-MZ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Judas</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9fafb;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 500px;
+        }
+        .icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            background-color: #00A859;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        h1 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        p {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+        .retry-btn {
+            background-color: #00A859;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+        .retry-btn:hover {
+            background-color: #059669;
+        }
+        .features {
+            margin-top: 2rem;
+            text-align: left;
+        }
+        .features h3 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        .features ul {
+            list-style: none;
+            padding: 0;
+        }
+        .features li {
+            padding: 0.5rem 0;
+            color: #6b7280;
+        }
+        .features li::before {
+            content: "✓";
+            color: #00A859;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">
+            📱
+        </div>
+        <h1>Você está offline</h1>
+        <p>Não foi possível conectar à internet. Algumas funcionalidades podem estar limitadas.</p>
+        
+        <button class="retry-btn" onclick="window.location.reload()">
+            Tentar novamente
+        </button>
+        
+        <div class="features">
+            <h3>Recursos disponíveis offline:</h3>
+            <ul>
+                <li>Consulta de leis essenciais</li>
+                <li>Histórico de conversas salvas</li>
+                <li>Interface completa do chat</li>
+                <li>Documentos legais básicos</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Check for internet connection
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>
