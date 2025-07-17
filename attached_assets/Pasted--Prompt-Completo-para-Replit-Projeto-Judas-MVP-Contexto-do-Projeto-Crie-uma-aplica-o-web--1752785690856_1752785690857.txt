@@ -1,0 +1,307 @@
+# Prompt Completo para Replit - Projeto Judas MVP
+
+## Contexto do Projeto
+Crie uma aplicação web progressiva (PWA) para democratizar o acesso à informação jurídica em Moçambique. O sistema deve implementar um chatbot jurídico usando RAG (Retrieval-Augmented Generation) que responde perguntas sobre legislação moçambicana em português, sempre com citações das fontes legais.
+
+## Arquitetura Técnica
+
+### Frontend (Next.js PWA)
+```typescript
+// Stack: Next.js 14 + TypeScript + Tailwind CSS + Zustand
+// Implementar PWA com Service Workers para cache offline
+// Interface limpa e responsiva para chat jurídico
+```
+
+### Backend (FastAPI)
+```python
+# Stack: FastAPI + Python 3.11
+# Pipeline RAG completo com PostgreSQL + pgvector
+# Sistema de citações obrigatórias
+```
+
+### Base de Dados
+```sql
+-- PostgreSQL com extensão pgvector
+-- Tabelas: users, legal_documents, chat_sessions, embeddings
+-- Armazenamento unificado para dados relacionais e vetoriais
+```
+
+## Requisitos Funcionais Detalhados
+
+### 1. Interface de Chat Jurídico
+- **Layout:** Chat interface moderna com histórico de conversas
+- **Input:** Campo de texto para perguntas em português
+- **Output:** Respostas estruturadas com citações clicáveis
+- **Componentes necessários:**
+  - ChatInterface.tsx (componente principal)
+  - MessageBubble.tsx (bolhas de mensagem)
+  - CitationCard.tsx (exibição de fontes legais)
+  - TypingIndicator.tsx (indicador de digitação)
+
+### 2. Sistema RAG (Retrieval-Augmented Generation)
+```python
+# Pipeline completo:
+# 1. Query Analysis - análise da pergunta do usuário
+# 2. Vector Search - busca semântica no pgvector
+# 3. Re-ranking - classificação de relevância
+# 4. Citation Generation - geração de resposta com fontes
+# 5. Response Synthesis - síntese final estruturada
+```
+
+### 3. Gestão de Documentos Legais
+- **Ingestão:** Sistema ETL para processar leis moçambicanas
+- **Processamento:** Chunking inteligente e vetorização
+- **Validação:** Interface para curadoria humana (HITL)
+- **Armazenamento:** Metadados + embeddings no PostgreSQL
+
+### 4. Funcionalidades PWA
+- **Offline:** Cache de leis essenciais para consulta offline
+- **Instalação:** Prompt de instalação como app nativo
+- **Notificações:** Push notifications para updates legais
+- **Responsivo:** Interface adaptável para mobile/desktop
+
+## Estrutura de Arquivos Requerida
+
+```
+projeto-judas/
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Chat/
+│   │   │   │   ├── ChatInterface.tsx
+│   │   │   │   ├── MessageBubble.tsx
+│   │   │   │   └── CitationCard.tsx
+│   │   │   ├── Layout/
+│   │   │   │   ├── Header.tsx
+│   │   │   │   └── Footer.tsx
+│   │   │   └── Common/
+│   │   │       ├── LoadingSpinner.tsx
+│   │   │       └── ErrorBoundary.tsx
+│   │   ├── pages/
+│   │   │   ├── index.tsx (página principal do chat)
+│   │   │   ├── about.tsx (sobre o projeto)
+│   │   │   └── api/
+│   │   │       └── chat.ts (proxy para backend)
+│   │   ├── store/
+│   │   │   ├── chatStore.ts (Zustand store)
+│   │   │   └── userStore.ts
+│   │   ├── utils/
+│   │   │   ├── api.ts (cliente HTTP)
+│   │   │   └── offline.ts (service worker utils)
+│   │   └── styles/
+│   │       └── globals.css
+│   ├── public/
+│   │   ├── manifest.json (PWA manifest)
+│   │   ├── sw.js (service worker)
+│   │   └── icons/ (PWA icons)
+│   ├── next.config.js
+│   ├── tailwind.config.js
+│   └── package.json
+├── backend/
+│   ├── app/
+│   │   ├── main.py (FastAPI app)
+│   │   ├── models/
+│   │   │   ├── database.py (PostgreSQL config)
+│   │   │   ├── legal_document.py
+│   │   │   └── chat_session.py
+│   │   ├── services/
+│   │   │   ├── rag_service.py (pipeline RAG)
+│   │   │   ├── embedding_service.py
+│   │   │   └── citation_service.py
+│   │   ├── api/
+│   │   │   ├── chat.py (endpoints de chat)
+│   │   │   └── documents.py
+│   │   └── utils/
+│   │       ├── text_processing.py
+│   │       └── vector_search.py
+│   ├── requirements.txt
+│   └── Dockerfile
+├── database/
+│   ├── init.sql (schema inicial)
+│   └── sample_data.sql (dados de exemplo)
+├── docker-compose.yml
+└── README.md
+```
+
+## Implementações Específicas Necessárias
+
+### 1. Pipeline RAG Completo
+```python
+# rag_service.py
+class RAGService:
+    async def process_query(self, query: str) -> ChatResponse:
+        # 1. Análise da query
+        analyzed_query = await self.analyze_query(query)
+        
+        # 2. Busca vetorial
+        relevant_chunks = await self.vector_search(analyzed_query)
+        
+        # 3. Re-ranking
+        ranked_chunks = await self.rerank_results(relevant_chunks)
+        
+        # 4. Geração com citações
+        response = await self.generate_with_citations(ranked_chunks)
+        
+        return response
+```
+
+### 2. Interface de Chat Responsiva
+```typescript
+// ChatInterface.tsx
+interface ChatMessage {
+  id: string;
+  content: string;
+  role: 'user' | 'assistant';
+  citations?: Citation[];
+  timestamp: Date;
+}
+
+interface Citation {
+  source: string;
+  article: string;
+  law: string;
+  url?: string;
+}
+```
+
+### 3. Sistema de Cache Offline
+```javascript
+// sw.js (Service Worker)
+// Cache estratégico para:
+// - Interface da aplicação
+// - Documentos legais essenciais
+// - Respostas frequentes
+```
+
+### 4. Base de Dados PostgreSQL
+```sql
+-- Criar tabelas com pgvector
+CREATE EXTENSION IF NOT EXISTS vector;
+
+CREATE TABLE legal_documents (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(500) NOT NULL,
+    content TEXT NOT NULL,
+    source VARCHAR(200),
+    law_type VARCHAR(100),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE document_embeddings (
+    id SERIAL PRIMARY KEY,
+    document_id INTEGER REFERENCES legal_documents(id),
+    chunk_text TEXT NOT NULL,
+    embedding vector(1536),
+    chunk_index INTEGER
+);
+```
+
+## Funcionalidades Prioritárias para MVP
+
+### Core Features (Essenciais)
+1. **Chat Interface** - Interface de conversação limpa
+2. **RAG Pipeline** - Sistema completo de busca e geração
+3. **Citation System** - Citações obrigatórias e verificáveis
+4. **Offline Support** - PWA com cache para uso offline
+5. **Portuguese Language** - Suporte completo ao português
+
+### Secondary Features (Desejáveis)
+1. **Chat History** - Histórico de conversas
+2. **Document Upload** - Upload de documentos para análise
+3. **User Profiles** - Perfis básicos de usuários
+4. **Search Filters** - Filtros por tipo de lei
+5. **Export Options** - Exportar respostas em PDF
+
+## Configurações Técnicas
+
+### Frontend (Next.js)
+```json
+{
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "typescript": "^5.0.0",
+    "tailwindcss": "^3.0.0",
+    "zustand": "^4.0.0",
+    "@heroicons/react": "^2.0.0"
+  }
+}
+```
+
+### Backend (FastAPI)
+```txt
+fastapi==0.104.1
+uvicorn==0.24.0
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+pgvector==0.2.4
+langchain==0.0.330
+openai==1.3.0
+sentence-transformers==2.2.2
+```
+
+### Database
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: judas_db
+      POSTGRES_USER: judas_user
+      POSTGRES_PASSWORD: judas_pass
+    ports:
+      - "5432:5432"
+```
+
+## Dados de Exemplo
+
+### Leis Moçambicanas para Testes
+1. **Constituição da República de Moçambique** (2004)
+2. **Código Penal** (Lei nº 35/2014)
+3. **Lei do Trabalho** (Lei nº 23/2007)
+4. **Código Civil** (Lei nº 25/2019)
+5. **Lei da Família** (Lei nº 10/2004)
+
+### Perguntas de Teste
+- "Quais são os direitos fundamentais na Constituição?"
+- "Qual é a idade mínima para trabalhar em Moçambique?"
+- "Como funciona o divórcio segundo a lei moçambicana?"
+- "Quais são as penas para furto no Código Penal?"
+
+## Critérios de Sucesso
+
+### Técnicos
+- [ ] Pipeline RAG funcional com citações
+- [ ] Interface PWA responsiva e offline
+- [ ] Base de dados com pgvector operacional
+- [ ] Sistema de cache eficiente
+
+### Funcionais
+- [ ] Respostas jurídicas precisas em português
+- [ ] Citações verificáveis e clicáveis
+- [ ] Experiência de usuário fluida
+- [ ] Funcionalidade offline para leis essenciais
+
+### Performance
+- [ ] Tempo de resposta < 3 segundos
+- [ ] Cache hit rate > 80%
+- [ ] Disponibilidade > 99%
+- [ ] Mobile-first design
+
+## Instruções de Implementação
+
+1. **Configurar o ambiente:** PostgreSQL com pgvector + Docker
+2. **Implementar o backend:** FastAPI com pipeline RAG completo
+3. **Criar o frontend:** Next.js PWA com interface de chat
+4. **Integrar os sistemas:** API REST entre frontend e backend
+5. **Testar offline:** Verificar funcionalidade PWA
+6. **Populated com dados:** Inserir leis moçambicanas de exemplo
+7. **Validar citações:** Garantir precisão das fontes legais
+
+## Resultado Esperado
+
+Uma aplicação web progressiva funcional que permite aos usuários fazer perguntas sobre legislação moçambicana em português e receber respostas precisas com citações das fontes legais, funcionando tanto online quanto offline.
+
+O sistema deve demonstrar a viabilidade técnica do pipeline RAG para domínio jurídico, servindo como base para expansão futura do ecossistema Judas.
