@@ -50,7 +50,7 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5000"],
+    allow_origins=["*"],  # Allow all origins for deployment
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,7 +61,8 @@ app.include_router(chat_router, prefix="/api/chat", tags=["chat"])
 
 @app.get("/")
 async def root():
-    return {"message": "Judas Legal Assistant API - Sistema de Assistência Jurídica para Moçambique"}
+    """Simple root endpoint for health checks"""
+    return {"status": "ok", "service": "judas-legal-api"}
 
 @app.get("/health")
 async def health_check():
@@ -91,9 +92,18 @@ async def api_status():
         )
 
 if __name__ == "__main__":
+    # Get port from environment variable (for deployment) or default to 8000
+    port = int(os.getenv("PORT", 8000))
+    
+    # Check if we're in production mode
+    is_production = os.getenv("REPL_DEPLOYMENT", "false").lower() == "true"
+    
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8000,
-        reload=True
+        port=port,
+        reload=not is_production,  # Only reload in development
+        workers=1 if is_production else 1,
+        access_log=True,
+        log_level="info"
     )
