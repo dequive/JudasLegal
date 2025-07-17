@@ -31,8 +31,7 @@ def main():
             reload=False,  # No reload in production
             workers=1,  # Single worker for Replit
             access_log=True,
-            log_level="info",
-            timeout_keep_alive=30
+            log_level="info"
         )
         
     except Exception as e:

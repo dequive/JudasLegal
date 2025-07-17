@@ -62,12 +62,12 @@ app.include_router(chat_router, prefix="/api/chat", tags=["chat"])
 @app.get("/")
 def root():
     """Simple root endpoint for health checks - synchronous for speed"""
-    return {"status": "ok"}
+    return {"status": "ok", "service": "judas-legal-api"}
 
 @app.get("/health")
 def health_check():
     """Fast health check endpoint"""
-    return {"status": "healthy"}
+    return {"status": "healthy", "service": "judas-legal-api"}
 
 @app.get("/api/status")
 async def api_status():
@@ -103,7 +103,5 @@ if __name__ == "__main__":
         reload=False,  # Disable reload for production
         workers=1,
         access_log=True,
-        log_level="info",
-        timeout_keep_alive=30,
-        timeout_graceful_shutdown=10
+        log_level="info"
     )
