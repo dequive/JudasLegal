@@ -29,7 +29,8 @@ def main():
         workers=1,
         access_log=True,
         log_level="info",
-        timeout_keep_alive=30
+        timeout_keep_alive=30,
+        timeout_graceful_shutdown=10
     )
 
 if __name__ == "__main__":

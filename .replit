@@ -35,7 +35,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python3 app.py"
+args = "python3 deploy_server.py"
 waitForPort = 80
 
 [[ports]]

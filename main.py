@@ -93,18 +93,17 @@ async def api_status():
         )
 
 if __name__ == "__main__":
-    # For deployment, use port 80, otherwise default to 8000
-    port = int(os.getenv("PORT", 80))
-    
-    # Check if we're in production mode
-    is_production = os.getenv("REPL_DEPLOYMENT", "false").lower() == "true"
+    # Always use port 80 for deployment
+    port = 80
     
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
         port=port,
-        reload=False,  # Always disable reload for deployment
+        reload=False,  # Disable reload for production
         workers=1,
         access_log=True,
-        log_level="info"
+        log_level="info",
+        timeout_keep_alive=30,
+        timeout_graceful_shutdown=10
     )
