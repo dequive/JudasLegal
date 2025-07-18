@@ -94,13 +94,13 @@ async def api_status():
 
 if __name__ == "__main__":
     # Always use port 80 for deployment
-    port = 80
+    port = int(os.getenv("PORT", 80))
     
     uvicorn.run(
-        "main:app",
+        app,  # Direct app reference instead of string
         host="0.0.0.0",
         port=port,
-        reload=False,  # Disable reload for production
+        reload=False,  # No reload in production
         workers=1,
         access_log=True,
         log_level="info"

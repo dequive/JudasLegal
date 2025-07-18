@@ -1,22 +1,26 @@
 [project]
 name = "judas-legal-assistant"
 version = "1.0.0"
-description = "Legal assistant for Mozambican law with RAG functionality"
-readme = "README.md"
-requires-python = ">=3.11"
+description = "RAG-powered legal chatbot for Mozambican law"
+authors = [
+    {name = "Judas Legal Assistant", email = "admin@judas.legal"}
+]
 dependencies = [
-    "fastapi",
-    "uvicorn",
-    "sqlalchemy",
-    "psycopg2-binary",
-    "openai",
-    "python-multipart",
-    "pydantic"
+    "fastapi>=0.104.1",
+    "uvicorn[standard]>=0.24.0",
+    "sqlalchemy>=2.0.23",
+    "psycopg2-binary>=2.9.9",
+    "openai>=1.3.0",
+    "pydantic>=2.5.0",
+    "python-multipart>=0.0.6"
 ]
 
-[project.scripts]
-start = "main:main"
+[tool.setuptools]
+py-modules = ["main"]
 
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project.scripts]
+judas = "main:main"

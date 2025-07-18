@@ -1,34 +1,42 @@
 #!/usr/bin/env python3
 """
-Main entry point for Judas Legal Assistant deployment
+Main deployment entry point for Judas Legal Assistant
+Optimized for Replit deployment with health check support
 """
 
 import os
 import sys
-
-# Add current directory to Python path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, current_dir)
-
-# Import and run the FastAPI app
-from main import app
 import uvicorn
 
+# Add current directory to Python path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# Set production environment
+os.environ["REPL_DEPLOYMENT"] = "true"
+os.environ["PYTHONUNBUFFERED"] = "1"
+
+def main():
+    """Main deployment entry point"""
+    try:
+        # Import the FastAPI app
+        from main import app
+        
+        # Run with deployment configuration
+        uvicorn.run(
+            app,
+            host="0.0.0.0",
+            port=80,  # Fixed port 80 for deployment
+            reload=False,  # No reload in production
+            workers=1,
+            access_log=True,
+            log_level="info"
+        )
+        
+    except Exception as e:
+        print(f"Deployment failed: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
 if __name__ == "__main__":
-    # Production configuration
-    port = int(os.getenv("PORT", 80))
-    
-    # Set environment variables for production
-    os.environ["REPL_DEPLOYMENT"] = "true"
-    os.environ["PYTHONUNBUFFERED"] = "1"
-    
-    # Start the server
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=port,
-        reload=False,
-        workers=1,
-        access_log=True,
-        log_level="info"
-    )
+    main()
