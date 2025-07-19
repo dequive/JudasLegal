@@ -3,6 +3,7 @@ import { useChatStore } from '../../store/chatStore';
 import MessageBubble from './MessageBubble';
 import CitationCard from './CitationCard';
 import LoadingSpinner from '../Common/LoadingSpinner';
+import LegalGlossaryPanel from '../LegalGlossaryPanel';
 
 interface Message {
   id: string;
@@ -24,6 +25,7 @@ interface Citation {
 export default function ChatInterface() {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showGlossary, setShowGlossary] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
@@ -121,6 +123,28 @@ export default function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto w-full">
+      {/* Header with glossary button */}
+      <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-white">
+        <div>
+          <h1 className="text-lg font-semibold text-gray-800">
+            Assistente Jurídico Judas
+          </h1>
+          <p className="text-sm text-gray-600">
+            Consulte a legislação moçambicana com explicações contextuais
+          </p>
+        </div>
+        <button
+          onClick={() => setShowGlossary(true)}
+          className="flex items-center space-x-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
+          title="Abrir glossário jurídico"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <span className="hidden sm:inline">Glossário</span>
+        </button>
+      </div>
+
       {/* Chat messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
@@ -223,6 +247,12 @@ export default function ChatInterface() {
           </div>
         )}
       </div>
+
+      {/* Legal Glossary Panel */}
+      <LegalGlossaryPanel 
+        isOpen={showGlossary} 
+        onClose={() => setShowGlossary(false)} 
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import TextWithTooltips from '../TextWithTooltips';
 
 interface Message {
   id: string;
@@ -70,7 +71,14 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                   <p key={index} className={`${index === 0 ? 'mb-2' : 'mb-2'} last:mb-0 ${
                     isUser ? 'text-white' : 'text-gray-800'
                   }`}>
-                    {line}
+                    {isAssistant ? (
+                      <TextWithTooltips 
+                        text={line} 
+                        className={isUser ? 'text-white' : 'text-gray-800'}
+                      />
+                    ) : (
+                      line
+                    )}
                   </p>
                 ))}
               </div>

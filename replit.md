@@ -151,3 +151,37 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Documentos automaticamente disponíveis no chatbot
   - Gestão completa de documentos carregados
   - Monitoramento com estatísticas detalhadas
+
+### 2025-07-19 - Sistema de Tooltips Jurídicos Contextuais Implementado
+
+- **Glossário Jurídico Abrangente**
+  - Base de dados com 30+ termos jurídicos moçambicanos fundamentais
+  - Categorização por área do direito (Civil, Penal, Trabalho, Comercial, etc.)
+  - Definições claras em linguagem acessível
+  - Exemplos práticos para cada termo
+  - Termos relacionados para navegação contextual
+
+- **Sistema de Tooltips Inteligente**
+  - Detecção automática de termos jurídicos em textos
+  - Tooltips contextuais com hover e navegação por teclado
+  - Design responsivo com posicionamento automático
+  - Cores categorizadas por área do direito
+  - Acessibilidade completa (ARIA, foco, navegação)
+
+- **Integração com Chat Principal**
+  - Tooltips ativados automaticamente em respostas do assistente
+  - Botão de acesso ao glossário completo no cabeçalho
+  - Painel lateral com busca e filtros por categoria
+  - Experiência educativa sem interromper o fluxo da conversa
+
+- **Componentes Reutilizáveis Criados**
+  - `LegalTooltip` - Tooltip individual para termos específicos
+  - `TextWithTooltips` - Processamento automático de texto
+  - `LegalGlossaryPanel` - Painel completo do glossário
+  - `TooltipDemo` - Página de demonstração da funcionalidade
+
+- **Funcionalidades Educativas**
+  - Explicações contextuais para jargão jurídico complexo
+  - Sistema de categorias coloridas para fácil identificação
+  - Página de demonstração em `/demo-tooltips`
+  - Melhoria significativa na acessibilidade legal para usuários leigos
