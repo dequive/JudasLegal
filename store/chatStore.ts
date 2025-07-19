@@ -63,7 +63,7 @@ export const useChatStore = create<ChatState>()(
 
       sendMessage: async (message, sessionId) => {
         try {
-          const response = await apiClient.post('/api/chat', {
+          const response = await apiClient.post('/api/chat/send', {
             message,
             session_id: sessionId
           });

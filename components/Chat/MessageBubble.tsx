@@ -45,7 +45,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         <div className={`flex items-start space-x-3 ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
           <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
             isUser 
-              ? 'bg-primary-600 text-white' 
+              ? 'bg-green-600 text-white' 
               : 'bg-gray-600 text-white'
           }`}>
             {isUser ? (
@@ -63,7 +63,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
           <div className={`flex-1 ${isUser ? 'text-right' : 'text-left'}`}>
             <div className={`inline-block px-4 py-2 rounded-lg ${
               isUser 
-                ? 'bg-primary-600 text-white' 
+                ? 'bg-green-600 text-white' 
                 : 'bg-gray-100 text-gray-800'
             }`}>
               <div className="prose prose-sm max-w-none">

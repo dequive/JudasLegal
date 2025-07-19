@@ -21,8 +21,8 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/chat/:path*',
-        destination: 'http://localhost:8000/api/chat/:path*',
+        source: '/api/:path*',
+        destination: 'http://0.0.0.0:80/api/:path*',
       },
     ];
   },

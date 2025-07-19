@@ -14,7 +14,7 @@ export default function LoadingSpinner({
   };
 
   const colorClasses = {
-    primary: 'text-primary-600',
+    primary: 'text-green-600',
     white: 'text-white',
     gray: 'text-gray-600'
   };

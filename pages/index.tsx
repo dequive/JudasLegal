@@ -51,7 +51,7 @@ export default function Home() {
           )}
 
           {/* Welcome section */}
-          <div className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-12">
+          <div className="bg-gradient-to-r from-green-600 to-green-800 text-white py-12">
             <div className="max-w-4xl mx-auto px-4 text-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
                 Assistente Jurídico Judas

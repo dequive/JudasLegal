@@ -213,7 +213,7 @@ export default function ChatInterface() {
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Digite sua consulta jurídica..."
-              className="w-full min-h-[48px] max-h-32 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+              className="w-full min-h-[48px] max-h-32 px-4 py-3 border border-gray-300 rounded-lg focus-ring resize-none"
               disabled={isLoading}
             />
             <div className="absolute bottom-2 right-2 text-xs text-gray-400">
@@ -224,7 +224,7 @@ export default function ChatInterface() {
           <button
             type="submit"
             disabled={!message.trim() || isLoading}
-            className="bg-primary-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+            className="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
           >
             {isLoading ? (
               <LoadingSpinner />
