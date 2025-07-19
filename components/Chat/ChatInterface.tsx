@@ -124,7 +124,7 @@ export default function ChatInterface() {
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto w-full">
       {/* Header with glossary button */}
-      <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-white">
+      <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50">
         <div>
           <h1 className="text-lg font-semibold text-gray-800">
             Assistente Jurídico Judas
@@ -166,7 +166,7 @@ export default function ChatInterface() {
                 <button
                   key={index}
                   onClick={() => setMessage(question)}
-                  className="block w-full p-3 text-left bg-white rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-colors duration-200"
+                  className="block w-full p-3 text-left bg-gray-50 rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-colors duration-200"
                 >
                   <span className="text-gray-800">{question}</span>
                 </button>
@@ -204,7 +204,7 @@ export default function ChatInterface() {
       </div>
 
       {/* Input area */}
-      <div className="border-t border-gray-200 p-4 bg-white">
+      <div className="border-t border-gray-200 p-4 bg-gray-50">
         <form onSubmit={handleSubmit} className="flex space-x-3">
           <div className="flex-1 relative">
             <textarea

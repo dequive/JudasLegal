@@ -1,30 +1,21 @@
-import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Header from '../components/Layout/Header';
-import Footer from '../components/Layout/Footer';
-import ChatInterface from '../components/Chat/ChatInterface';
-import { useChatStore } from '../store/chatStore';
+import { useAuth } from '@/hooks/useAuth';
+import Landing from '@/components/auth/Landing';
+import Home from '@/components/auth/Home';
 
-export default function Home() {
-  const [isOnline, setIsOnline] = useState(true);
-  const { initializeSession } = useChatStore();
+export default function HomePage() {
+  const { isAuthenticated, isLoading } = useAuth();
 
-  useEffect(() => {
-    // Initialize chat session
-    initializeSession();
-
-    // Monitor online/offline status
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, [initializeSession]);
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -37,53 +28,7 @@ export default function Home() {
         <meta property="og:type" content="website" />
       </Head>
 
-      <div className="flex flex-col min-h-screen bg-gray-50">
-        <Header isOnline={isOnline} />
-        
-        <main className="flex-1 flex flex-col">
-          {/* Offline indicator */}
-          {!isOnline && (
-            <div className="bg-accent-500 text-white text-center py-2 px-4">
-              <span className="text-sm font-medium">
-                📱 Modo offline ativo - Consulte leis essenciais
-              </span>
-            </div>
-          )}
-
-          {/* Welcome section */}
-          <div className="bg-gradient-to-r from-green-600 to-green-800 text-white py-12">
-            <div className="max-w-4xl mx-auto px-4 text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                Assistente Jurídico Judas
-              </h1>
-              <p className="text-xl md:text-2xl mb-6 opacity-90">
-                Consultas inteligentes sobre legislação moçambicana
-              </p>
-              <div className="flex flex-wrap justify-center gap-4 text-sm">
-                <span className="bg-white/20 px-3 py-1 rounded-full">
-                  🇲🇿 Direito Moçambicano
-                </span>
-                <span className="bg-white/20 px-3 py-1 rounded-full">
-                  💬 Respostas em Português
-                </span>
-                <span className="bg-white/20 px-3 py-1 rounded-full">
-                  📚 Fontes Verificadas
-                </span>
-                <span className="bg-white/20 px-3 py-1 rounded-full">
-                  📱 Funciona Offline
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Chat interface */}
-          <div className="flex-1 flex">
-            <ChatInterface />
-          </div>
-        </main>
-
-        <Footer />
-      </div>
+      {isAuthenticated ? <Home /> : <Landing />}
     </>
   );
 }

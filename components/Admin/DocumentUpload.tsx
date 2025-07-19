@@ -53,7 +53,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete }) => 
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="max-w-2xl mx-auto p-6 bg-gray-50 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-gray-900">Upload de Documento Legal</h2>
       
       {error && (

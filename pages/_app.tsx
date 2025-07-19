@@ -1,6 +1,9 @@
 import { AppProps } from 'next/app';
 import { useEffect } from 'react';
 import Head from 'next/head';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
+import { TooltipProvider } from '@/contexts/TooltipContext';
 import '../styles/globals.css';
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -26,16 +29,18 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <>
-      <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#00A859" />
-        <meta name="description" content="Assistente jurídico para legislação moçambicana" />
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
-      </Head>
-      <Component {...pageProps} />
-    </>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Head>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta name="theme-color" content="#00A859" />
+          <meta name="description" content="Assistente jurídico para legislação moçambicana" />
+          <link rel="manifest" href="/manifest.json" />
+          <link rel="icon" href="/favicon.ico" />
+          <link rel="apple-touch-icon" href="/icon-192.png" />
+        </Head>
+        <Component {...pageProps} />
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }

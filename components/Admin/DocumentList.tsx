@@ -54,7 +54,7 @@ const DocumentList: React.FC = () => {
 
   if (uploadedDocuments.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-gray-50 rounded-lg shadow-md p-6">
         <h3 className="text-lg font-semibold mb-4">Documentos Carregados</h3>
         <div className="text-center py-8">
           <p className="text-gray-500">Nenhum documento carregado ainda.</p>
@@ -67,7 +67,7 @@ const DocumentList: React.FC = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-gray-50 rounded-lg shadow-md p-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Documentos Carregados</h3>
         <button
@@ -102,7 +102,7 @@ const DocumentList: React.FC = () => {
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-gray-50 divide-y divide-gray-200">
             {uploadedDocuments.map((doc) => (
               <tr key={doc.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">

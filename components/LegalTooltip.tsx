@@ -58,7 +58,7 @@ const LegalTooltip: React.FC<LegalTooltipProps> = ({ term, children, className =
         <div
           ref={tooltipRef}
           id={`tooltip-${term.replace(/\s+/g, '-')}`}
-          className="fixed z-50 max-w-sm p-4 bg-white border border-gray-300 rounded-lg shadow-lg"
+          className="fixed z-50 max-w-sm p-4 bg-gray-50 border border-gray-300 rounded-lg shadow-lg"
           style={{
             top: `${tooltipPosition.top}px`,
             left: `${tooltipPosition.left}px`,
@@ -121,7 +121,7 @@ const LegalTooltip: React.FC<LegalTooltipProps> = ({ term, children, className =
           {/* Seta do tooltip */}
           <div className="absolute top-0 left-4 transform -translate-y-full">
             <div className="border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-gray-300"></div>
-            <div className="absolute top-1 left-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-white"></div>
+            <div className="absolute top-1 left-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-gray-50"></div>
           </div>
         </div>
       )}

@@ -27,7 +27,7 @@ const TooltipDemo: React.FC = () => {
 
       <div className="space-y-4">
         {demoTexts.map((text, index) => (
-          <div key={index} className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+          <div key={index} className="p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
             <TextWithTooltips 
               text={text}
               className="text-gray-800 leading-relaxed"

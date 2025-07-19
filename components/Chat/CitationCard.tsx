@@ -37,7 +37,7 @@ export default function CitationCard({ citation }: CitationCardProps) {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
           <h4 className="font-medium text-gray-900 text-sm mb-1">

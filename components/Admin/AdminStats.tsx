@@ -6,7 +6,7 @@ const AdminStats: React.FC = () => {
 
   if (!stats) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-gray-50 rounded-lg shadow-md p-6">
         <h3 className="text-lg font-semibold mb-4">Estatísticas</h3>
         <div className="animate-pulse">
           <div className="h-4 bg-gray-200 rounded mb-2"></div>
@@ -57,7 +57,7 @@ const AdminStats: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-gray-50 rounded-lg shadow-md p-6">
       <h3 className="text-lg font-semibold mb-4">Estatísticas do Sistema</h3>
       
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">

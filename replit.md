@@ -93,6 +93,38 @@ The system is designed to be easily deployable on cloud platforms with environme
 
 ## Recent Changes: Latest modifications with dates
 
+### 2025-07-19 - Sistema de Autenticação Replit Auth Implementado
+
+- **Autenticação Replit Auth Configurada**
+  - Sistema completo de login/logout com contas Replit
+  - Páginas separadas para usuários logados e não logados
+  - Landing page atrativa para visitantes não autenticados
+  - Dashboard protegido para usuários autenticados
+
+- **Base de Dados PostgreSQL Integrada**
+  - Tabelas de usuários e sessões criadas
+  - Armazenamento seguro de sessões de login
+  - Integração com Drizzle ORM para gerenciamento de dados
+  - Suporte a perfis de usuário com informações do Replit
+
+- **Arquitetura Dual Frontend/Backend**
+  - Servidor Express.js para autenticação na porta 3001
+  - Next.js para interface do usuário na porta 5000
+  - React Query para gerenciamento de estado e API calls
+  - Axios configurado com CORS e credenciais
+
+- **Interface de Usuário Aprimorada**
+  - Landing page com informações sobre o sistema
+  - Header com informações do usuário logado
+  - Sistema de tooltips mantido e integrado
+  - Design responsivo com Tailwind CSS
+
+- **Sistema de Segurança**
+  - Middleware de autenticação para rotas protegidas
+  - Sessões seguras com cookies httpOnly
+  - Proteção CORS configurada para produção
+  - Logout seguro com redirecionamento
+
 ### 2025-07-19 - Sistema Administrativo Completo Implementado
 
 - **Sistema de Autenticação Administrativo Implementado**

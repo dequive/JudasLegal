@@ -57,7 +57,7 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow">
+      <div className="bg-gray-50 shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Navegação Rápida */}
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-gray-50 rounded-lg shadow-md p-6">
               <h3 className="text-lg font-semibold mb-4">Ações Rápidas</h3>
               <div className="space-y-4">
                 <button 
