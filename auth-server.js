@@ -5,7 +5,7 @@ const { Pool } = require('pg');
 const connectPgSimple = require('connect-pg-simple');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = 3001;
 
 // Middleware básico
 app.use(express.json());
@@ -69,13 +69,23 @@ app.get('/api/auth/user', (req, res) => {
   }
 });
 
-// Placeholder login route (será substituído por Replit Auth)
+// Simple authentication setup for development
+console.log('Setting up development authentication');
+
 app.get('/api/login', (req, res) => {
-  // Simular login para teste
-  req.login({ id: '1', email: 'test@example.com', firstName: 'Test', lastName: 'User' }, (err) => {
+  const testUser = { 
+    id: 'test-user-' + Date.now(), 
+    email: 'usuario@exemplo.com', 
+    firstName: 'Usuário', 
+    lastName: 'Teste',
+    profileImageUrl: null
+  };
+  req.login(testUser, (err) => {
     if (err) {
+      console.error('Login error:', err);
       return res.status(500).json({ error: 'Login failed' });
     }
+    console.log('User logged in:', testUser);
     res.redirect('http://localhost:5000');
   });
 });
@@ -83,10 +93,17 @@ app.get('/api/login', (req, res) => {
 app.get('/api/logout', (req, res) => {
   req.logout((err) => {
     if (err) {
+      console.error('Logout error:', err);
       return res.status(500).json({ error: 'Logout failed' });
     }
+    console.log('User logged out');
     res.redirect('http://localhost:5000');
   });
+});
+
+app.get('/api/callback', (req, res) => {
+  // For development, redirect to main app
+  res.redirect('http://localhost:5000');
 });
 
 app.listen(PORT, () => {

@@ -1,8 +1,9 @@
 import os
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
+import httpx
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.ext.declarative import declarative_base
@@ -69,6 +70,52 @@ def root():
 def health_check():
     """Fast health check endpoint"""
     return {"status": "healthy", "service": "judas-legal-api"}
+
+# Auth proxy routes
+@app.get("/api/login")
+async def proxy_login(request: Request):
+    """Proxy login to auth server"""
+    return RedirectResponse(url="http://localhost:3001/api/login", status_code=302)
+
+@app.get("/api/logout")
+async def proxy_logout(request: Request):
+    """Proxy logout to auth server"""
+    return RedirectResponse(url="http://localhost:3001/api/logout", status_code=302)
+
+@app.get("/api/callback")
+async def proxy_callback(request: Request):
+    """Proxy auth callback to auth server"""
+    query_string = str(request.url.query)
+    callback_url = f"http://localhost:3001/api/callback?{query_string}" if query_string else "http://localhost:3001/api/callback"
+    return RedirectResponse(url=callback_url, status_code=302)
+
+@app.get("/api/auth/user")
+async def proxy_auth_user(request: Request):
+    """Proxy user info from auth server"""
+    try:
+        async with httpx.AsyncClient() as client:
+            # Forward cookies and headers
+            headers = dict(request.headers)
+            cookies = dict(request.cookies)
+            
+            response = await client.get(
+                "http://localhost:3001/api/auth/user",
+                headers=headers,
+                cookies=cookies
+            )
+            
+            if response.status_code == 200:
+                return response.json()
+            else:
+                return JSONResponse(
+                    status_code=response.status_code,
+                    content={"message": "Not authenticated"}
+                )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"message": "Auth service unavailable"}
+        )
 
 @app.get("/api/status")
 async def api_status():
