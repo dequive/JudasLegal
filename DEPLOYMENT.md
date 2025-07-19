@@ -1,6 +1,6 @@
 # Guia de Deploy - Judas Legal Assistant
 
-Este guia explica como fazer deploy da aplicação Judas tanto no Railway quanto no DigitalOcean.
+Este guia explica como fazer deploy da aplicação Judas no Railway, DigitalOcean e Vercel.
 
 ## 🚄 Deploy no Railway
 
@@ -171,6 +171,86 @@ ISSUER_URL=https://replit.com/oidc
 NODE_ENV=production
 PORT=5000
 ```
+
+## ⚡ Deploy no Vercel
+
+Vercel é perfeito para aplicações Next.js com deployment automático e gratuito.
+
+### Passo a Passo Vercel:
+
+1. **Preparar arquivos**
+   Os arquivos já estão prontos:
+   - `vercel.json` - Frontend Next.js
+   - `vercel-backend.json` - Backend FastAPI
+   - `vercel-auth.json` - Auth Server Express.js
+
+2. **Instalar Vercel CLI**:
+   ```bash
+   npm install -g vercel
+   vercel login
+   ```
+
+3. **Deploy automático**:
+   ```bash
+   # Execute o script automatizado
+   ./deploy-vercel.sh
+   
+   # Ou deploy manual:
+   vercel --prod
+   ```
+
+4. **Configurar variáveis de ambiente**
+   No dashboard da Vercel (vercel.com), adicione:
+   ```
+   GEMINI_API_KEY=sua_chave_gemini
+   DATABASE_URL=sua_string_postgresql
+   SESSION_SECRET=string_secreta_aleatoria
+   REPL_ID=seu_repl_id
+   REPLIT_DOMAINS=judas-legal-assistant.vercel.app
+   NEXT_PUBLIC_API_URL=https://judas-backend.vercel.app
+   NEXT_PUBLIC_AUTH_URL=https://judas-auth.vercel.app
+   ```
+
+5. **Deploy dos serviços separados**:
+   ```bash
+   # Backend (FastAPI)
+   vercel deploy deploy_server.py --prod --config vercel-backend.json
+   
+   # Auth Server (Express.js) 
+   vercel deploy auth-server.js --prod --config vercel-auth.json
+   ```
+
+### Arquitetura Vercel:
+A aplicação será dividida em 3 deployments:
+- **Frontend**: `judas-legal-assistant.vercel.app`
+- **Backend**: `judas-backend.vercel.app`
+- **Auth Server**: `judas-auth.vercel.app`
+
+### Vantagens do Vercel:
+- ✅ Deployment automático gratuito
+- ✅ SSL e CDN global automático
+- ✅ Otimizado para Next.js
+- ✅ Preview deployments em PRs
+- ✅ Analytics integrado
+- ✅ Serverless functions nativas
+
+### Custos Vercel:
+- Hobby (pessoal): **Gratuito**
+- Pro: $20/mês (para uso comercial)
+- Limites: 100GB bandwidth, 1000 builds/mês
+
+---
+
+## 📊 Comparação de Plataformas
+
+| Recurso | Railway | DigitalOcean | Vercel |
+|---------|---------|--------------|--------|
+| **Preço inicial** | $5/mês | $12/mês | Gratuito |
+| **Setup** | Muito fácil | Médio | Muito fácil |
+| **SSL/CDN** | ✅ Automático | 🔧 Manual | ✅ Automático |
+| **PostgreSQL** | ✅ Gerenciado | 💰 +$15/mês | 🔗 Externo |
+| **Controle** | Médio | Alto | Baixo |
+| **Ideal para** | Protótipos | Produção | Next.js |
 
 ### Como obter as chaves:
 

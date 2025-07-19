@@ -64,13 +64,32 @@ npx next dev -p 5000 -H 0.0.0.0
 - `PORT`: Server port (default: 80 for production, 8000 for development)
 - `REPL_DEPLOYMENT`: Set to "true" for production mode
 
-## Deployment
+## 🚀 Deploy Rápido
 
-The application is configured for deployment on cloud platforms:
+### Vercel (Gratuito - Recomendado)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
+
+```bash
+# Deploy automático com script
+./deploy-vercel.sh
+```
+
+### Railway (Setup fácil)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app)
+
+### DigitalOcean (Controle total)
+```bash
+# Deploy automatizado
+./deploy-digitalocean.sh
+```
+
+📖 **Ver [DEPLOYMENT.md](DEPLOYMENT.md) para guia completo das 3 opções**
+
+## Deployment Features
 
 - **Port Configuration**: Automatically uses port 80 for production
-- **Health Checks**: Simple endpoints for monitoring
-- **Production Mode**: Optimized uvicorn configuration
+- **Health Checks**: Simple endpoints for monitoring  
+- **Production Mode**: Optimized for cloud platforms
 - **CORS**: Configured for cross-origin requests
 
 ## Example Queries

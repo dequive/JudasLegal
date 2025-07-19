@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "name": "judas-backend",
+  "builds": [
+    {
+      "src": "deploy_server.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/deploy_server.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/deploy_server.py"
+    }
+  ],
+  "env": {
+    "GEMINI_API_KEY": "@gemini_api_key",
+    "DATABASE_URL": "@database_url",
+    "PYTHON_PATH": "."
+  },
+  "build": {
+    "env": {
+      "PYTHON_PATH": "."
+    }
+  },
+  "functions": {
+    "deploy_server.py": {
+      "runtime": "python3.11"
+    }
+  }
+}

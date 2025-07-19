@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "name": "judas-auth",
+  "builds": [
+    {
+      "src": "auth-server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/auth-server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/auth-server.js"
+    }
+  ],
+  "env": {
+    "SESSION_SECRET": "@session_secret",
+    "DATABASE_URL": "@database_url",
+    "REPL_ID": "@repl_id",
+    "REPLIT_DOMAINS": "@replit_domains",
+    "ISSUER_URL": "https://replit.com/oidc",
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "auth-server.js": {
+      "runtime": "nodejs20.x"
+    }
+  }
+}

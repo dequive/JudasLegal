@@ -285,32 +285,35 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Página de demonstração em `/demo-tooltips`
   - Melhoria significativa na acessibilidade legal para usuários leigos
 
-### 2025-07-19 - Configuração de Deploy Completa para Produção
+### 2025-07-19 - Configuração de Deploy Completa para 3 Plataformas
 
 - **Arquivos de Deploy Criados**
   - `railway.json` - Configuração específica para Railway
   - `nixpacks.toml` - Build configuration para Railway/Nixpacks
   - `Dockerfile` - Container multi-stage para DigitalOcean
   - `docker-compose.yml` - Orquestração com PostgreSQL
-  - `start_production.py` - Script de produção unificado
-  - `deploy-digitalocean.sh` - Script automatizado de deploy
+  - `vercel.json` - Deploy Next.js no Vercel
+  - `vercel-backend.json` - Backend FastAPI no Vercel
+  - `vercel-auth.json` - Auth Server no Vercel
+  - `deploy-vercel.sh` - Script automatizado para Vercel
+  - `requirements-vercel.txt` - Dependências Python otimizadas
 
 - **Guia de Deploy Abrangente**
-  - `DEPLOYMENT.md` - Documentação completa de deploy
-  - Instruções passo-a-passo para Railway e DigitalOcean
+  - `DEPLOYMENT.md` - Documentação completa das 3 plataformas
+  - Instruções passo-a-passo para Railway, DigitalOcean e Vercel
+  - Comparação detalhada de custos e vantagens
   - Configuração de variáveis de ambiente
   - Setup de domínio e SSL
-  - Comparação de custos e vantagens
 
 - **Suporte a Múltiplas Plataformas**
-  - Railway: Deploy automático com Nixpacks
-  - DigitalOcean: Container Docker otimizado
-  - Ambas com PostgreSQL e configuração de produção
-  - Scripts automatizados para facilitar deployment
+  - **Vercel**: Deploy gratuito otimizado para Next.js com serverless functions
+  - **Railway**: Deploy automático com Nixpacks ($5/mês)
+  - **DigitalOcean**: Container Docker com controle total ($12/mês)
+  - Scripts automatizados para todas as plataformas
 
 - **Configuração de Produção Otimizada**
-  - Multi-processo: Auth server, FastAPI backend, Next.js frontend
+  - Arquitetura multi-serviços: Auth, Backend, Frontend
+  - Proxying inteligente baseado no ambiente (dev vs prod)
   - Health checks e graceful shutdown
-  - Variáveis de ambiente documentadas
-  - SSL e proxy reverso configurados
-  - Logs centralizados e monitoramento
+  - SSL automático (Vercel/Railway) ou manual (DigitalOcean)
+  - Monitoramento e logs centralizados

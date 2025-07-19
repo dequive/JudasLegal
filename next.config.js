@@ -97,16 +97,24 @@ const nextConfig = {
     ];
   },
   
-  // API proxy configuration
+  // API proxy configuration - different for development vs production
   async rewrites() {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const authUrl = isProduction 
+      ? process.env.NEXT_PUBLIC_AUTH_URL || 'https://judas-auth.vercel.app'
+      : 'http://0.0.0.0:3001';
+    const apiUrl = isProduction
+      ? process.env.NEXT_PUBLIC_API_URL || 'https://judas-backend.vercel.app'
+      : 'http://0.0.0.0:80';
+
     return [
       {
         source: '/api/auth/:path*',
-        destination: 'http://0.0.0.0:3001/api/:path*',
+        destination: `${authUrl}/api/:path*`,
       },
       {
         source: '/api/:path*',
-        destination: 'http://0.0.0.0:80/api/:path*',
+        destination: `${apiUrl}/api/:path*`,
       },
     ];
   },
