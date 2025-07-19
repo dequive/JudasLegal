@@ -3,7 +3,7 @@ import asyncio
 from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from models import LegalDocument, DocumentEmbedding, ChatMessage, ChatSession
-from services.openai_service import OpenAIService
+from services.gemini_service import GeminiService
 from utils.text_processing import TextProcessor
 import uuid
 from datetime import datetime
@@ -11,7 +11,7 @@ from datetime import datetime
 class RAGService:
     def __init__(self, db: Session):
         self.db = db
-        self.openai_service = OpenAIService()
+        self.gemini_service = GeminiService()
         self.text_processor = TextProcessor()
     
     async def process_query(self, query: str, session_id: str) -> Dict[str, Any]:
@@ -100,14 +100,14 @@ class RAGService:
         session_id: str
     ) -> Dict[str, Any]:
         """
-        Generate legal response with proper citations using OpenAI
+        Generate legal response with proper citations using Gemini
         """
         try:
             # Prepare context from relevant documents
             context = self.prepare_context(relevant_docs)
             
-            # Generate response using OpenAI
-            response = await self.openai_service.generate_legal_response(
+            # Generate response using Gemini
+            response = await self.gemini_service.generate_legal_response(
                 query, context, relevant_docs
             )
             

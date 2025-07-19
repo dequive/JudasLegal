@@ -20,7 +20,7 @@ Preferred communication style: Simple, everyday language.
 ### Backend Architecture
 - **Framework**: FastAPI with Python 3.11
 - **Database**: PostgreSQL with SQLAlchemy ORM
-- **AI Integration**: OpenAI GPT-4o for response generation
+- **AI Integration**: Google Gemini 2.0 Flash for response generation
 - **RAG Pipeline**: Custom retrieval-augmented generation system
 - **API Design**: RESTful API with structured response formats
 
@@ -34,7 +34,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Core Services
 - **RAGService**: Main pipeline for query processing and response generation
-- **OpenAIService**: Handles AI model interactions with legal-specific prompts
+- **GeminiService**: Handles AI model interactions with legal-specific prompts
 - **TextProcessor**: Portuguese text preprocessing and normalization
 
 ### Frontend Components
@@ -48,14 +48,14 @@ Preferred communication style: Simple, everyday language.
 1. **User Input**: User submits legal query through chat interface
 2. **Query Processing**: TextProcessor normalizes Portuguese text
 3. **Document Retrieval**: RAGService searches for relevant legal documents
-4. **Response Generation**: OpenAIService generates response with citations
+4. **Response Generation**: GeminiService generates response with citations
 5. **UI Update**: Chat interface displays response with citation cards
 6. **Session Management**: Messages stored in database for history
 
 ## External Dependencies
 
 ### AI Services
-- **OpenAI GPT-4o**: For intelligent response generation
+- **Google Gemini 2.0 Flash**: For intelligent response generation (free API)
 - **Custom Embeddings**: Planned vector similarity search (currently text-based)
 
 ### Frontend Libraries
@@ -68,7 +68,7 @@ Preferred communication style: Simple, everyday language.
 ### Backend Libraries
 - **FastAPI**: Modern Python web framework
 - **SQLAlchemy**: Database ORM
-- **OpenAI**: Official OpenAI Python client
+- **Google Generative AI**: Official Google Gemini Python client
 - **Uvicorn**: ASGI server
 
 ## Deployment Strategy
@@ -80,7 +80,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Environment Configuration
 - **Database**: PostgreSQL with connection string configuration
-- **API Keys**: OpenAI API key for AI services
+- **API Keys**: Google Gemini API key for AI services
 - **CORS**: Configured for cross-origin requests between frontend and backend
 
 ### Production Considerations
@@ -151,6 +151,27 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Documentos automaticamente disponíveis no chatbot
   - Gestão completa de documentos carregados
   - Monitoramento com estatísticas detalhadas
+
+### 2025-07-19 - Migração Completa de OpenAI para Google Gemini
+
+- **Migração de IA Bem-Sucedida**
+  - Substituição completa do OpenAI GPT-4o pelo Google Gemini 2.0 Flash
+  - API gratuita do Gemini configurada e funcionando
+  - Eliminação das limitações de quota do OpenAI
+  - Manutenção de todas as funcionalidades existentes
+
+- **Novo Serviço GeminiService Implementado**
+  - Equivalência funcional ao OpenAIService anterior
+  - Prompts otimizados para o modelo Gemini
+  - Resposta em formato JSON estruturado
+  - Sistema de fallback mantido para robustez
+
+- **Sistema de Tooltips Aprimorado**
+  - Hook personalizado useTooltip com gerenciamento global
+  - Contexto TooltipContext para estado compartilhado
+  - Navegação por teclado melhorada (Enter, Espaço, Escape)
+  - Feedback visual aprimorado com estados hover/active
+  - Acessibilidade ARIA completa implementada
 
 ### 2025-07-19 - Sistema de Tooltips Jurídicos Contextuais Implementado
 
