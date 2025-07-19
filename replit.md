@@ -291,14 +291,16 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Migração completa do PostgreSQL local para Supabase
   - Guia detalhado de setup (SUPABASE_SETUP.md)
   - 500MB gratuitos com interface visual de administração
-  - Connection string configurada para Vercel deploy
+  - Connection string configurada: `postgresql://postgres:Wez0@821722@db.dcqftukouimxugezypwd.supabase.co:5432/postgres`
   - Backups automáticos e APIs REST integradas
 
 - **Scripts de Deploy Vercel Otimizados**
   - Script automatizado de configuração de variáveis (vercel-env-setup.sh)
+  - Deploy imediato configurado (deploy-now.sh) com credenciais do usuário
   - Guias específicos para Supabase em todos os documentos
   - Integração completa Supabase + Vercel + Gemini AI
   - Deploy gratuito com 0 custos de infraestrutura
+  - REPL_ID configurado: "Judas"
 
 ### 2025-07-19 - Configuração de Deploy Completa para 3 Plataformas
 
