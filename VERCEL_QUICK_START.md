@@ -14,7 +14,20 @@ Os arquivos já estão configurados:
 - ✅ `deploy-vercel.sh` - Script automatizado
 - ✅ `requirements-vercel.txt` - Dependências Python
 
-## 2. Deploy Automático
+## 2. Configurar Variáveis de Ambiente
+
+```bash
+# Script automatizado para configurar todas as variáveis
+./vercel-env-setup.sh
+```
+
+Você será solicitado a fornecer:
+- GEMINI_API_KEY (da Google AI Studio)
+- DATABASE_URL (PostgreSQL gratuito)
+- SESSION_SECRET (será gerado automaticamente)
+- REPL_ID (do seu projeto atual)
+
+## 3. Deploy Automático
 
 ```bash
 # Instalar Vercel CLI (se não tiver)

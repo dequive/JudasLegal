@@ -296,14 +296,17 @@ The system is designed to be easily deployable on cloud platforms with environme
   - `vercel-backend.json` - Backend FastAPI no Vercel
   - `vercel-auth.json` - Auth Server no Vercel
   - `deploy-vercel.sh` - Script automatizado para Vercel
+  - `vercel-env-setup.sh` - Configuração automática de variáveis
   - `requirements-vercel.txt` - Dependências Python otimizadas
 
-- **Guia de Deploy Abrangente**
+- **Documentação de Deploy Abrangente**
   - `DEPLOYMENT.md` - Documentação completa das 3 plataformas
+  - `VERCEL_QUICK_START.md` - Guia rápido específico para Vercel
+  - `vercel-setup.md` - Tutorial detalhado de configuração de variáveis
+  - `.env.vercel` - Template com todas as variáveis necessárias
   - Instruções passo-a-passo para Railway, DigitalOcean e Vercel
   - Comparação detalhada de custos e vantagens
-  - Configuração de variáveis de ambiente
-  - Setup de domínio e SSL
+  - Scripts automatizados para configuração de ambiente
 
 - **Suporte a Múltiplas Plataformas**
   - **Vercel**: Deploy gratuito otimizado para Next.js com serverless functions
