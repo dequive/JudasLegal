@@ -9,15 +9,14 @@ from sqlalchemy.ext.declarative import declarative_base
 from contextlib import asynccontextmanager
 
 # Import models and services
-from models import Base, LegalDocument, ChatSession, DocumentEmbedding
+from models import Base, LegalDocument, ChatSession, DocumentEmbedding, User, UploadedDocument
 from api.chat import router as chat_router
+from api.auth import router as auth_router
+from api.admin import router as admin_router
 from database.init_data import initialize_legal_documents
 
 # Database setup
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/judas_db")
-
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+from database.connection import engine, SessionLocal
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -58,6 +57,8 @@ app.add_middleware(
 
 # Include routers
 app.include_router(chat_router, prefix="/api/chat", tags=["chat"])
+app.include_router(auth_router, prefix="/api", tags=["auth"])
+app.include_router(admin_router, prefix="/api", tags=["admin"])
 
 @app.get("/")
 def root():

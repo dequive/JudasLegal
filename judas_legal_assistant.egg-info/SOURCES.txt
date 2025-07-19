@@ -1,0 +1,9 @@
+README.md
+main.py
+pyproject.toml
+judas_legal_assistant.egg-info/PKG-INFO
+judas_legal_assistant.egg-info/SOURCES.txt
+judas_legal_assistant.egg-info/dependency_links.txt
+judas_legal_assistant.egg-info/entry_points.txt
+judas_legal_assistant.egg-info/requires.txt
+judas_legal_assistant.egg-info/top_level.txt

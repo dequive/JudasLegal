@@ -1,0 +1,664 @@
+# Prompt - Adição de Funcionalidades Admin para Upload de Leis
+
+## Objetivo
+Adicionar ao Projeto Judas existente duas funcionalidades administrativas críticas:
+1. **Upload de documentos legais** (PDF, DOCX, TXT) via backend
+2. **Sistema de autenticação e autorização** para administradores
+
+## Funcionalidade 1: Upload de Documentos Legais
+
+### Backend - Endpoints de Upload
+
+#### Estrutura de Arquivos Adicional
+```
+backend/
+├── app/
+│   ├── services/
+│   │   ├── document_processor.py (NOVO)
+│   │   ├── file_upload_service.py (NOVO)
+│   │   └── embedding_generator.py (NOVO)
+│   ├── api/
+│   │   └── admin.py (NOVO)
+│   ├── utils/
+│   │   ├── pdf_parser.py (NOVO)
+│   │   ├── docx_parser.py (NOVO)
+│   │   └── text_chunker.py (NOVO)
+│   └── middleware/
+│       └── auth_middleware.py (NOVO)
+├── uploads/ (NOVO - pasta para arquivos temporários)
+└── processed/ (NOVO - pasta para arquivos processados)
+```
+
+#### Implementação Requerida
+
+```python
+# file_upload_service.py
+from fastapi import UploadFile, HTTPException
+from typing import List, Dict, Any
+import asyncio
+from pathlib import Path
+
+class DocumentUploadService:
+    def __init__(self):
+        self.supported_formats = ['.pdf', '.docx', '.txt']
+        self.max_file_size = 50 * 1024 * 1024  # 50MB
+        self.upload_dir = Path("uploads")
+        
+    async def process_uploaded_file(
+        self, 
+        file: UploadFile, 
+        metadata: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Processa arquivo carregado:
+        1. Valida formato e tamanho
+        2. Extrai texto conforme formato
+        3. Chunking inteligente
+        4. Gera embeddings
+        5. Salva na base de dados
+        """
+        
+    async def validate_file(self, file: UploadFile) -> bool:
+        """Validação de formato e tamanho"""
+        
+    async def extract_text(self, file_path: Path, format: str) -> str:
+        """Extração de texto por formato"""
+        
+    async def chunk_document(self, text: str, metadata: Dict) -> List[Dict]:
+        """Divisão inteligente em chunks"""
+        
+    async def generate_embeddings(self, chunks: List[str]) -> List[List[float]]:
+        """Geração de embeddings vetoriais"""
+        
+    async def save_to_database(
+        self, 
+        chunks: List[Dict], 
+        embeddings: List[List[float]]
+    ) -> int:
+        """Salvamento na PostgreSQL + pgvector"""
+```
+
+```python
+# document_processor.py
+import PyPDF2
+import docx
+from sentence_transformers import SentenceTransformer
+from typing import List, Tuple
+
+class DocumentProcessor:
+    def __init__(self):
+        self.embedding_model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+        
+    async def process_pdf(self, file_path: str) -> str:
+        """
+        Extrai texto de PDF usando PyPDF2
+        Fallback para OCR se necessário (Tesseract)
+        """
+        
+    async def process_docx(self, file_path: str) -> str:
+        """Extrai texto de DOCX preservando formatação"""
+        
+    async def process_txt(self, file_path: str) -> str:
+        """Processa TXT com encoding detection"""
+        
+    def intelligent_chunking(self, text: str, chunk_size: int = 1000) -> List[str]:
+        """
+        Chunking inteligente respeitando:
+        - Parágrafos
+        - Artigos de lei
+        - Seções lógicas
+        """
+        
+    async def generate_embeddings_batch(self, texts: List[str]) -> List[List[float]]:
+        """Geração de embeddings em lote para eficiência"""
+```
+
+```python
+# api/admin.py
+from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.orm import Session
+from typing import List, Optional
+
+router = APIRouter(prefix="/admin", tags=["admin"])
+security = HTTPBearer()
+
+@router.post("/upload-document")
+async def upload_legal_document(
+    file: UploadFile = File(...),
+    title: str = Form(...),
+    law_type: str = Form(...),
+    source: str = Form(...),
+    description: Optional[str] = Form(None),
+    current_user: dict = Depends(verify_admin_token),
+    db: Session = Depends(get_database)
+):
+    """
+    Upload de documento legal com processamento completo:
+    - Validação de arquivo
+    - Extração de texto
+    - Chunking inteligente  
+    - Geração de embeddings
+    - Salvamento na BD
+    """
+    
+    try:
+        # 1. Validar arquivo
+        if not await upload_service.validate_file(file):
+            raise HTTPException(400, "Formato ou tamanho inválido")
+            
+        # 2. Processar documento
+        result = await upload_service.process_uploaded_file(
+            file=file,
+            metadata={
+                "title": title,
+                "law_type": law_type,
+                "source": source,
+                "description": description,
+                "uploaded_by": current_user["user_id"]
+            }
+        )
+        
+        return {
+            "status": "success",
+            "document_id": result["document_id"],
+            "chunks_created": result["chunks_count"],
+            "message": f"Documento '{title}' processado com sucesso"
+        }
+        
+    except Exception as e:
+        raise HTTPException(500, f"Erro ao processar documento: {str(e)}")
+
+@router.get("/documents")
+async def list_uploaded_documents(
+    current_user: dict = Depends(verify_admin_token),
+    db: Session = Depends(get_database)
+):
+    """Lista todos os documentos carregados"""
+    
+@router.delete("/documents/{document_id}")
+async def delete_document(
+    document_id: int,
+    current_user: dict = Depends(verify_admin_token),
+    db: Session = Depends(get_database)
+):
+    """Remove documento e seus embeddings"""
+    
+@router.post("/reprocess-document/{document_id}")
+async def reprocess_document(
+    document_id: int,
+    current_user: dict = Depends(verify_admin_token)
+):
+    """Reprocessa documento existente com novos parâmetros"""
+```
+
+### Dependências Adicionais
+
+```txt
+# Adicionar ao requirements.txt
+PyPDF2==3.0.1
+python-docx==1.1.0
+python-multipart==0.0.6
+sentence-transformers==2.2.2
+pytesseract==0.3.10  # Para OCR fallback
+Pillow==10.1.0  # Para processamento de imagem
+chardet==5.2.0  # Para detecção de encoding
+aiofiles==23.2.0  # Para operações async de arquivo
+```
+
+### Schema de Base de Dados Atualizado
+
+```sql
+-- Adicionar ao init.sql existente
+
+-- Tabela para tracking de uploads
+CREATE TABLE uploaded_documents (
+    id SERIAL PRIMARY KEY,
+    original_filename VARCHAR(255) NOT NULL,
+    title VARCHAR(500) NOT NULL,
+    law_type VARCHAR(100) NOT NULL,
+    source VARCHAR(200) NOT NULL,
+    description TEXT,
+    file_size INTEGER,
+    file_format VARCHAR(10),
+    processing_status VARCHAR(20) DEFAULT 'pending',
+    uploaded_by INTEGER REFERENCES users(id),
+    uploaded_at TIMESTAMP DEFAULT NOW(),
+    processed_at TIMESTAMP,
+    chunks_count INTEGER DEFAULT 0,
+    error_message TEXT
+);
+
+-- Índices para performance
+CREATE INDEX idx_uploaded_docs_status ON uploaded_documents(processing_status);
+CREATE INDEX idx_uploaded_docs_type ON uploaded_documents(law_type);
+CREATE INDEX idx_uploaded_docs_date ON uploaded_documents(uploaded_at);
+
+-- Atualizar tabela legal_documents
+ALTER TABLE legal_documents ADD COLUMN uploaded_doc_id INTEGER REFERENCES uploaded_documents(id);
+ALTER TABLE legal_documents ADD COLUMN chunk_index INTEGER DEFAULT 0;
+ALTER TABLE legal_documents ADD COLUMN processing_metadata JSONB;
+```
+
+## Funcionalidade 2: Sistema de Autenticação Admin
+
+### Implementação de Auth
+
+```python
+# models/user.py
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Enum
+from sqlalchemy.ext.declarative import declarative_base
+import enum
+
+Base = declarative_base()
+
+class UserRole(enum.Enum):
+    SUPERADMIN = "superadmin"
+    ADMIN = "admin"
+    USER = "user"
+
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(50), unique=True, index=True)
+    email = Column(String(100), unique=True, index=True)
+    hashed_password = Column(String(255))
+    role = Column(Enum(UserRole), default=UserRole.USER)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime)
+    last_login = Column(DateTime)
+```
+
+```python
+# middleware/auth_middleware.py
+from fastapi import HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from datetime import datetime, timedelta
+
+security = HTTPBearer()
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+SECRET_KEY = "sua-chave-secreta-super-segura"  # Use variável ambiente
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise HTTPException(401, "Token inválido")
+        return payload
+    except JWTError:
+        raise HTTPException(401, "Token inválido")
+
+async def verify_admin_token(token_data: dict = Depends(verify_token)):
+    role = token_data.get("role")
+    if role not in ["admin", "superadmin"]:
+        raise HTTPException(403, "Permissões insuficientes")
+    return token_data
+
+async def verify_superadmin_token(token_data: dict = Depends(verify_token)):
+    role = token_data.get("role")
+    if role != "superadmin":
+        raise HTTPException(403, "Apenas superadmin")
+    return token_data
+```
+
+```python
+# api/auth.py
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+
+router = APIRouter(prefix="/auth", tags=["auth"])
+
+@router.post("/login")
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_database)
+):
+    """
+    Autenticação de administrador:
+    - Valida credenciais
+    - Gera JWT token
+    - Retorna token de acesso
+    """
+    
+    user = authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(401, "Credenciais inválidas")
+        
+    if user.role not in ["admin", "superadmin"]:
+        raise HTTPException(403, "Sem permissões administrativas")
+        
+    access_token = create_access_token(
+        data={
+            "sub": user.username,
+            "user_id": user.id,
+            "role": user.role.value
+        }
+    )
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "role": user.role.value
+    }
+
+@router.post("/create-admin")
+async def create_admin_user(
+    username: str,
+    email: str,
+    password: str,
+    current_user: dict = Depends(verify_superadmin_token)
+):
+    """Criar novo usuário admin (apenas superadmin)"""
+```
+
+### Frontend Admin Interface
+
+```typescript
+// components/Admin/DocumentUpload.tsx
+import React, { useState } from 'react';
+import { useAdminStore } from '@/store/adminStore';
+
+interface DocumentUploadProps {
+  onUploadComplete: () => void;
+}
+
+const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete }) => {
+  const [file, setFile] = useState<File | null>(null);
+  const [metadata, setMetadata] = useState({
+    title: '',
+    law_type: '',
+    source: '',
+    description: ''
+  });
+  const [uploading, setUploading] = useState(false);
+  const { uploadDocument } = useAdminStore();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      await uploadDocument(file, metadata);
+      onUploadComplete();
+      // Reset form
+      setFile(null);
+      setMetadata({ title: '', law_type: '', source: '', description: '' });
+    } catch (error) {
+      console.error('Erro no upload:', error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6">Upload de Documento Legal</h2>
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* File Upload */}
+        <div>
+          <label className="block text-sm font-medium mb-2">
+            Arquivo (PDF, DOCX, TXT)
+          </label>
+          <input
+            type="file"
+            accept=".pdf,.docx,.txt"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            className="block w-full border rounded-md p-2"
+            required
+          />
+        </div>
+
+        {/* Metadata Fields */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Título</label>
+          <input
+            type="text"
+            value={metadata.title}
+            onChange={(e) => setMetadata({...metadata, title: e.target.value})}
+            className="block w-full border rounded-md p-2"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Tipo de Lei</label>
+          <select
+            value={metadata.law_type}
+            onChange={(e) => setMetadata({...metadata, law_type: e.target.value})}
+            className="block w-full border rounded-md p-2"
+            required
+          >
+            <option value="">Selecionar tipo</option>
+            <option value="constituicao">Constituição</option>
+            <option value="codigo_civil">Código Civil</option>
+            <option value="codigo_penal">Código Penal</option>
+            <option value="lei_trabalho">Lei do Trabalho</option>
+            <option value="decreto">Decreto</option>
+            <option value="outros">Outros</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Fonte</label>
+          <input
+            type="text"
+            value={metadata.source}
+            onChange={(e) => setMetadata({...metadata, source: e.target.value})}
+            placeholder="Ex: Boletim da República, Série I, nº 12"
+            className="block w-full border rounded-md p-2"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Descrição (opcional)</label>
+          <textarea
+            value={metadata.description}
+            onChange={(e) => setMetadata({...metadata, description: e.target.value})}
+            rows={3}
+            className="block w-full border rounded-md p-2"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={!file || uploading}
+          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
+        >
+          {uploading ? 'Processando...' : 'Fazer Upload'}
+        </button>
+      </form>
+      
+      {uploading && (
+        <div className="mt-4 p-4 bg-blue-50 rounded-md">
+          <div className="text-sm text-blue-700">
+            Processando documento... Isto pode demorar alguns minutos.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DocumentUpload;
+```
+
+```typescript
+// store/adminStore.ts
+import { create } from 'zustand';
+
+interface AdminState {
+  token: string | null;
+  isAuthenticated: boolean;
+  userRole: string | null;
+  uploadedDocuments: any[];
+  
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
+  uploadDocument: (file: File, metadata: DocumentMetadata) => Promise<void>;
+  fetchDocuments: () => Promise<void>;
+  deleteDocument: (id: number) => Promise<void>;
+}
+
+export const useAdminStore = create<AdminState>((set, get) => ({
+  token: localStorage.getItem('admin_token'),
+  isAuthenticated: !!localStorage.getItem('admin_token'),
+  userRole: localStorage.getItem('user_role'),
+  uploadedDocuments: [],
+
+  login: async (credentials) => {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(credentials)
+    });
+
+    if (!response.ok) throw new Error('Login failed');
+
+    const data = await response.json();
+    localStorage.setItem('admin_token', data.access_token);
+    localStorage.setItem('user_role', data.role);
+    
+    set({
+      token: data.access_token,
+      isAuthenticated: true,
+      userRole: data.role
+    });
+  },
+
+  uploadDocument: async (file, metadata) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    Object.entries(metadata).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    const response = await fetch('/api/admin/upload-document', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${get().token}`
+      },
+      body: formData
+    });
+
+    if (!response.ok) throw new Error('Upload failed');
+    
+    // Refresh document list
+    get().fetchDocuments();
+  },
+
+  // ... outras funções
+}));
+```
+
+### Rotas Admin Protegidas
+
+```typescript
+// pages/admin/index.tsx
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { useAdminStore } from '@/store/adminStore';
+import DocumentUpload from '@/components/Admin/DocumentUpload';
+
+const AdminDashboard = () => {
+  const router = useRouter();
+  const { isAuthenticated, userRole } = useAdminStore();
+
+  useEffect(() => {
+    if (!isAuthenticated || !['admin', 'superadmin'].includes(userRole)) {
+      router.push('/admin/login');
+    }
+  }, [isAuthenticated, userRole, router]);
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-3xl font-bold mb-8">Painel Administrativo - Judas</h1>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <DocumentUpload onUploadComplete={() => console.log('Upload complete')} />
+          {/* Outros componentes admin */}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminDashboard;
+```
+
+## Instruções de Implementação
+
+### 1. Backend Setup
+```bash
+# Instalar dependências adicionais
+pip install PyPDF2 python-docx python-multipart pytesseract python-jose[cryptography] passlib[bcrypt]
+
+# Criar pastas necessárias
+mkdir -p uploads processed
+```
+
+### 2. Database Migration
+```sql
+-- Executar scripts SQL para criar tabelas de usuários e uploads
+-- Criar usuário superadmin inicial
+INSERT INTO users (username, email, hashed_password, role, is_active, created_at) 
+VALUES ('superadmin', 'admin@judas.mz', '$2b$12$...', 'superadmin', true, NOW());
+```
+
+### 3. Environment Variables
+```env
+# Adicionar ao .env
+JWT_SECRET_KEY=sua-chave-jwt-super-segura-aqui
+UPLOAD_MAX_SIZE=52428800  # 50MB
+TESSERACT_CMD=/usr/bin/tesseract  # Para OCR
+```
+
+### 4. Frontend Routes
+```
+/admin/login - Login administrativo
+/admin/dashboard - Painel principal
+/admin/upload - Upload de documentos
+/admin/documents - Lista de documentos
+```
+
+## Resultado Esperado
+
+Após implementação, o sistema terá:
+
+1. **Interface de upload segura** para administradores
+2. **Processamento automático** de PDF, DOCX e TXT
+3. **Chunking inteligente** respeitando estrutura legal
+4. **Geração automática de embeddings**
+5. **Sistema de autenticação robusto** com roles
+6. **Dashboard administrativo** funcional
+7. **Gestão completa de documentos** carregados
+
+O administrador poderá fazer upload de qualquer lei moçambicana e ela ficará automaticamente disponível para consulta no chatbot, com citações precisas e verificáveis.
