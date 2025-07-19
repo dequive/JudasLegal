@@ -204,48 +204,82 @@ export default function ChatInterface() {
       </div>
 
       {/* Input area */}
-      <div className="border-t border-gray-200 p-4 bg-gray-50">
-        <form onSubmit={handleSubmit} className="flex space-x-3">
+      <div className="p-6 border-t border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-blue-50/50 backdrop-blur-sm">
+        <form onSubmit={handleSubmit} className="flex items-end space-x-4">
           <div className="flex-1 relative">
             <textarea
               ref={textareaRef}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Digite sua consulta jurídica..."
-              className="w-full min-h-[48px] max-h-32 px-4 py-3 border border-gray-300 rounded-lg focus-ring resize-none"
+              placeholder="Digite sua pergunta jurídica aqui... (Shift+Enter para nova linha)"
               disabled={isLoading}
+              rows={1}
+              className="w-full px-6 py-4 pr-12 border-2 border-gray-200/50 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 bg-white/80 backdrop-blur-sm shadow-lg text-gray-800 placeholder-gray-400"
+              style={{ minHeight: '56px', maxHeight: '120px' }}
             />
-            <div className="absolute bottom-2 right-2 text-xs text-gray-400">
-              Enter para enviar
+            {/* Character count */}
+            <div className="absolute bottom-2 right-4 text-xs text-gray-400">
+              {message.length > 0 && `${message.length} caracteres`}
             </div>
           </div>
-          
           <button
             type="submit"
             disabled={!message.trim() || isLoading}
-            className="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+            className="group relative flex items-center justify-center w-14 h-14 bg-gradient-to-r from-emerald-500 to-blue-500 text-white rounded-2xl hover:from-emerald-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:hover:scale-100"
           >
             {isLoading ? (
-              <LoadingSpinner />
+              <div className="flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              </div>
             ) : (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
+              <>
+                <svg className="w-6 h-6 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                {/* Glow effect */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-500 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity duration-200 blur-sm"></div>
+              </>
             )}
           </button>
         </form>
         
+        {/* Loading state */}
+        {isLoading && (
+          <div className="mt-4 flex items-center justify-center space-x-3 text-sm text-gray-600">
+            <div className="flex space-x-1">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+              <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            </div>
+            <span className="font-medium">Consultando legislação moçambicana com IA Gemini...</span>
+          </div>
+        )}
+
+        {/* Clear conversation button */}
         {messages.length > 0 && (
-          <div className="mt-3 flex justify-center">
+          <div className="mt-4 flex justify-center">
             <button
               onClick={clearMessages}
-              className="text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200"
+              className="text-sm text-gray-500 hover:text-gray-700 px-4 py-2 rounded-full hover:bg-white/60 transition-all duration-200"
             >
-              Limpar conversa
+              🗑️ Limpar conversa
             </button>
           </div>
         )}
+
+        {/* Quick tips */}
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-gray-500">
+          <span className="px-3 py-1 bg-white/60 rounded-full border border-gray-200/50">
+            💡 Dica: Seja específico em suas perguntas
+          </span>
+          <span className="px-3 py-1 bg-white/60 rounded-full border border-gray-200/50">
+            📚 Use termos como "artigo", "lei" ou "decreto"
+          </span>
+          <span className="px-3 py-1 bg-white/60 rounded-full border border-gray-200/50">
+            ⚡ Gemini AI responde instantaneamente
+          </span>
+        </div>
       </div>
 
       {/* Legal Glossary Panel */}
