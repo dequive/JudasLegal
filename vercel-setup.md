@@ -44,20 +44,23 @@ NODE_ENV = production
 3. Crie uma nova chave
 4. Copie a chave (formato: `AIzaSyA...`)
 
-### 🐘 DATABASE_URL (PostgreSQL Gratuito)
+### 🐘 DATABASE_URL (Supabase PostgreSQL)
 
-**Opção 1: Neon (Recomendado)**
-1. Acesse [neon.tech](https://neon.tech)
-2. Crie conta gratuita
-3. Crie um novo projeto
-4. Copie a connection string
-5. Formato: `postgresql://user:password@host/database`
-
-**Opção 2: Supabase**
+**Configuração no Supabase:**
 1. Acesse [supabase.com](https://supabase.com)
-2. Crie projeto gratuito
-3. Vá em Settings > Database
-4. Copie a URI
+2. Crie uma conta gratuita
+3. Clique em "New project"
+4. Escolha organização e nome do projeto
+5. Crie uma senha forte para o banco
+6. Selecione região (ex: East US)
+7. Aguarde a criação do projeto
+
+**Obter Connection String:**
+1. No dashboard, vá em **Settings > Database**
+2. Na seção "Connection parameters"
+3. Copie a **"Connection string"**
+4. Substitua `[YOUR-PASSWORD]` pela senha criada
+5. Formato: `postgresql://postgres:senha@host.supabase.co:5432/postgres`
 
 ### 🔐 SESSION_SECRET
 Gere uma string aleatória segura:

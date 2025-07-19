@@ -74,11 +74,11 @@ NODE_ENV=production
 2. Clique em "Get API key"
 3. Crie uma chave gratuita
 
-### 🐘 DATABASE_URL (PostgreSQL)
-Opções gratuitas:
-- **Neon**: [neon.tech](https://neon.tech) - Gratuito até 500MB
-- **Supabase**: [supabase.com](https://supabase.com) - Gratuito até 500MB
-- **Aiven**: [aiven.io](https://aiven.io) - Trial gratuito
+### 🐘 DATABASE_URL (Supabase PostgreSQL)
+1. Acesse [supabase.com](https://supabase.com) 
+2. Crie projeto gratuito (até 500MB)
+3. Settings > Database > Connection string
+4. Substitua `[YOUR-PASSWORD]` pela sua senha
 
 ### 🔐 SESSION_SECRET
 ```bash

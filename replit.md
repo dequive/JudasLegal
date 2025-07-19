@@ -2,7 +2,7 @@
 
 ## Overview
 
-Judas is a Progressive Web Application (PWA) that provides an intelligent legal assistant for Mozambican law. The system uses RAG (Retrieval-Augmented Generation) technology to help users understand legal documents and regulations through natural language queries in Portuguese. The application features offline functionality, citation-based responses, and a responsive chat interface.
+Judas is a Progressive Web Application (PWA) that provides an intelligent legal assistant for Mozambican law. The system uses RAG (Retrieval-Augmented Generation) technology to help users understand legal documents and regulations through natural language queries in Portuguese. The application features offline functionality, citation-based responses, responsive chat interface, and uses Supabase as the database solution.
 
 ## User Preferences
 
@@ -19,7 +19,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Backend Architecture
 - **Framework**: FastAPI with Python 3.11
-- **Database**: PostgreSQL with SQLAlchemy ORM
+- **Database**: Supabase PostgreSQL with SQLAlchemy ORM
 - **AI Integration**: Google Gemini 2.0 Flash for response generation
 - **RAG Pipeline**: Custom retrieval-augmented generation system
 - **API Design**: RESTful API with structured response formats
@@ -79,7 +79,7 @@ Preferred communication style: Simple, everyday language.
 - **Offline Support**: Core legal documents available without internet
 
 ### Environment Configuration
-- **Database**: PostgreSQL with connection string configuration
+- **Database**: Supabase PostgreSQL with connection string configuration
 - **API Keys**: Google Gemini API key for AI services
 - **CORS**: Configured for cross-origin requests between frontend and backend
 
@@ -284,6 +284,21 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Sistema de categorias coloridas para fácil identificação
   - Página de demonstração em `/demo-tooltips`
   - Melhoria significativa na acessibilidade legal para usuários leigos
+
+### 2025-07-19 - Migração para Supabase e Configuração Vercel Completa
+
+- **Supabase como Banco Principal**
+  - Migração completa do PostgreSQL local para Supabase
+  - Guia detalhado de setup (SUPABASE_SETUP.md)
+  - 500MB gratuitos com interface visual de administração
+  - Connection string configurada para Vercel deploy
+  - Backups automáticos e APIs REST integradas
+
+- **Scripts de Deploy Vercel Otimizados**
+  - Script automatizado de configuração de variáveis (vercel-env-setup.sh)
+  - Guias específicos para Supabase em todos os documentos
+  - Integração completa Supabase + Vercel + Gemini AI
+  - Deploy gratuito com 0 custos de infraestrutura
 
 ### 2025-07-19 - Configuração de Deploy Completa para 3 Plataformas
 

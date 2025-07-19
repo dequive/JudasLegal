@@ -26,9 +26,11 @@ fi
 
 echo -e "${BLUE}📋 Você precisará fornecer as seguintes variáveis:${NC}"
 echo "1. GEMINI_API_KEY (Google AI Studio)"
-echo "2. DATABASE_URL (PostgreSQL - Neon/Supabase)"
+echo "2. DATABASE_URL (Supabase PostgreSQL)"
 echo "3. SESSION_SECRET (string aleatória)"
 echo "4. REPL_ID (do seu projeto Replit)"
+echo ""
+echo -e "${YELLOW}💡 Dica: Siga o guia SUPABASE_SETUP.md para obter o DATABASE_URL${NC}"
 echo ""
 
 # Solicitar variáveis do usuário
