@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { findLegalTerm, categoryLabels, LegalTerm } from '@/utils/legalGlossary';
+import { useTooltipContext } from '@/contexts/TooltipContext';
 
 interface LegalTooltipProps {
   term: string;
@@ -8,35 +9,18 @@ interface LegalTooltipProps {
 }
 
 const LegalTooltip: React.FC<LegalTooltipProps> = ({ term, children, className = '' }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
-  const triggerRef = useRef<HTMLSpanElement>(null);
-  const tooltipRef = useRef<HTMLDivElement>(null);
+  const { 
+    activeTooltip, 
+    tooltipPosition, 
+    tooltipRef, 
+    handleTooltipClick, 
+    handleKeyDown 
+  } = useTooltipContext();
   
   const legalTerm = findLegalTerm(term);
+  const isVisible = activeTooltip === term;
 
-  useEffect(() => {
-    if (isVisible && triggerRef.current && tooltipRef.current) {
-      const triggerRect = triggerRef.current.getBoundingClientRect();
-      const tooltipRect = tooltipRef.current.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-      
-      let top = triggerRect.bottom + 8;
-      let left = triggerRect.left;
-      
-      // Ajustar posição se sair da viewport
-      if (left + tooltipRect.width > viewportWidth) {
-        left = viewportWidth - tooltipRect.width - 16;
-      }
-      
-      if (top + tooltipRect.height > viewportHeight) {
-        top = triggerRect.top - tooltipRect.height - 8;
-      }
-      
-      setPosition({ top, left });
-    }
-  }, [isVisible]);
+
 
   if (!legalTerm) {
     return <>{children}</>;
@@ -58,15 +42,14 @@ const LegalTooltip: React.FC<LegalTooltipProps> = ({ term, children, className =
   return (
     <>
       <span
-        ref={triggerRef}
-        className={`relative cursor-help border-b border-dotted border-blue-500 hover:border-blue-700 ${className}`}
-        onMouseEnter={() => setIsVisible(true)}
-        onMouseLeave={() => setIsVisible(false)}
-        onFocus={() => setIsVisible(true)}
-        onBlur={() => setIsVisible(false)}
+        className={`relative cursor-help border-b border-dotted border-blue-500 hover:border-blue-700 hover:bg-blue-50 px-1 rounded-sm transition-all duration-200 ${isVisible ? 'bg-blue-100 border-blue-700' : ''} ${className}`}
+        onClick={(e) => handleTooltipClick(term, e)}
+        onKeyDown={(e) => handleKeyDown(term, e)}
         tabIndex={0}
         role="button"
-        aria-describedby={`tooltip-${term.replace(/\s+/g, '-')}`}
+        aria-label={`Explicação do termo legal: ${term}`}
+        aria-expanded={isVisible}
+        aria-describedby={isVisible ? `tooltip-${term.replace(/\s+/g, '-')}` : undefined}
       >
         {children}
       </span>
@@ -77,8 +60,8 @@ const LegalTooltip: React.FC<LegalTooltipProps> = ({ term, children, className =
           id={`tooltip-${term.replace(/\s+/g, '-')}`}
           className="fixed z-50 max-w-sm p-4 bg-white border border-gray-300 rounded-lg shadow-lg"
           style={{
-            top: `${position.top}px`,
-            left: `${position.left}px`,
+            top: `${tooltipPosition.top}px`,
+            left: `${tooltipPosition.left}px`,
           }}
           role="tooltip"
         >
