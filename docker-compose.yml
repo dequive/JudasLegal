@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  judas-app:
+    build: .
+    ports:
+      - "5000:5000"
+      - "3001:3001" 
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - REPL_ID=${REPL_ID}
+      - REPLIT_DOMAINS=${REPLIT_DOMAINS}
+      - ISSUER_URL=${ISSUER_URL}
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=judas
+      - POSTGRES_USER=judas
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
