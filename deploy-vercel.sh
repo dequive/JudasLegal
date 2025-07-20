@@ -1,75 +1,46 @@
 #!/bin/bash
 
-# Deploy Judas Legal Assistant to Vercel
-# Este script automatiza o deployment de todas as partes da aplicação
+# Script para deploy manual do MuzaIA no Vercel
+echo "🚀 Preparando deploy do MuzaIA no Vercel..."
 
-# Cores para output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-echo -e "${BLUE}🚀 Iniciando deployment para Vercel...${NC}"
-
-# Verificar se Vercel CLI está instalado
+# Verificar se vercel CLI está instalado
 if ! command -v vercel &> /dev/null; then
-    echo -e "${RED}❌ Vercel CLI não encontrado. Instalando...${NC}"
+    echo "📦 Instalando Vercel CLI..."
     npm install -g vercel
 fi
 
-# Login no Vercel (se necessário)
-echo -e "${YELLOW}🔐 Verificando login no Vercel...${NC}"
-if ! vercel whoami &> /dev/null; then
-    vercel login
-fi
+# Configurar variáveis de ambiente para o Vercel
+echo "🔧 Configurando variáveis de ambiente..."
 
-# Verificar se variáveis foram configuradas
-echo -e "${YELLOW}⚠️ IMPORTANTE: Certifique-se que as variáveis de ambiente foram configuradas!${NC}"
-echo "Use: ./vercel-env-setup.sh (se não fez ainda)"
-read -p "Pressione Enter para continuar ou Ctrl+C para cancelar..."
+# Arquivo temporário com configurações
+cat > .vercel-env.txt << 'EOF'
+# Variáveis de ambiente para MuzaIA no Vercel
+GEMINI_API_KEY=AIzaSyAwx_RItGZMpaBcmnKNWUDVnSCxqm6XxN8
+DATABASE_URL=postgresql://postgres.haqlhwzoecdpgtfuzstw:Unica2024@aws-0-sa-east-1.pooler.supabase.com:6543/postgres
+REPL_ID=MuzaIA
+SESSION_SECRET=muzaia-super-secret-session-key-2024
+NODE_ENV=production
+FRONTEND_URL=https://workspace-eight-mocha.vercel.app
+AUTH_URL=https://workspace-eight-mocha.vercel.app
+BACKEND_URL=https://workspace-eight-mocha.vercel.app
+EOF
 
-# Deploy do Frontend (Next.js)
-echo -e "${BLUE}📱 Deployando Frontend (Next.js)...${NC}"
-vercel --prod --confirm --name judas-legal-assistant
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✅ Frontend deployado com sucesso!${NC}"
-else
-    echo -e "${RED}❌ Erro no deploy do Frontend${NC}"
-    exit 1
-fi
-
-# Deploy do Backend (FastAPI)
-echo -e "${BLUE}⚙️ Deployando Backend (FastAPI)...${NC}"
-vercel deploy deploy_server.py --prod --confirm --name judas-backend
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✅ Backend deployado com sucesso!${NC}"
-else
-    echo -e "${RED}❌ Erro no deploy do Backend${NC}"
-    exit 1
-fi
-
-# Deploy do Auth Server (Express.js)
-echo -e "${BLUE}🔐 Deployando Auth Server (Express.js)...${NC}"
-vercel deploy auth-server.js --prod --confirm --name judas-auth
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✅ Auth Server deployado com sucesso!${NC}"
-else
-    echo -e "${RED}❌ Erro no deploy do Auth Server${NC}"
-    exit 1
-fi
-
+echo "📝 Arquivo .vercel-env.txt criado com as configurações necessárias"
 echo ""
-echo -e "${GREEN}🎉 Deployment completo!${NC}"
+echo "🌐 Para fazer deploy no Vercel:"
+echo "1. Execute: vercel"
+echo "2. Faça login na vossa conta Vercel"
+echo "3. Escolha o projecto existente ou crie novo"
+echo "4. Configure as variáveis de ambiente usando o arquivo .vercel-env.txt"
 echo ""
-echo -e "${BLUE}🌐 URLs da aplicação:${NC}"
-echo "   Frontend: https://judas-legal-assistant.vercel.app"
-echo "   Backend:  https://judas-backend.vercel.app"
-echo "   Auth:     https://judas-auth.vercel.app"
+echo "🔧 Ou use o dashboard do Vercel:"
+echo "1. Aceda a https://vercel.com/dashboard"
+echo "2. Encontre o projecto 'workspace-eight-mocha'"
+echo "3. Vá a Settings > Functions"
+echo "4. Clique em 'Redeploy' na aba Deployments"
 echo ""
-echo -e "${YELLOW}📋 Próximos passos:${NC}"
-echo "1. Teste cada URL para verificar se está funcionando"
-echo "2. Configure seu domínio personalizado (se desejar)"
-echo "3. Configure monitoring e analytics"
-echo ""
-echo -e "${GREEN}✅ Sua aplicação jurídica está online!${NC}"
+echo "📋 Alterações do MuzaIA já implementadas:"
+echo "✓ Nome da aplicação: MuzaIA"
+echo "✓ Descrição: Assistente jurídico online baseado em IA"
+echo "✓ Todas as interfaces actualizadas"
+echo "✓ Backend e frontend preparados"
