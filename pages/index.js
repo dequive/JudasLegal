@@ -27,267 +27,332 @@ export default function HomePage() {
       });
   }, []);
 
-  const features = [
-    {
-      icon: <Brain className="w-8 h-8" />,
-      title: "IA Jurídica Avançada",
-      description: "Powered by Google Gemini 2.0 Flash para respostas inteligentes sobre legislação moçambicana",
-      color: "from-blue-500 to-purple-600"
-    },
-    {
-      icon: <BookOpen className="w-8 h-8" />,
-      title: "Base Legal Completa",
-      description: "Acesso a leis, códigos e regulamentos actualizados de Moçambique",
-      color: "from-emerald-500 to-teal-600"
-    },
-    {
-      icon: <Upload className="w-8 h-8" />,
-      title: "Upload de Documentos",
-      description: "Sistema administrativo para adicionar novas leis e regulamentos",
-      color: "from-orange-500 to-red-600"
-    },
-    {
-      icon: <BarChart3 className="w-8 h-8" />,
-      title: "Análise de Complexidade",
-      description: "Classificação automática da dificuldade de questões jurídicas",
-      color: "from-purple-500 to-pink-600"
-    }
-  ];
+  const modernButtonStyle = {
+    background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+    color: 'white',
+    padding: '16px 32px',
+    borderRadius: '12px',
+    border: 'none',
+    fontSize: '18px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    transition: 'all 0.3s ease',
+    textDecoration: 'none',
+    boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
+  };
 
-  const quickActions = [
-    {
-      title: "Iniciar Chat Jurídico",
-      description: "Converse com o assistente IA",
-      href: "/chat",
-      icon: <MessageCircle className="w-6 h-6" />,
-      color: "bg-blue-600 hover:bg-blue-700"
-    },
-    {
-      title: "Painel Administrativo",
-      description: "Gerir documentos legais",
-      href: "/admin",
-      icon: <Shield className="w-6 h-6" />,
-      color: "bg-emerald-600 hover:bg-emerald-700"
-    },
-    {
-      title: "Melhorias Moçambicanas",
-      description: "Funcionalidades culturais implementadas",
-      href: "/melhorias-mozambique",
-      icon: <Shield className="w-6 h-6" />,
-      color: "bg-gradient-to-r from-moz-green to-moz-red hover:scale-105"
-    },
-    {
-      title: "Analisar Complexidade",
-      description: "Teste o sistema de análise",
-      href: "/complexity-demo",
-      icon: <Brain className="w-6 h-6" />,
-      color: "bg-purple-600 hover:bg-purple-700"
-    },
-    {
-      title: "Glossário Jurídico",
-      description: "Termos legais explicados",
-      href: "/glossario",
-      icon: <BookOpen className="w-6 h-6" />,
-      color: "bg-orange-600 hover:bg-orange-700"
-    },
-    {
-      title: "LLM Orchestra",
-      description: "Sistema multi-IA com Claude 3 + Gemini",
-      href: "/orchestra-demo",
-      icon: <Brain className="w-6 h-6" />,
-      color: "bg-indigo-600 hover:bg-indigo-700"
-    },
-    {
-      title: "Melhorias Sistema",
-      description: "Infraestrutura e optimizações",
-      href: "/system-improvements",
-      icon: <Settings className="w-6 h-6" />,
-      color: "bg-slate-600 hover:bg-slate-700"
-    },
-    {
-      title: "Painel de Segurança",
-      description: "Monitorização e administração",
-      href: "/security-simple",
-      icon: <Shield className="w-6 h-6" />,
-      color: "bg-red-600 hover:bg-red-700"
-    },
-    {
-      title: "Painel Redis",
-      description: "Cache e performance",
-      href: "/redis-dashboard",
-      icon: <Globe className="w-6 h-6" />,
-      color: "bg-emerald-600 hover:bg-emerald-700"
-    }
-  ];
+  const secondaryButtonStyle = {
+    background: 'linear-gradient(135deg, #10b981, #059669)',
+    color: 'white',
+    padding: '16px 32px',
+    borderRadius: '12px',
+    border: 'none',
+    fontSize: '18px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    transition: 'all 0.3s ease',
+    textDecoration: 'none',
+    boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3)',
+  };
+
+  const cardStyle = {
+    background: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(20px)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    borderRadius: '20px',
+    padding: '32px',
+    transition: 'all 0.3s ease',
+  };
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%)',
+    color: 'white',
+    position: 'relative',
+    overflow: 'hidden',
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-      {/* Banner Legal Principal */}
-      <LegalDisclaimer type="banner" variant="warning" />
-      
-      {/* Animated background patterns */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{animationDelay: '2s'}}></div>
+    <div style={containerStyle}>
+      {/* Background Effects */}
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 0 }}>
+        <div 
+          style={{
+            position: 'absolute',
+            top: '-160px',
+            right: '-160px',
+            width: '320px',
+            height: '320px',
+            background: 'rgba(59, 130, 246, 0.2)',
+            borderRadius: '50%',
+            filter: 'blur(60px)',
+            animation: 'pulse 4s ease-in-out infinite'
+          }}
+        />
+        <div 
+          style={{
+            position: 'absolute',
+            bottom: '-160px',
+            left: '-160px',
+            width: '320px',
+            height: '320px',
+            background: 'rgba(147, 51, 234, 0.2)',
+            borderRadius: '50%',
+            filter: 'blur(60px)',
+            animation: 'pulse 4s ease-in-out infinite 2s'
+          }}
+        />
+        <div 
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '384px',
+            height: '384px',
+            background: 'rgba(16, 185, 129, 0.1)',
+            borderRadius: '50%',
+            filter: 'blur(80px)',
+            animation: 'pulse 4s ease-in-out infinite 4s'
+          }}
+        />
       </div>
 
-      <div className="relative z-10">
+      <div style={{ position: 'relative', zIndex: 10 }}>
         {/* Header */}
-        <header className="glass-dark border-b border-white/10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                  <Shield className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-white">Muzaia</h1>
-                  <p className="text-sm text-gray-300">Assistente Jurídico Inteligente</p>
-                </div>
+        <header style={{ padding: '32px 24px', textAlign: 'center' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '16px' }}>
+              <div style={{
+                width: '64px',
+                height: '64px',
+                background: 'linear-gradient(135deg, #00a859, #ce1126, #fcd116)',
+                borderRadius: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '32px',
+                fontWeight: 'bold'
+              }}>
+                M
               </div>
-              
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <div className={`w-2 h-2 rounded-full ${stats.status === 'Online' ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`}></div>
-                  <span className="text-sm text-gray-300">{stats.status}</span>
-                </div>
-                <Link href="/chat">
-                  <button className="btn btn-primary">
-                    Iniciar Chat
-                  </button>
-                </Link>
-              </div>
+              <h1 style={{ 
+                fontSize: '48px', 
+                fontWeight: 'bold', 
+                margin: 0,
+                background: 'linear-gradient(135deg, #10b981, #3b82f6, #8b5cf6)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}>
+                Muzaia
+              </h1>
             </div>
+            <p style={{ 
+              fontSize: '24px', 
+              color: '#e2e8f0', 
+              margin: 0,
+              fontWeight: '300'
+            }}>
+              Assistente Jurídico Inteligente
+            </p>
           </div>
         </header>
 
-        {/* Hero Section */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className={`transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h1 className="text-5xl md:text-7xl font-bold mb-6">
-                <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-emerald-400 bg-clip-text text-transparent">
-                  Muzaia
-                </span>
-              </h1>
-              <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-                Assistente jurídico online baseado em inteligência artificial, 
-                especialista em <span className="text-blue-400 font-semibold">legislação moçambicana</span>
-              </p>
-              
-              {/* Stats */}
-              <div className="flex justify-center space-x-8 mb-12">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white">{stats.documents}</div>
-                  <div className="text-sm text-gray-400">Documentos Legais</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white">{stats.chunks}</div>
-                  <div className="text-sm text-gray-400">Chunks RAG</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-400">AI</div>
-                  <div className="text-sm text-gray-400">Gemini 2.0 Flash</div>
-                </div>
-              </div>
-
-              {/* Quick Actions */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
-                {quickActions.map((action, index) => (
-                  <Link key={index} href={action.href}>
-                    <div className={`card-glass hover:scale-105 transition-all duration-300 cursor-pointer group`}>
-                      <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                        {action.icon}
-                      </div>
-                      <h3 className="text-white font-semibold mb-2">{action.title}</h3>
-                      <p className="text-gray-400 text-sm">{action.description}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-white mb-4">
-                Funcionalidades Avançadas
-              </h2>
-              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                Tecnologia de ponta para democratizar o acesso à informação jurídica em Moçambique
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {features.map((feature, index) => (
-                <div
-                  key={index}
-                  className={`card-glass hover:scale-105 transition-all duration-300 ${isLoaded ? 'animate-fade-in' : ''}`}
-                  style={{animationDelay: `${index * 200}ms`}}
-                >
-                  <div className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mb-6`}>
-                    {feature.icon}
+        {/* Status Card */}
+        <section style={{ padding: '0 24px 32px' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{
+              ...cardStyle,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '24px'
+            }}>
+              <div>
+                <p style={{ margin: 0, fontSize: '18px', opacity: 0.9 }}>
+                  Assistente jurídico online baseado em inteligência artificial, especialista em legislação moçambicana
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginTop: '16px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '24px', fontWeight: 'bold' }}>{stats.documents}</span>
+                    <span style={{ opacity: 0.8 }}>Documentos Legais</span>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">{feature.title}</h3>
-                  <p className="text-gray-300 leading-relaxed">{feature.description}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '24px', fontWeight: 'bold' }}>{stats.chunks}</span>
+                    <span style={{ opacity: 0.8 }}>Chunks RAG</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Brain style={{ width: '20px', height: '20px' }} />
+                    <span style={{ opacity: 0.8 }}>Gemini 2.0 Flash</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      backgroundColor: stats.status === 'Online' ? '#10b981' : '#ef4444',
+                      animation: stats.status === 'Online' ? 'pulse 2s ease-in-out infinite' : 'none'
+                    }} />
+                    <span style={{ fontSize: '14px', opacity: 0.8 }}>{stats.status}</span>
+                  </div>
                 </div>
-              ))}
+              </div>
+              <Link href="/chat" style={modernButtonStyle}>
+                Iniciar Chat
+              </Link>
             </div>
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="card-glass">
-              <div className="flex items-center justify-center mb-6">
-                <Zap className="w-12 h-12 text-yellow-400" />
+        {/* Hero Section */}
+        <section style={{ padding: '64px 24px', textAlign: 'center' }}>
+          <div style={{ maxWidth: '1024px', margin: '0 auto' }}>
+            <h2 style={{ 
+              fontSize: '56px', 
+              fontWeight: 'bold', 
+              margin: '0 0 32px 0',
+              lineHeight: '1.1',
+              background: 'linear-gradient(135deg, #10b981, #3b82f6, #8b5cf6)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              Navegue pela legislação moçambicana com inteligência artificial
+            </h2>
+            <p style={{ 
+              fontSize: '24px', 
+              color: '#cbd5e1', 
+              marginBottom: '48px',
+              lineHeight: '1.6'
+            }}>
+              Experimente o assistente jurídico mais avançado de Moçambique
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+              <Link href="/chat" style={modernButtonStyle}>
+                <MessageCircle style={{ width: '20px', height: '20px' }} />
+                Iniciar Conversa
+              </Link>
+              <Link href="/admin" style={secondaryButtonStyle}>
+                <Shield style={{ width: '20px', height: '20px' }} />
+                Área Administrativa
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Grid */}
+        <section style={{ padding: '64px 24px' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <h3 style={{ 
+              fontSize: '36px', 
+              fontWeight: 'bold', 
+              textAlign: 'center', 
+              marginBottom: '48px',
+              background: 'linear-gradient(135deg, #10b981, #3b82f6)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              Funcionalidades Principais
+            </h3>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+              gap: '32px' 
+            }}>
+              <div style={cardStyle}>
+                <Brain style={{ width: '48px', height: '48px', color: '#3b82f6', marginBottom: '16px' }} />
+                <h4 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>IA Jurídica Avançada</h4>
+                <p style={{ color: '#cbd5e1', lineHeight: '1.6' }}>
+                  Powered by Google Gemini 2.0 Flash para respostas inteligentes sobre legislação moçambicana
+                </p>
               </div>
-              <h2 className="text-3xl font-bold text-white mb-4">
-                Pronto para começar?
-              </h2>
-              <p className="text-xl text-gray-300 mb-8">
-                Experimente o assistente jurídico mais avançado de Moçambique
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/chat">
-                  <button className="btn btn-primary btn-lg">
-                    <MessageCircle className="w-5 h-5 mr-2" />
-                    Iniciar Conversa
-                  </button>
-                </Link>
-                <Link href="/admin">
-                  <button className="btn btn-secondary btn-lg">
-                    <Shield className="w-5 h-5 mr-2" />
-                    Área Administrativa
-                  </button>
-                </Link>
+              <div style={cardStyle}>
+                <BookOpen style={{ width: '48px', height: '48px', color: '#10b981', marginBottom: '16px' }} />
+                <h4 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>Base Legal Completa</h4>
+                <p style={{ color: '#cbd5e1', lineHeight: '1.6' }}>
+                  Acesso a leis, códigos e regulamentos actualizados de Moçambique
+                </p>
               </div>
+              <div style={cardStyle}>
+                <Upload style={{ width: '48px', height: '48px', color: '#f59e0b', marginBottom: '16px' }} />
+                <h4 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>Upload de Documentos</h4>
+                <p style={{ color: '#cbd5e1', lineHeight: '1.6' }}>
+                  Sistema administrativo para adicionar novas leis e regulamentos
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Quick Actions */}
+        <section style={{ padding: '64px 24px' }}>
+          <div style={{ maxWidth: '1024px', margin: '0 auto', textAlign: 'center' }}>
+            <h3 style={{ 
+              fontSize: '36px', 
+              fontWeight: 'bold', 
+              marginBottom: '48px',
+              background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              Acções Rápidas
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
+              <Link href="/chat" style={{ ...cardStyle, textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                <MessageCircle style={{ width: '32px', height: '32px', color: '#3b82f6', marginBottom: '16px' }} />
+                <h4 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>Iniciar Chat Jurídico</h4>
+                <p style={{ color: '#cbd5e1', margin: 0 }}>Converse com o assistente IA</p>
+              </Link>
+              <Link href="/admin" style={{ ...cardStyle, textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                <Shield style={{ width: '32px', height: '32px', color: '#10b981', marginBottom: '16px' }} />
+                <h4 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>Painel Administrativo</h4>
+                <p style={{ color: '#cbd5e1', margin: 0 }}>Gerir documentos legais</p>
+              </Link>
             </div>
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="border-t border-white/10 py-12 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <Globe className="w-5 h-5 text-blue-400" />
-              <span className="text-gray-300">Powered by Google Gemini AI, Supabase & Vercel</span>
+        <footer style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', padding: '48px 24px' }}>
+          <div style={{ maxWidth: '1024px', margin: '0 auto', textAlign: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '16px' }}>
+              <Globe style={{ width: '20px', height: '20px', color: '#3b82f6' }} />
+              <span style={{ color: '#cbd5e1' }}>Powered by Google Gemini AI, Supabase & Vercel</span>
             </div>
-            <p className="text-gray-400">
+            <p style={{ color: '#94a3b8', margin: '0 0 24px 0' }}>
               © 2025 Muzaia. Assistente jurídico inteligente para Moçambique.
             </p>
             
             {/* Footer Legal Disclaimer */}
-            <div className="mt-6 max-w-2xl mx-auto">
+            <div style={{ maxWidth: '768px', margin: '0 auto' }}>
               <LegalDisclaimer type="footer" variant="professional" />
             </div>
           </div>
         </footer>
       </div>
+
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+        
+        @media (max-width: 768px) {
+          h1 { font-size: 36px !important; }
+          h2 { font-size: 32px !important; }
+          h3 { font-size: 24px !important; }
+        }
+      `}</style>
     </div>
   );
 }
