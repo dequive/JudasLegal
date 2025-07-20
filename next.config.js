@@ -7,23 +7,9 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react'],
   },
   
-  // Headers configuration
+  // Remove custom headers to avoid auth issues
   async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-        ],
-      },
-    ];
+    return [];
   },
 };
 

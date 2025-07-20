@@ -1,6 +1,7 @@
 {
-  "buildCommand": "next build",
   "framework": "nextjs",
+  "buildCommand": "next build",
   "installCommand": "npm install",
-  "outputDirectory": ".next"
+  "outputDirectory": ".next",
+  "public": true
 }
