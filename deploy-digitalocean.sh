@@ -1,80 +1,122 @@
 #!/bin/bash
 
-# Deploy script for DigitalOcean Droplet
-# Usage: ./deploy-digitalocean.sh
+echo "🐳 Deploy Muzaia no DigitalOcean App Platform"
+echo "=============================================="
 
-set -e
-
-echo "🚀 Starting deployment to DigitalOcean..."
-
-# Check if Docker is installed
-if ! command -v docker &> /dev/null; then
-    echo "Installing Docker..."
-    curl -fsSL https://get.docker.com -o get-docker.sh
-    sudo sh get-docker.sh
-    sudo usermod -aG docker $USER
-    echo "Docker installed. You may need to log out and back in."
-fi
-
-# Check if Docker Compose is installed
-if ! command -v docker-compose &> /dev/null; then
-    echo "Installing Docker Compose..."
-    sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-fi
-
-# Create .env file if it doesn't exist
-if [ ! -f .env ]; then
-    echo "Creating .env file..."
-    cat > .env << EOL
-# Database Configuration
-DATABASE_URL=postgresql://judas:your_password_here@postgres:5432/judas
-POSTGRES_PASSWORD=your_secure_password_here
-
-# AI Configuration
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# Authentication Configuration
-SESSION_SECRET=your_session_secret_here
-REPL_ID=your_repl_id
-REPLIT_DOMAINS=your-domain.com
-ISSUER_URL=https://replit.com/oidc
-
-# Production Configuration
-NODE_ENV=production
-PORT=5000
-EOL
-    echo "⚠️  Please edit .env file with your actual configuration before continuing!"
-    echo "Press Enter to continue when ready..."
-    read
-fi
-
-# Stop existing containers
-echo "Stopping existing containers..."
-docker-compose down || true
-
-# Build and start containers
-echo "Building and starting containers..."
-docker-compose up --build -d
-
-# Wait for services to be ready
-echo "Waiting for services to start..."
-sleep 30
-
-# Check if services are running
-echo "Checking service health..."
-if curl -f http://localhost:5000 >/dev/null 2>&1; then
-    echo "✅ Application is running successfully!"
-    echo "🌐 Access your application at: http://$(curl -s ifconfig.me):5000"
-else
-    echo "❌ Application failed to start. Check logs with: docker-compose logs"
+# Verificar se está no directório correcto
+if [ ! -f "backend_complete.py" ]; then
+    echo "❌ Erro: backend_complete.py não encontrado!"
     exit 1
 fi
 
-echo "🎉 Deployment completed successfully!"
+echo "📦 Criando configuração DigitalOcean..."
+
+# Criar app.yaml para DigitalOcean App Platform
+cat > app.yaml << 'EOF'
+name: muzaia-backend
+services:
+- name: backend
+  source_dir: /
+  github:
+    branch: main
+    deploy_on_push: true
+  run_command: python -m uvicorn backend_complete:app --host 0.0.0.0 --port 8080
+  environment_slug: python
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 8080
+  health_check:
+    http_path: /health
+  envs:
+  - key: GEMINI_API_KEY
+    scope: RUN_TIME
+    type: SECRET
+  - key: DATABASE_URL
+    scope: RUN_TIME
+    type: SECRET
+  - key: PYTHONPATH
+    scope: RUN_TIME
+    value: "/app"
+  - key: PORT
+    scope: RUN_TIME
+    value: "8080"
+EOF
+
+# Criar Dockerfile otimizado
+cat > Dockerfile << 'EOF'
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Instalar dependências do sistema
+RUN apt-get update && apt-get install -y \
+    gcc \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar requirements primeiro para cache
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiar código da aplicação
+COPY . .
+
+# Criar utilizador não-root
+RUN useradd --create-home --shell /bin/bash app \
+    && chown -R app:app /app
+USER app
+
+# Expor porta
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# Comando de inicialização
+CMD ["python", "-m", "uvicorn", "backend_complete:app", "--host", "0.0.0.0", "--port", "8080"]
+EOF
+
+echo "✅ Configuração criada"
 echo ""
-echo "Useful commands:"
-echo "  View logs: docker-compose logs -f"
-echo "  Stop app: docker-compose down"
-echo "  Restart: docker-compose restart"
-echo "  Update: git pull && docker-compose up --build -d"
+echo "📋 INSTRUÇÕES PARA DIGITALOCEAN:"
+echo "================================"
+echo ""
+echo "1. Criar conta em: https://cloud.digitalocean.com"
+echo "2. Ir para Apps → Create App"
+echo "3. Conectar GitHub ou fazer upload manual"
+echo "4. Configurar variáveis de ambiente:"
+echo "   - GEMINI_API_KEY: vossa chave Google"
+echo "   - DATABASE_URL: vossa URL Supabase"
+echo ""
+echo "5. DigitalOcean detectará automaticamente o Dockerfile"
+echo "6. Deploy automático será configurado"
+echo ""
+echo "💰 CUSTO ESTIMADO:"
+echo "Basic plan: $12/mês (sempre activo)"
+echo ""
+echo "🌐 URL FINAL:"
+echo "https://vossa-app.ondigitalocean.app"
+echo ""
+echo "📁 Arquivos criados:"
+echo "- app.yaml (configuração DigitalOcean)"
+echo "- Dockerfile (container Python)"
+echo ""
+
+read -p "Deseja continuar com setup DigitalOcean? (y/n): " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo ""
+    echo "🔗 Abrindo DigitalOcean..."
+    echo "Link: https://cloud.digitalocean.com/apps/new"
+    echo ""
+    echo "📋 Checklist de Deploy:"
+    echo "1. ✅ Dockerfile criado"
+    echo "2. ✅ app.yaml configurado"
+    echo "3. 🔲 Conta DigitalOcean criada"
+    echo "4. 🔲 Repositório GitHub conectado"
+    echo "5. 🔲 Variáveis de ambiente configuradas"
+    echo "6. 🔲 Deploy iniciado"
+else
+    echo "Deploy DigitalOcean cancelado"
+fi
