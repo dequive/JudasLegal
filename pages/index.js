@@ -69,6 +69,13 @@ export default function HomePage() {
       color: "bg-emerald-600 hover:bg-emerald-700"
     },
     {
+      title: "Melhorias Moçambicanas",
+      description: "Funcionalidades culturais implementadas",
+      href: "/melhorias-mozambique",
+      icon: <Shield className="w-6 h-6" />,
+      color: "bg-gradient-to-r from-moz-green to-moz-red hover:scale-105"
+    },
+    {
       title: "Analisar Complexidade",
       description: "Teste o sistema de análise",
       href: "/complexity-demo",

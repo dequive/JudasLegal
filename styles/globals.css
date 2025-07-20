@@ -179,3 +179,98 @@ body {
 .card-glass {
   @apply glass-dark rounded-xl p-6 shadow-elegant;
 }
+
+.card-mozambique {
+  background: linear-gradient(135deg, rgba(0, 168, 89, 0.1) 0%, rgba(206, 17, 38, 0.1) 100%);
+  border: 1px solid rgba(0, 168, 89, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+/* Mozambican theme colors and patterns */
+.bg-mozambique-primary {
+  background: linear-gradient(135deg, #00A859 0%, #059669 100%);
+}
+
+.bg-mozambique-secondary {
+  background: linear-gradient(135deg, #CE1126 0%, #dc2626 100%);
+}
+
+.bg-mozambique-accent {
+  background: linear-gradient(135deg, #FCD116 0%, #fbbf24 100%);
+}
+
+.text-mozambique {
+  background: linear-gradient(135deg, #00A859 0%, #CE1126 50%, #FCD116 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Cultural patterns inspired by Mozambican art */
+.pattern-mozambique {
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(0, 168, 89, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(206, 17, 38, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 25%, rgba(252, 209, 22, 0.1) 0%, transparent 50%);
+}
+
+/* Legal document hierarchy colors */
+.doc-constituicao { @apply border-l-4 border-moz-red bg-red-50; }
+.doc-codigo { @apply border-l-4 border-moz-green bg-green-50; }
+.doc-lei { @apply border-l-4 border-moz-yellow bg-yellow-50; }
+.doc-decreto { @apply border-l-4 border-blue-500 bg-blue-50; }
+.doc-portaria { @apply border-l-4 border-purple-500 bg-purple-50; }
+
+/* Dark mode variants */
+.dark .doc-constituicao { @apply bg-red-900/20; }
+.dark .doc-codigo { @apply bg-green-900/20; }
+.dark .doc-lei { @apply bg-yellow-900/20; }
+.dark .doc-decreto { @apply bg-blue-900/20; }
+.dark .doc-portaria { @apply bg-purple-900/20; }
+
+/* Accessibility improvements */
+.focus-mozambique {
+  @apply focus:outline-none focus:ring-2 focus:ring-moz-green focus:ring-offset-2 focus:ring-offset-gray-900;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .card-modern {
+    @apply border-2 border-white;
+  }
+  
+  .text-mozambique {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: #00A859;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-bounce-dots,
+  .animate-spin {
+    animation: none;
+  }
+}
+
+/* Print styles for legal documents */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .card-modern {
+    break-inside: avoid;
+    border: 1px solid #000;
+    background: white;
+    color: black;
+  }
+  
+  .text-mozambique {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: black;
+  }
+}

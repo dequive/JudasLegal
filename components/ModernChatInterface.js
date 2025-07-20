@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Paperclip, Mic, MoreHorizontal, Lightbulb, FileText, Scale, Map } from 'lucide-react';
+import FeedbackSystem from './FeedbackSystem';
+import ExportSystem from './ExportSystem';
+import { useLegalHistory, useUserPreferences } from '../hooks/useLocalStorage';
 
 export default function ModernChatInterface() {
   const [messages, setMessages] = useState([]);
@@ -7,6 +10,10 @@ export default function ModernChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
+  
+  // Novos hooks para funcionalidades avançadas
+  const { addToHistory, history, getFavorites } = useLegalHistory();
+  const { preferences } = useUserPreferences();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -75,6 +82,9 @@ Para vos ajudar melhor, preciso de alguns detalhes adicionais:
           ]
         };
         setMessages(prev => [...prev, assistantMessage]);
+        
+        // Adicionar ao histórico local para persistência
+        addToHistory(userMessage.content, data.response, data.citations);
       }
       setIsLoading(false);
     } catch (error) {
@@ -97,12 +107,41 @@ Para vos ajudar melhor, preciso de alguns detalhes adicionais:
 
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-800">
-        <h1 className="text-xl font-semibold">Muzaia</h1>
-        <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
-          <MoreHorizontal className="w-5 h-5" />
-        </button>
+      {/* Header com tema moçambicano */}
+      <div className="card-mozambique border-b border-moz-green/20 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-semibold text-mozambique">Muzaia</h1>
+            <div className="flex items-center gap-1">
+              <span className="w-2 h-2 bg-moz-green rounded-full"></span>
+              <span className="w-2 h-2 bg-moz-red rounded-full"></span>
+              <span className="w-2 h-2 bg-moz-yellow rounded-full"></span>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {/* Sistema de Exportação */}
+            {messages.length > 0 && (
+              <ExportSystem 
+                messages={messages} 
+                sessionTitle={`Consulta Legal - ${new Date().toLocaleDateString('pt-PT')}`}
+              />
+            )}
+            
+            <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-400">
+              <MoreHorizontal className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+        
+        {/* Contador de mensagens e estatísticas */}
+        {messages.length > 0 && (
+          <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+            <span>💬 {messages.length} mensagens</span>
+            <span>📚 {history.length} no histórico</span>
+            <span>⭐ {getFavorites().length} favoritos</span>
+          </div>
+        )}
       </div>
 
       {/* Messages Area */}
@@ -166,7 +205,7 @@ Para vos ajudar melhor, preciso de alguns detalhes adicionais:
                           <div className="flex items-center space-x-2">
                             <div className="w-12 bg-gray-600 rounded-full h-1">
                               <div 
-                                className="h-1 bg-blue-400 rounded-full" 
+                                className="h-1 bg-moz-green rounded-full" 
                                 style={{width: `${citation.relevance}%`}}
                               ></div>
                             </div>
@@ -175,6 +214,14 @@ Para vos ajudar melhor, preciso de alguns detalhes adicionais:
                         </div>
                       ))}
                     </div>
+                  )}
+                  
+                  {/* Sistema de Feedback para respostas do assistente */}
+                  {message.role === 'assistant' && (
+                    <FeedbackSystem 
+                      messageId={`msg-${index}`}
+                      initialResponse={message.content}
+                    />
                   )}
                 </div>
               </div>

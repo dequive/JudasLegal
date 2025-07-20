@@ -112,18 +112,24 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-      {/* Header */}
-      <div className="glass-dark border-b border-white/10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 pattern-mozambique">
+      {/* Header com tema moçambicano */}
+      <div className="card-mozambique border-b border-moz-green/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-white">Painel Administrativo</h1>
-              <p className="text-gray-300">Gestão do Muzaia</p>
+              <h1 className="text-3xl font-bold text-mozambique">Painel Administrativo</h1>
+              <p className="text-gray-300">Gestão do Sistema Legal Moçambicano</p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="w-3 h-3 bg-moz-green rounded-full"></span>
+                <span className="w-3 h-3 bg-moz-red rounded-full"></span>
+                <span className="w-3 h-3 bg-moz-yellow rounded-full"></span>
+                <span className="text-xs text-gray-400">República de Moçambique</span>
+              </div>
             </div>
             <Link href="/admin/upload">
-              <button className="btn-primary">
-                + Carregar Documento
+              <button className="bg-mozambique-primary hover:scale-105 transform transition-all duration-200 text-white font-medium py-3 px-6 rounded-lg shadow-elegant focus-mozambique">
+                📚 Carregar Documento Legal
               </button>
             </Link>
           </div>
