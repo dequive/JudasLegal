@@ -302,12 +302,25 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Deploy gratuito com 0 custos de infraestrutura
   - REPL_ID configurado: "Judas"
 
-### 2025-07-20 - Deploy Vercel Concluído com Sucesso
+### 2025-07-20 - Problema de Deploy Vercel Identificado
 
-- **Aplicação Judas Legal Assistant Online**
-  - Frontend: https://judas-legal-assistant-c9hy3n35e-dequives-projects.vercel.app
-  - Deploy bem-sucedido após correção de conflitos de configuração
-  - Aplicação Next.js funcionando independentemente
+- **Deploy Vercel com Bloqueio SSO**
+  - Build 100% bem-sucedido: https://workspace-8dzsbwmy7-dequives-projects.vercel.app
+  - Aplicação Next.js minimalista compila sem erros
+  - Problema identificado: SSO (Single Sign-On) ativo na conta/organização
+  - Todas as URLs redirecionam para autenticação Vercel
+  - Aplicação local funciona perfeitamente na porta 5000
+
+- **Análise Técnica Completa**
+  - Simplificação drástica: removidas todas as dependências complexas
+  - Apenas páginas básicas (index.tsx, _app.tsx, globals.css)
+  - Build logs mostram sucesso total com static generation
+  - Problema confirmado: configuração de conta Vercel, não código
+
+- **Soluções Disponíveis**
+  - Desabilitar Password Protection/SSO no dashboard Vercel
+  - Usar conta Vercel alternativa sem proteção organizacional
+  - Deploy em plataforma alternativa (Netlify, Railway)
 
 - **Configuração de Produção Completa**
   - Variáveis de ambiente configuradas automaticamente
