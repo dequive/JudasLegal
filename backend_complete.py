@@ -42,9 +42,26 @@ except ImportError:
     PyPDF2 = None
     docx = None
 
+# Import new legal system components - moved after logger setup
+LEGAL_SYSTEM_AVAILABLE = False
+
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Import new legal system components after logger setup
+try:
+    from models.legal_document_hierarchy import (
+        LegalDocumentType, LegalArea, DocumentStatus, 
+        LegalDocumentHierarchy, PRIORITY_DOCUMENTS
+    )
+    from services.legal_chunker import LegalChunker
+    from services.document_ingestor import DocumentIngestor
+    LEGAL_SYSTEM_AVAILABLE = True
+    logger.info("✓ Sistema legal avançado carregado")
+except ImportError as e:
+    logger.warning(f"Componentes do sistema legal não disponíveis: {e}")
+    LEGAL_SYSTEM_AVAILABLE = False
 
 # Initialize Gemini
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
@@ -61,8 +78,8 @@ if not DATABASE_URL:
 
 # Initialize FastAPI
 app = FastAPI(
-    title="Judas Legal Assistant API",
-    description="API para assistente jurídico moçambicano com RAG",
+    title="Muzaia Legal Assistant API",
+    description="Sistema RAG avançado para legislação moçambicana com IA especializada",
     version="2.0.0"
 )
 
@@ -120,7 +137,7 @@ def init_database():
     """Initialize database tables"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # Legal documents table
+            # Legal documents table - updated for advanced system
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS legal_documents (
                     id SERIAL PRIMARY KEY,
@@ -129,12 +146,33 @@ def init_database():
                     law_type VARCHAR(100),
                     source VARCHAR(200),
                     description TEXT,
+                    document_type INTEGER DEFAULT 2,
+                    legal_area INTEGER DEFAULT 2,
+                    full_text TEXT,
+                    metadata JSONB,
+                    original_filename VARCHAR(255),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
             """)
+
+            # Add new columns if they don't exist
+            cur.execute("""
+                ALTER TABLE legal_documents 
+                ADD COLUMN IF NOT EXISTS document_type INTEGER DEFAULT 2,
+                ADD COLUMN IF NOT EXISTS legal_area INTEGER DEFAULT 2,
+                ADD COLUMN IF NOT EXISTS full_text TEXT,
+                ADD COLUMN IF NOT EXISTS metadata JSONB,
+                ADD COLUMN IF NOT EXISTS original_filename VARCHAR(255);
+            """)
             
-            # Document chunks table for RAG
+            # Ensure description column exists
+            cur.execute("""
+                ALTER TABLE legal_documents 
+                ADD COLUMN IF NOT EXISTS description TEXT;
+            """)
+            
+            # Document chunks table for RAG - updated for advanced system
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS document_chunks (
                     id SERIAL PRIMARY KEY,
@@ -142,9 +180,23 @@ def init_database():
                     chunk_text TEXT NOT NULL,
                     chunk_index INTEGER,
                     section_type VARCHAR(100),
+                    content TEXT,
                     metadata JSONB,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
+            """)
+
+            # Add content column if it doesn't exist
+            cur.execute("""
+                ALTER TABLE document_chunks 
+                ADD COLUMN IF NOT EXISTS content TEXT;
+            """)
+
+            # Update content from chunk_text if content is null
+            cur.execute("""
+                UPDATE document_chunks 
+                SET content = chunk_text 
+                WHERE content IS NULL;
             """)
             
             # Chat sessions table
@@ -700,6 +752,222 @@ async def delete_document(document_id: int):
         raise HTTPException(status_code=500, detail=str(e))
 
 # Initialize database on startup
+# Advanced Legal System APIs
+@app.get("/api/legal/hierarchy")
+async def get_legal_hierarchy():
+    """Obter informações sobre hierarquia de documentos legais"""
+    if not LEGAL_SYSTEM_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Sistema legal avançado não disponível")
+    
+    return {
+        "document_types": {str(t.value): LegalDocumentHierarchy.get_type_name(t) for t in LegalDocumentType},
+        "legal_areas": {str(a.value): LegalDocumentHierarchy.get_area_name(a) for a in LegalArea},
+        "priority_documents": PRIORITY_DOCUMENTS,
+        "hierarchy_levels": {
+            "1": "Constituição (Autoridade máxima)",
+            "2": "Leis ordinárias",
+            "3": "Decretos-Lei",
+            "4": "Decretos",
+            "5": "Regulamentos",
+            "6-10": "Portarias e outros diplomas"
+        }
+    }
+
+@app.post("/api/legal/upload-advanced")
+async def upload_document_advanced(
+    file: UploadFile = File(...),
+    title: str = Form(...),
+    document_type: Optional[int] = Form(None),
+    legal_area: Optional[int] = Form(None),
+    description: Optional[str] = Form(None),
+    source: Optional[str] = Form(None)
+):
+    """Upload e processamento avançado de documento legal"""
+    if not LEGAL_SYSTEM_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Sistema legal avançado não disponível")
+    
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="Nome do arquivo é obrigatório")
+    
+    # Verificar tipo de arquivo
+    allowed_extensions = ['.pdf', '.docx', '.txt']
+    file_extension = Path(file.filename).suffix.lower()
+    if file_extension not in allowed_extensions:
+        raise HTTPException(status_code=400, detail=f"Tipo de arquivo não suportado. Use: {', '.join(allowed_extensions)}")
+    
+    try:
+        # Salvar arquivo temporário
+        upload_dir = Path("uploads")
+        upload_dir.mkdir(exist_ok=True)
+        
+        temp_file_path = upload_dir / f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{file.filename}"
+        
+        with open(temp_file_path, "wb") as buffer:
+            content = await file.read()
+            buffer.write(content)
+        
+        # Processar com sistema avançado
+        ingestor = DocumentIngestor(get_db_connection)
+        
+        override_metadata = {}
+        if document_type:
+            override_metadata['document_type'] = document_type
+        if legal_area:
+            override_metadata['legal_area'] = legal_area
+        if description:
+            override_metadata['description'] = description
+        if source:
+            override_metadata['source'] = source
+        
+        result = ingestor.process_document(
+            str(temp_file_path),
+            file.filename,
+            override_metadata if override_metadata else None
+        )
+        
+        # Remover arquivo temporário
+        temp_file_path.unlink()
+        
+        if result['success']:
+            return {
+                "message": "Documento processado com sucesso",
+                "document_id": result['document_id'],
+                "title": result['title'],
+                "chunks_created": result['chunks_created'],
+                "metadata": result['metadata'],
+                "processing_info": {
+                    "chunking_method": "legal_structure",
+                    "legal_concepts_extracted": len(result['metadata'].get('keywords', [])),
+                    "document_type": LegalDocumentHierarchy.get_type_name(LegalDocumentType(result['metadata']['document_type'])),
+                    "legal_area": LegalDocumentHierarchy.get_area_name(LegalArea(result['metadata']['legal_area']))
+                }
+            }
+        else:
+            raise HTTPException(status_code=500, detail=f"Erro no processamento: {result['error']}")
+    
+    except Exception as e:
+        logger.error(f"Erro no upload avançado: {e}")
+        if temp_file_path.exists():
+            temp_file_path.unlink()
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/legal/documents-advanced")
+async def list_documents_advanced():
+    """Listar documentos com informações detalhadas da hierarquia"""
+    if not LEGAL_SYSTEM_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Sistema legal avançado não disponível")
+    
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT 
+                        ld.id,
+                        ld.title,
+                        ld.metadata->>'document_type' as document_type,
+                        ld.metadata->>'legal_area' as legal_area,
+                        ld.metadata->>'publication_date' as publication_date,
+                        ld.metadata->>'status' as status,
+                        ld.created_at,
+                        COUNT(dc.id) as chunk_count,
+                        ld.metadata->>'keywords' as keywords
+                    FROM legal_documents ld
+                    LEFT JOIN document_chunks dc ON ld.id = dc.document_id
+                    WHERE ld.metadata IS NOT NULL
+                    GROUP BY ld.id, ld.title, ld.metadata, ld.created_at
+                    ORDER BY 
+                        CAST(ld.metadata->>'document_type' AS INTEGER) ASC,
+                        ld.created_at DESC
+                """)
+                
+                documents = []
+                for row in cur.fetchall():
+                    doc_type_id = int(row['document_type']) if row['document_type'] else 2
+                    legal_area_id = int(row['legal_area']) if row['legal_area'] else 2
+                    
+                    documents.append({
+                        'id': row['id'],
+                        'title': row['title'],
+                        'document_type': {
+                            'id': doc_type_id,
+                            'name': LegalDocumentHierarchy.get_type_name(LegalDocumentType(doc_type_id)),
+                            'hierarchy_level': doc_type_id
+                        },
+                        'legal_area': {
+                            'id': legal_area_id,
+                            'name': LegalDocumentHierarchy.get_area_name(LegalArea(legal_area_id))
+                        },
+                        'publication_date': row['publication_date'],
+                        'status': row['status'] or 'active',
+                        'chunk_count': row['chunk_count'],
+                        'keywords': json.loads(row['keywords']) if row['keywords'] else [],
+                        'created_at': row['created_at'].isoformat() if row['created_at'] else None
+                    })
+                
+                return {
+                    "documents": documents,
+                    "total_count": len(documents),
+                    "document_types_summary": {},
+                    "legal_areas_summary": {}
+                }
+                
+    except Exception as e:
+        logger.error(f"Erro ao listar documentos avançados: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/legal/processing-stats")
+async def get_processing_statistics():
+    """Obter estatísticas detalhadas do processamento de documentos"""
+    if not LEGAL_SYSTEM_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Sistema legal avançado não disponível")
+    
+    try:
+        ingestor = DocumentIngestor(get_db_connection)
+        stats = ingestor.get_processing_statistics()
+        
+        # Enriquecer estatísticas com nomes legíveis
+        if 'documents_by_type' in stats:
+            enriched_types = {}
+            for type_id, count in stats['documents_by_type'].items():
+                try:
+                    type_name = LegalDocumentHierarchy.get_type_name(LegalDocumentType(int(type_id)))
+                    enriched_types[type_name] = count
+                except:
+                    enriched_types[f"Tipo {type_id}"] = count
+            stats['documents_by_type_names'] = enriched_types
+        
+        if 'documents_by_area' in stats:
+            enriched_areas = {}
+            for area_id, count in stats['documents_by_area'].items():
+                try:
+                    area_name = LegalDocumentHierarchy.get_area_name(LegalArea(int(area_id)))
+                    enriched_areas[area_name] = count
+                except:
+                    enriched_areas[f"Área {area_id}"] = count
+            stats['documents_by_area_names'] = enriched_areas
+        
+        return stats
+        
+    except Exception as e:
+        logger.error(f"Erro ao obter estatísticas: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Root endpoint
+@app.get("/")
+async def root():
+    """Root endpoint - redirect to health"""
+    return {
+        "message": "Muzaia Legal Assistant API",
+        "version": "2.0.0",
+        "status": "online",
+        "endpoints": {
+            "health": "/health",
+            "chat": "/api/chat",
+            "upload": "/api/upload",
+            "legal_hierarchy": "/api/legal/hierarchy"
+        }
+    }
+
 # Health check endpoint
 @app.get("/health")
 async def health_check():
@@ -707,9 +975,17 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "Muzaia Backend",
+        "version": "2.0.0",
         "timestamp": datetime.now().isoformat(),
         "database": "connected",
-        "ai": "configured" if GEMINI_API_KEY else "not_configured"
+        "ai": "configured" if GEMINI_API_KEY else "not_configured",
+        "legal_system": "available" if LEGAL_SYSTEM_AVAILABLE else "not_available",
+        "features": {
+            "basic_rag": True,
+            "advanced_chunking": LEGAL_SYSTEM_AVAILABLE,
+            "legal_hierarchy": LEGAL_SYSTEM_AVAILABLE,
+            "document_processing": LEGAL_SYSTEM_AVAILABLE
+        }
     }
 
 @app.on_event("startup")

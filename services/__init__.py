@@ -1,1 +1,1 @@
-# Services package for Judas Legal Assistant
+# Muzaia Services Package

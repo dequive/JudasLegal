@@ -1,0 +1,352 @@
+# Prompt de Implementação: JudasLegal - Assistente Jurídico IA Especializado
+
+## Contexto
+Você é um desenvolvedor sênior especializado em sistemas jurídicos e IA. O projeto JudasLegal é um assistente jurídico PWA para leis moçambicanas que usa RAG (Retrieval-Augmented Generation). O sistema atual tem:
+- Backend: FastAPI + Python 3.11 + PostgreSQL + OpenAI GPT-4o
+- Frontend: Next.js 14 + TypeScript + Tailwind CSS + Zustand
+- Funcionalidades: Chat em tempo real, PWA offline, documentos legais básicos
+
+## Objetivo
+Transformar o JudasLegal em uma plataforma jurídica completa e robusta para o direito moçambicano, implementando melhorias em 3 fases prioritárias.
+
+---
+
+## FASE 1 - IMPLEMENTAÇÃO IMEDIATA (4-6 semanas)
+
+### 1.1 Expansão da Base de Conhecimento Legal
+
+**Tarefa**: Criar sistema robusto de gestão de documentos legais
+
+```python
+# Implementar estrutura hierárquica de documentos
+class LegalDocumentHierarchy:
+    CONSTITUICAO = 1
+    LEI_ORDINARIA = 2
+    DECRETO = 3
+    REGULAMENTO = 4
+    PORTARIA = 5
+```
+
+**Documentos prioritários para adicionar:**
+- Código Comercial de Moçambique
+- Lei de Terras e regulamentos fundiários
+- Lei do Ambiente
+- Regulamentos de Imigração
+- Lei de Segurança Social
+- Código de Processo Civil e Penal
+- Legislação fiscal e tributária
+
+**Implementação requerida:**
+1. Sistema de ingestão automática de PDFs legais
+2. Parser inteligente para extrair artigos, capítulos, alíneas
+3. Sistema de metadados (área_direito, data_publicacao, status_vigencia)
+4. Versionamento de documentos com changelog
+
+### 1.2 Melhoramento do Sistema RAG
+
+**Tarefa**: Otimizar chunking e embeddings para terminologia jurídica
+
+```python
+# Implementar chunking jurídico inteligente
+class LegalChunker:
+    def chunk_by_article(self, document):
+        # Dividir por artigos, preservando contexto
+        pass
+    
+    def create_legal_embeddings(self, chunks):
+        # Embeddings especializados para português jurídico
+        pass
+    
+    def cross_reference_laws(self, query_result):
+        # Encontrar leis relacionadas automaticamente
+        pass
+```
+
+**Implementações específicas:**
+1. Chunking por estrutura legal (artigo, parágrafo, alínea)
+2. Embeddings com vocabulário jurídico português expandido
+3. Sistema de cross-referencing entre leis
+4. Rankeamento por relevância jurídica (não apenas similaridade)
+
+### 1.3 Interface Multi-Persona
+
+**Tarefa**: Criar interfaces adaptadas para diferentes tipos de usuário
+
+```typescript
+// Implementar sistema de personas
+interface UserPersona {
+  type: 'citizen' | 'lawyer' | 'student' | 'business';
+  preferences: PersonaPreferences;
+  accessLevel: AccessLevel;
+}
+
+class PersonaAdapter {
+  adaptResponse(response: string, persona: UserPersona): string {
+    // Adaptar linguagem e complexidade conforme persona
+  }
+}
+```
+
+**Funcionalidades por persona:**
+- **Cidadão**: Linguagem simples, explicações práticas, exemplos cotidianos
+- **Advogado**: Citações completas, referências processuais, jurisprudência
+- **Estudante**: Modo educativo, explicações detalhadas, casos práticos
+- **Empresa**: Foco direito comercial/laboral, calculadoras, compliance
+
+---
+
+## FASE 2 - FUNCIONALIDADES AVANÇADAS (6-8 semanas)
+
+### 2.1 Sistema de Precedentes e Jurisprudência
+
+**Tarefa**: Implementar base de dados de decisões judiciais
+
+```python
+class JurisprudenceSystem:
+    def add_court_decision(self, decision: CourtDecision):
+        # Adicionar decisão judicial com categorização
+        pass
+    
+    def find_similar_cases(self, legal_query: str) -> List[CourtDecision]:
+        # Encontrar precedentes relevantes
+        pass
+    
+    def analyze_case_trend(self, legal_area: str) -> TrendAnalysis:
+        # Analisar tendências em decisões
+        pass
+```
+
+### 2.2 Calculadoras Jurídicas
+
+**Tarefa**: Implementar calculadoras especializadas para direito moçambicano
+
+```typescript
+class LegalCalculators {
+  calculateLaborCompensation(params: LaborParams): CompensationResult {
+    // Indemnizações trabalhistas segundo lei moçambicana
+  }
+  
+  calculateProcessualDeadlines(caseType: string): DeadlineCalendar {
+    // Prazos processuais automáticos
+  }
+  
+  calculateCourtFees(caseValue: number, court: CourtType): FeeStructure {
+    // Custas judiciais
+  }
+  
+  calculateAlimony(income: number, dependents: number): AlimonyAmount {
+    // Pensões alimentares
+  }
+}
+```
+
+### 2.3 Sistema de Autenticação e Personalização
+
+**Tarefa**: Implementar gestão completa de usuários
+
+```python
+# Sistema de autenticação com níveis
+class UserManagement:
+    ACCESS_LEVELS = {
+        'anonymous': {'queries_per_day': 10, 'basic_search': True},
+        'registered': {'queries_per_day': 100, 'history': True, 'favorites': True},
+        'professional': {'unlimited_queries': True, 'advanced_tools': True},
+        'admin': {'content_management': True, 'analytics': True}
+    }
+```
+
+---
+
+## FASE 3 - INTEGRAÇÕES E ANÁLISES AVANÇADAS (8-10 semanas)
+
+### 3.1 Análise Inteligente de Contratos
+
+**Tarefa**: IA para análise e revisão de contratos
+
+```python
+class ContractAnalyzer:
+    def analyze_contract(self, contract_text: str) -> ContractAnalysis:
+        # Identificar cláusulas problemáticas
+        # Sugerir melhorias
+        # Verificar conformidade legal
+        pass
+    
+    def generate_contract_template(self, contract_type: str) -> ContractTemplate:
+        # Gerar templates conformes à lei moçambicana
+        pass
+```
+
+### 3.2 Sistema de Alertas Legislativos
+
+**Tarefa**: Monitoramento automático de mudanças legislativas
+
+```python
+class LegislativeMonitor:
+    def monitor_official_gazettes(self):
+        # Scraping do Boletim da República
+        pass
+    
+    def detect_law_changes(self) -> List[LegislativeChange]:
+        # Detectar alterações em leis existentes
+        pass
+    
+    def notify_affected_users(self, changes: List[LegislativeChange]):
+        # Notificar usuários sobre mudanças relevantes
+        pass
+```
+
+### 3.3 Integrações Governamentais
+
+**Tarefa**: Conectar com sistemas oficiais moçambicanos
+
+```python
+class GovernmentIntegrations:
+    def verify_lawyer_oam(self, lawyer_id: str) -> LawyerStatus:
+        # Verificar inscrição na Ordem dos Advogados
+        pass
+    
+    def check_court_calendar(self, court_id: str) -> CourtSchedule:
+        # Consultar calendário judicial
+        pass
+    
+    def access_legal_registry(self, document_type: str) -> RegistryInfo:
+        # Acesso a registos oficiais
+        pass
+```
+
+---
+
+## ESPECIFICAÇÕES TÉCNICAS DETALHADAS
+
+### Base de Dados Expandida
+
+```sql
+-- Estrutura de tabelas para funcionalidades avançadas
+CREATE TABLE legal_documents (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(500) NOT NULL,
+    document_type legal_doc_type NOT NULL,
+    hierarchy_level INTEGER,
+    publication_date DATE,
+    effective_date DATE,
+    status document_status DEFAULT 'active',
+    parent_document_id INTEGER REFERENCES legal_documents(id),
+    full_text TEXT,
+    structured_content JSONB,
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE jurisprudence (
+    id SERIAL PRIMARY KEY,
+    case_number VARCHAR(100),
+    court_name VARCHAR(200),
+    judge_name VARCHAR(200),
+    decision_date DATE,
+    case_summary TEXT,
+    legal_area VARCHAR(100),
+    keywords TEXT[],
+    decision_text TEXT,
+    relevance_score FLOAT,
+    citation_count INTEGER DEFAULT 0
+);
+
+CREATE TABLE user_profiles (
+    id SERIAL PRIMARY KEY,
+    user_id UUID UNIQUE,
+    persona_type user_persona NOT NULL,
+    practice_areas TEXT[],
+    notification_preferences JSONB,
+    subscription_level access_level DEFAULT 'registered',
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### APIs Essenciais
+
+```python
+# Endpoints prioritários para implementar
+@app.post("/api/legal/analyze-contract")
+async def analyze_contract(contract: ContractUpload, user: User = Depends(get_current_user)):
+    """Analisar contrato e identificar problemas legais"""
+    pass
+
+@app.get("/api/legal/calculate/{calculator_type}")
+async def legal_calculator(calculator_type: str, params: dict):
+    """Calculadoras jurídicas especializadas"""
+    pass
+
+@app.post("/api/legal/find-precedents")
+async def find_precedents(query: LegalQuery, user: User = Depends(get_current_user)):
+    """Encontrar jurisprudência relevante"""
+    pass
+
+@app.get("/api/legal/legislative-alerts")
+async def get_legislative_alerts(user: User = Depends(get_current_user)):
+    """Alertas de mudanças legislativas personalizados"""
+    pass
+```
+
+### Frontend - Componentes Prioritários
+
+```typescript
+// Componentes React essenciais
+interface LegalAssistantComponents {
+  PersonaSelector: React.FC<{onPersonaChange: (persona: UserPersona) => void}>;
+  ContractAnalyzer: React.FC<{onAnalysisComplete: (result: ContractAnalysis) => void}>;
+  JurisprudenceSearch: React.FC<{query: string}>;
+  LegalCalculatorWidget: React.FC<{calculatorType: string}>;
+  LegislativeAlerts: React.FC<{alerts: LegislativeAlert[]}>;
+  DocumentTemplateGenerator: React.FC<{documentType: string}>;
+}
+```
+
+---
+
+## CRITÉRIOS DE SUCESSO
+
+### Métricas de Performance
+- Tempo de resposta < 2 segundos para consultas simples
+- Precisão das respostas > 90% (validação por juristas)
+- Taxa de satisfação do usuário > 85%
+- Disponibilidade do sistema > 99.5%
+
+### Métricas de Adoção
+- 1000+ usuários registados em 6 meses
+- 50+ consultas/dia após 3 meses
+- 10+ profissionais verificados usando ferramentas avançadas
+
+### Validação Legal
+- Review por pelo menos 3 juristas moçambicanos qualificados
+- Certificação de precisão para cada área do direito
+- Sistema de feedback contínuo da comunidade jurídica
+
+---
+
+## CONSIDERAÇÕES ESPECIAIS PARA MOÇAMBIQUE
+
+### Contexto Local
+1. **Línguas**: Priorizar português, considerar línguas locais principais
+2. **Internet**: Otimizar para conexões lentas, funcionalidade offline robusta
+3. **Mobile-First**: Maioria dos usuários acessa via smartphone
+4. **Educação Jurídica**: Muitos usuários têm conhecimento legal limitado
+
+### Compliance e Regulamentação
+1. Respeitar hierarquia das fontes de direito moçambicano
+2. Disclaimers claros sobre limitações do sistema
+3. Orientação para buscar aconselhamento profissional quando necessário
+4. Proteção de dados conforme regulamentações locais
+
+---
+
+## PRÓXIMOS PASSOS IMEDIATOS
+
+1. **Semana 1-2**: Setup da infraestrutura expandida e base de dados
+2. **Semana 3-4**: Implementação do sistema de ingestão de documentos
+3. **Semana 5-6**: Melhoramento do RAG com chunking jurídico
+4. **Semana 7-8**: Interface multi-persona básica
+5. **Semana 9-10**: Testes com usuários reais e ajustes
+
+**Comece pela Fase 1, item 1.1 - Sistema de gestão de documentos legais expandido.**
+
+Este prompt deve ser executado de forma iterativa, com validação contínua por profissionais do direito moçambicano para garantir precisão e relevância cultural.

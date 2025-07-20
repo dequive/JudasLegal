@@ -516,6 +516,54 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Sistema de sessões e histórico de chat operacional
   - Gestão administrativa completa com estatísticas em tempo real
 
+### 2025-07-20 - Sistema Legal Hierárquico Avançado Implementado (Fase 1)
+
+- **Hierarquia de Documentos Legais Moçambicanos Implementada**
+  - Modelo `LegalDocumentHierarchy` com 10 tipos de documentos (Constituição → Despachos)
+  - Sistema de 15 áreas jurídicas (Constitucional, Civil, Penal, Comercial, etc.)
+  - Classificação por autoridade legal e precedência hierárquica
+  - Metadados estruturados com datas, status e relacionamentos
+
+- **Sistema de Chunking Jurídico Inteligente**
+  - `LegalChunker` especializado para estrutura legal moçambicana
+  - Detecção automática de artigos, secções e parágrafos
+  - Preservação de contexto jurídico durante divisão de texto
+  - Extracção de conceitos legais e referências cruzadas
+  - Classificação por tipo de chunk (artigo, secção, parágrafo)
+
+- **Processamento Avançado de Documentos**
+  - `DocumentIngestor` com análise inteligente de PDFs, DOCX e TXT
+  - Detecção automática de tipo de documento e área jurídica
+  - Extracção de metadados (título, data publicação, palavras-chave)
+  - Parser especializado para terminologia jurídica moçambicana
+  - Sistema de hashing para controlo de versões
+
+- **APIs Backend Avançadas Implementadas**
+  - `GET /api/legal/hierarchy` - Informações sobre hierarquia legal
+  - `POST /api/legal/upload-advanced` - Upload com processamento inteligente
+  - `GET /api/legal/documents-advanced` - Lista com metadados hierárquicos
+  - `GET /api/legal/processing-stats` - Estatísticas detalhadas do sistema
+  - Health check expandido com estado do sistema legal
+
+- **Interface Administrativa Avançada**
+  - Nova página `/admin/advanced` com upload inteligente
+  - Selecção manual de tipo de documento e área jurídica
+  - Visualização de hierarquia legal moçambicana
+  - Estatísticas detalhadas por tipo e área
+  - Lista de documentos prioritários para adicionar
+
+- **Base de Conhecimento Estruturada**
+  - 8 documentos prioritários identificados (Código Comercial, Lei de Terras, etc.)
+  - Sistema de prioridades para expansão da base legal
+  - Conceitos jurídicos organizados por área do direito
+  - Vocabulário especializado para português jurídico moçambicano
+
+- **Funcionalidades Educativas Expandidas**
+  - Classificação automática de complexidade jurídica
+  - Explicações contextuais adaptadas ao tipo de documento
+  - Sistema de tags e categorização inteligente
+  - Detecção de precedência legal e relacionamentos entre leis
+
 ### 2025-07-20 - Migração para Supabase e Sistema Completo Operacional
 
 - **Nova Base de Dados Supabase Configurada**
