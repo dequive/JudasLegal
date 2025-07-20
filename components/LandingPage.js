@@ -4,7 +4,8 @@ const LandingPage = () => {
   const { login } = useAuth();
 
   const handleLogin = () => {
-    login();
+    // Redirect to auth page for new authentication system
+    window.location.href = '/auth';
   };
 
   return (
@@ -215,7 +216,7 @@ const LandingPage = () => {
                 e.target.style.boxShadow = '0 10px 25px rgba(16, 185, 129, 0.3)';
               }}
             >
-              🚀 Iniciar Sessão com Replit
+              🚀 Entrar ou Registar
             </button>
           </div>
 
@@ -226,7 +227,7 @@ const LandingPage = () => {
             margin: 0,
             lineHeight: '1.6'
           }}>
-            Acesso gratuito com conta Replit. Sistema desenvolvido especificamente 
+            Acesso com email, telemóvel ou Google. Sistema desenvolvido especificamente 
             para advogados, estudantes de direito e cidadãos moçambicanos.
           </p>
         </div>
