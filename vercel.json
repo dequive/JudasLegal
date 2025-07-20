@@ -2,25 +2,26 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend_complete.py",
-      "use": "@vercel/python"
+      "src": "api/main.py",
+      "use": "@vercel/python",
+      "config": {
+        "includeFiles": "backend_complete.py"
+      }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/backend_complete.py"
+      "dest": "/api/main.py"
     }
   ],
   "env": {
     "GEMINI_API_KEY": "@gemini_api_key",
-    "DATABASE_URL": "@database_url",
-    "PYTHONPATH": "/var/task"
+    "DATABASE_URL": "@database_url"
   },
   "functions": {
-    "backend_complete.py": {
-      "runtime": "python3.9",
-      "maxDuration": 60
+    "api/main.py": {
+      "maxDuration": 30
     }
   }
 }
