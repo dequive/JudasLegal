@@ -1,18 +1,34 @@
-CONSTITUIÇÃO DA REPÚBLICA DE MOÇAMBIQUE - ARTIGO TESTE
+CONSTITUIÇÃO DA REPÚBLICA DE MOÇAMBIQUE
 
-Artigo 1
+PREÂMBULO
+
+A luta do povo moçambicano pela libertação nacional, conduzida pela Frente de Libertação de Moçambique, com o sacrifício das melhores filhas e filhos da Pátria, deu origem a uma vasta mobilização popular contra a dominação colonial e a opressão, reunindo todas as camadas patrióticas da sociedade moçambicana numa mesma causa.
+
+ARTIGO 1
 (República de Moçambique)
-A República de Moçambique é um Estado independente, soberano, unitário, de justiça social, democrático e de direito.
 
-Artigo 2
-(Soberania)
-A soberania reside no povo moçambicano.
+A República de Moçambique é um Estado independente, soberano, unitário e democrático de justiça social.
 
-Artigo 3
-(Cidadania)
-São cidadãos moçambicanos:
-a) Os filhos de pai ou mãe moçambicanos nascidos no território nacional ou no estrangeiro;
-b) Os filhos de pai ou mãe estrangeiros nascidos em território moçambicano que optem pela nacionalidade moçambicana;
-c) Os que tenham adquirido a cidadania moçambicana nos termos da lei.
+ARTIGO 2
+(O Estado)
 
-Este é um documento de teste para verificar o funcionamento do sistema de upload de documentos legais do Judas Legal Assistant.
+A República de Moçambique é um Estado de Direito, baseado no pluralismo de expressão, na organização política democrática, no respeito e garantia dos direitos e liberdades fundamentais do Homem.
+
+ARTIGO 3
+(Soberania e legalidade)
+
+1. A soberania reside no povo.
+2. O povo exerce a soberania através do sufrágio universal, directo, igual, secreto e periódico para a escolha dos seus representantes, por referendo sobre as grandes questões nacionais e pela permanente participação democrática dos cidadãos na vida da Nação.
+3. O Estado subordina-se à Constituição e funda-se na legalidade.
+4. As normas constitucionais prevalecem sobre todas as demais normas do ordenamento jurídico.
+
+ARTIGO 4
+(Pluralismo)
+
+A República de Moçambique é um Estado multipartidário.
+
+ARTIGO 5
+(Nacionalidade)
+
+1. A nacionalidade moçambicana rege-se pelos princípios da unidade, do trabalho e da vigilância.
+2. O Estado promove, defende e garante a igualdade de todos os cidadãos perante a lei, sem distinção de cor, raça, sexo, origem étnica, lugar de nascimento, religião, grau de instrução, posição social ou profissão.

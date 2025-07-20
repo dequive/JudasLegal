@@ -3,6 +3,7 @@ Name: judas-legal-assistant
 Version: 1.0.0
 Summary: RAG-powered legal chatbot for Mozambican law
 Author-email: Judas Legal Assistant <admin@judas.legal>
+License-File: LICENSE
 Requires-Dist: fastapi>=0.104.1
 Requires-Dist: uvicorn[standard]>=0.24.0
 Requires-Dist: sqlalchemy>=2.0.23
@@ -19,3 +20,5 @@ Requires-Dist: pypdf2>=3.0.1
 Requires-Dist: python-docx>=1.2.0
 Requires-Dist: google-generativeai>=0.8.5
 Requires-Dist: httpx>=0.28.1
+Requires-Dist: trafilatura>=2.0.0
+Dynamic: license-file

@@ -77,7 +77,7 @@ export default function ComplexityDemoPage() {
 
   const analyzeText = async (text) => {
     try {
-      const response = await fetch('http://localhost:80/api/complexity', {
+      const response = await fetch('http://localhost:8000/api/complexity', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

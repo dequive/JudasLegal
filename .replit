@@ -18,11 +18,11 @@ args = "Frontend App"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Backend API"
+args = "Auth Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Auth Server"
+args = "Backend Completo"
 
 [[workflows.workflow]]
 name = "Frontend App"
@@ -34,15 +34,6 @@ args = "./start-frontend.sh"
 waitForPort = 5000
 
 [[workflows.workflow]]
-name = "Backend API"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python3 deploy_server.py"
-waitForPort = 80
-
-[[workflows.workflow]]
 name = "Auth Server"
 author = "agent"
 
@@ -50,6 +41,15 @@ author = "agent"
 task = "shell.exec"
 args = "node auth-server.js"
 waitForPort = 3001
+
+[[workflows.workflow]]
+name = "Backend Completo"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 backend_complete.py"
+waitForPort = 8000
 
 [[ports]]
 localPort = 80

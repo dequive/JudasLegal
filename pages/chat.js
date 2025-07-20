@@ -80,7 +80,7 @@ export default function ChatPage() {
 
   const getAIResponse = async (userMessage) => {
     try {
-      const response = await fetch('http://localhost:80/api/chat', {
+      const response = await fetch('http://localhost:8000/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
