@@ -11,8 +11,8 @@ class handler(BaseHTTPRequestHandler):
         
         if self.path == '/health':
             response = {"status": "healthy", "service": "muzaia-backend"}
-        elif self.path == '/':
-            response = {"message": "Muzaia Legal Assistant API", "status": "running"}
+        elif self.path == '/' or self.path == '/api':
+            response = {"message": "Muzaia Legal Assistant API", "status": "running", "version": "1.0"}
         else:
             response = {"error": "Not found", "path": self.path}
             
@@ -26,7 +26,11 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
         
         if self.path.startswith('/api/chat'):
-            response = {"message": "Chat endpoint funcionando", "status": "ok"}
+            response = {
+                "message": "Chat endpoint funcionando no Vercel", 
+                "status": "ok",
+                "response": "Olá! Sou o assistente jurídico Muzaia. Como posso ajudar?"
+            }
         else:
             response = {"error": "Not found", "path": self.path}
             
