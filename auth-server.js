@@ -5,25 +5,42 @@ const { Pool } = require('pg');
 const connectPgSimple = require('connect-pg-simple');
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 // Middleware básico
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS
+// CORS configuration
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', process.env.NODE_ENV === 'production' 
-    ? 'https://' + process.env.REPLIT_DOMAINS?.split(',')[0]
-    : 'http://localhost:5000');
+  const allowedOrigins = process.env.NODE_ENV === 'production' 
+    ? [`https://${process.env.REPLIT_DOMAINS?.split(',')[0]}`]
+    : ['http://localhost:5000', 'http://localhost:3000'];
+
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+  
   if (req.method === 'OPTIONS') {
     res.sendStatus(200);
   } else {
     next();
   }
+});
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    service: 'judas-auth-server',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 // Session setup
@@ -34,7 +51,7 @@ app.use(session({
     tableName: 'sessions',
     createTableIfMissing: false,
   }),
-  secret: process.env.SESSION_SECRET || 'fallback-secret-key',
+  secret: process.env.SESSION_SECRET || 'judas-development-secret-2024',
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -56,9 +73,18 @@ passport.deserializeUser((user, done) => {
   done(null, user);
 });
 
-// Routes básicas
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'judas-auth-server' });
+// Authentication routes
+console.log('🔐 Setting up development authentication...');
+
+// Mock user data for development
+const createMockUser = () => ({
+  id: 'dev-user-' + Date.now(),
+  email: 'utilizador@moçambique.mz',
+  firstName: 'Utilizador',
+  lastName: 'Moçambicano',
+  profileImageUrl: null,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString()
 });
 
 app.get('/api/auth/user', (req, res) => {
@@ -69,24 +95,18 @@ app.get('/api/auth/user', (req, res) => {
   }
 });
 
-// Simple authentication setup for development
-console.log('Setting up development authentication');
-
 app.get('/api/login', (req, res) => {
-  const testUser = { 
-    id: 'test-user-' + Date.now(), 
-    email: 'usuario@exemplo.com', 
-    firstName: 'Usuário', 
-    lastName: 'Teste',
-    profileImageUrl: null
-  };
+  const testUser = createMockUser();
   req.login(testUser, (err) => {
     if (err) {
       console.error('Login error:', err);
       return res.status(500).json({ error: 'Login failed' });
     }
-    console.log('User logged in:', testUser);
-    res.redirect('http://localhost:5000');
+    console.log('✅ User logged in:', testUser.email);
+    const redirectUrl = process.env.NODE_ENV === 'production' 
+      ? `https://${process.env.REPLIT_DOMAINS?.split(',')[0]}`
+      : 'http://localhost:5000';
+    res.redirect(redirectUrl);
   });
 });
 
@@ -96,16 +116,51 @@ app.get('/api/logout', (req, res) => {
       console.error('Logout error:', err);
       return res.status(500).json({ error: 'Logout failed' });
     }
-    console.log('User logged out');
-    res.redirect('http://localhost:5000');
+    console.log('👋 User logged out');
+    const redirectUrl = process.env.NODE_ENV === 'production' 
+      ? `https://${process.env.REPLIT_DOMAINS?.split(',')[0]}`
+      : 'http://localhost:5000';
+    res.redirect(redirectUrl);
   });
 });
 
 app.get('/api/callback', (req, res) => {
-  // For development, redirect to main app
-  res.redirect('http://localhost:5000');
+  const redirectUrl = process.env.NODE_ENV === 'production' 
+    ? `https://${process.env.REPLIT_DOMAINS?.split(',')[0]}`
+    : 'http://localhost:5000';
+  res.redirect(redirectUrl);
 });
 
-app.listen(PORT, () => {
-  console.log(`Auth server running on port ${PORT}`);
+// Initialize server
+function startServer() {
+  console.log('🔐 Setting up authentication server...');
+  
+  if (!process.env.DATABASE_URL) {
+    console.warn('⚠️  DATABASE_URL not provided, using in-memory sessions');
+  }
+
+  app.listen(PORT, () => {
+    console.log(`🚀 Judas Auth Server running on port ${PORT}`);
+    console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+    console.log(`🔑 Login: http://localhost:${PORT}/api/login`);
+    
+    if (process.env.NODE_ENV === 'production') {
+      console.log(`🌐 Domain: ${process.env.REPLIT_DOMAINS?.split(',')[0]}`);
+    }
+  });
+}
+
+// Handle graceful shutdown
+process.on('SIGINT', () => {
+  console.log('\n🛑 Shutting down auth server gracefully...');
+  process.exit(0);
 });
+
+process.on('SIGTERM', () => {
+  console.log('\n🛑 Shutting down auth server gracefully...');
+  process.exit(0);
+});
+
+// Start the server
+startServer();

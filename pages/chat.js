@@ -1,4 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import AuthGuard from '../components/AuthGuard';
+import UserProfile from '../components/UserProfile';
 import TextWithTooltips from '../components/TextWithTooltips';
 import LegalGlossaryPanel from '../components/LegalGlossaryPanel';
 
@@ -52,10 +55,11 @@ const getComplexityRating = (text) => {
 };
 
 export default function ChatPage() {
+  const { user } = useAuth();
   const [messages, setMessages] = useState([
     {
       id: '1',
-      text: 'Olá! Sou o Judas Legal Assistant, o vosso assistente jurídico especializado em legislação moçambicana. Como vos posso ajudar hoje?',
+      text: `Olá! Sou o Judas Legal Assistant, o vosso assistente jurídico especializado em legislação moçambicana. Como vos posso ajudar hoje?`,
       isUser: false,
       timestamp: new Date(),
       complexity: getComplexityRating('Olá! Sou o Judas Legal Assistant, o vosso assistente jurídico especializado em legislação moçambicana. Como vos posso ajudar hoje?')
@@ -154,21 +158,22 @@ export default function ChatPage() {
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh',
-      background: '#fafafa',
-      display: 'flex',
-      flexDirection: 'column',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif'
-    }}>
-      {/* Header */}
-      <header style={{
-        background: 'white',
-        borderBottom: '1px solid #e5e7eb',
-        padding: '1rem 0'
+    <AuthGuard>
+      <div style={{ 
+        minHeight: '100vh',
+        background: '#fafafa',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif'
       }}>
-        <div style={{
-          maxWidth: '1200px',
+        {/* Header */}
+        <header style={{
+          background: 'white',
+          borderBottom: '1px solid #e5e7eb',
+          padding: '1rem 0'
+        }}>
+          <div style={{
+            maxWidth: '1200px',
           margin: '0 auto',
           padding: '0 2rem',
           display: 'flex',
@@ -586,6 +591,7 @@ export default function ChatPage() {
           100% { transform: rotate(360deg); }
         }
       `}</style>
-    </div>
+      </div>
+    </AuthGuard>
   );
 }
