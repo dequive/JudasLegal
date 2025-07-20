@@ -24,6 +24,10 @@ args = "Auth Server"
 task = "workflow.run"
 args = "Backend Completo"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Next.js Build"
+
 [[workflows.workflow]]
 name = "Frontend App"
 author = "agent"
@@ -50,6 +54,14 @@ author = "agent"
 task = "shell.exec"
 args = "python3 backend_complete.py"
 waitForPort = 8000
+
+[[workflows.workflow]]
+name = "Next.js Build"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "next build"
 
 [[ports]]
 localPort = 80
