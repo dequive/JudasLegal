@@ -464,14 +464,21 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Base de dados PostgreSQL com tabelas de utilizadores
   - Todos os serviços comunicando correctamente
 
-### 2025-07-20 - Sistema RAG Completo Implementado e Funcional
+### 2025-07-20 - Migração para Supabase e Sistema Completo Operacional
+
+- **Nova Base de Dados Supabase Configurada**
+  - Migração completa para Supabase PostgreSQL na cloud
+  - URL: haqlhwzoecdpgtfuzstw.supabase.co
+  - Todas as tabelas recriadas automaticamente
+  - Sistema de autenticação integrado com Supabase
+  - APIs REST automáticas geradas pelo Supabase
 
 - **Backend FastAPI Completo Operacional**
   - Sistema RAG funcional com busca PostgreSQL full-text
   - APIs completas: chat, upload, complexidade, administração
   - Integração Google Gemini 2.0 Flash funcionando
   - Processamento de documentos PDF, DOCX e TXT
-  - Base de dados com 10 documentos e 6 chunks activos
+  - Nova base de dados Supabase com tabelas optimizadas
 
 - **Sistema de Upload de Documentos Funcional**
   - Interface administrativa completa em `/admin`
@@ -487,11 +494,11 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Sistema de sessões e histórico
   - Integração completa backend-frontend
 
-- **Arquitectura Multi-Serviços Estável**
+- **Arquitectura Multi-Serviços com Supabase**
   - Frontend Next.js (porta 5000) - Interface principal
   - Auth Server Express.js (porta 3001) - Autenticação
   - Backend FastAPI (porta 8000) - RAG, IA e processamento
-  - Base de dados PostgreSQL com tabelas optimizadas
+  - Base de dados Supabase PostgreSQL na cloud
   - Todos os serviços comunicando correctamente
 
 - **Funcionalidades Educativas Implementadas**
