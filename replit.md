@@ -305,10 +305,9 @@ The system is designed to be easily deployable on cloud platforms with environme
 ### 2025-07-20 - Deploy Vercel Concluído com Sucesso
 
 - **Aplicação Judas Legal Assistant Online**
-  - Frontend: https://judas-legal-assistant.vercel.app
-  - Backend: https://judas-backend.vercel.app
-  - Auth Server: https://judas-auth.vercel.app
-  - Todas as 3 partes da aplicação deployadas e funcionais
+  - Frontend: https://judas-legal-assistant-c9hy3n35e-dequives-projects.vercel.app
+  - Deploy bem-sucedido após correção de conflitos de configuração
+  - Aplicação Next.js funcionando independentemente
 
 - **Configuração de Produção Completa**
   - Variáveis de ambiente configuradas automaticamente
