@@ -1,0 +1,268 @@
+# Integração do Claude 3 ao JudasLegal
+
+## Visão Geral da Arquitetura Atual
+- **Backend**: FastAPI com Python 3.11
+- **LLM Atual**: OpenAI GPT-4o (com modo fallback)
+- **Banco de Dados**: PostgreSQL com SQLAlchemy
+- **RAG**: Retrieval-Augmented Generation para documentos legais moçambicanos
+
+## Estratégia de Integração do Claude 3
+
+### 1. Estrutura da Orquestra de LLMs
+
+```python
+# llm_orchestra.py
+from enum import Enum
+from typing import Optional, Dict, Any
+import anthropic
+import openai
+from abc import ABC, abstractmethod
+
+class LLMProvider(Enum):
+    OPENAI_GPT4 = "openai_gpt4"
+    CLAUDE_3_SONNET = "claude_3_sonnet"
+    CLAUDE_3_HAIKU = "claude_3_haiku"
+    CLAUDE_3_OPUS = "claude_3_opus"
+
+class BaseLLMProvider(ABC):
+    @abstractmethod
+    async def generate_response(self, prompt: str, context: str = "") -> str:
+        pass
+    
+    @abstractmethod
+    def is_available(self) -> bool:
+        pass
+```
+
+### 2. Implementação do Provedor Claude
+
+```python
+class ClaudeProvider(BaseLLMProvider):
+    def __init__(self, api_key: str, model_version: str = "claude-3-sonnet-20240229"):
+        self.client = anthropic.Anthropic(api_key=api_key)
+        self.model_version = model_version
+        self.max_tokens = 4000
+        
+    async def generate_response(self, prompt: str, context: str = "") -> str:
+        try:
+            # Prompt otimizado para contexto legal moçambicano
+            system_prompt = f"""Você é um assistente jurídico especializado em direito moçambicano. 
+            Use o contexto fornecido dos documentos legais para dar respostas precisas e citadas.
+            Sempre cite as fontes legais quando relevante.
+            
+            Contexto legal: {context}"""
+            
+            message = self.client.messages.create(
+                model=self.model_version,
+                max_tokens=self.max_tokens,
+                system=system_prompt,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            
+            return message.content[0].text
+            
+        except Exception as e:
+            raise Exception(f"Erro na resposta do Claude: {str(e)}")
+    
+    def is_available(self) -> bool:
+        try:
+            # Teste simples de conectividade
+            self.client.messages.create(
+                model=self.model_version,
+                max_tokens=10,
+                messages=[{"role": "user", "content": "teste"}]
+            )
+            return True
+        except:
+            return False
+```
+
+### 3. Orquestrador Principal
+
+```python
+class LLMOrchestrator:
+    def __init__(self):
+        self.providers: Dict[LLMProvider, BaseLLMProvider] = {}
+        self.fallback_order = [
+            LLMProvider.CLAUDE_3_SONNET,
+            LLMProvider.OPENAI_GPT4,
+            LLMProvider.CLAUDE_3_HAIKU
+        ]
+        
+    def add_provider(self, provider_type: LLMProvider, provider: BaseLLMProvider):
+        self.providers[provider_type] = provider
+        
+    async def get_legal_response(self, query: str, retrieved_context: str) -> Dict[str, Any]:
+        """
+        Tenta obter resposta seguindo a ordem de fallback
+        """
+        for provider_type in self.fallback_order:
+            if provider_type in self.providers:
+                provider = self.providers[provider_type]
+                
+                if provider.is_available():
+                    try:
+                        response = await provider.generate_response(query, retrieved_context)
+                        return {
+                            "response": response,
+                            "provider": provider_type.value,
+                            "success": True
+                        }
+                    except Exception as e:
+                        print(f"Falhou com {provider_type.value}: {str(e)}")
+                        continue
+        
+        return {
+            "response": "Serviço temporariamente indisponível. Tente novamente.",
+            "provider": "fallback",
+            "success": False
+        }
+```
+
+### 4. Modificações no main.py
+
+```python
+# Adições ao main.py existente
+import os
+from llm_orchestra import LLMOrchestrator, ClaudeProvider, OpenAIProvider, LLMProvider
+
+# Configuração do orquestrador
+orchestrator = LLMOrchestrator()
+
+# Adicionar provedores
+if os.getenv("ANTHROPIC_API_KEY"):
+    claude_provider = ClaudeProvider(
+        api_key=os.getenv("ANTHROPIC_API_KEY"),
+        model_version="claude-3-sonnet-20240229"
+    )
+    orchestrator.add_provider(LLMProvider.CLAUDE_3_SONNET, claude_provider)
+
+if os.getenv("OPENAI_API_KEY"):
+    openai_provider = OpenAIProvider(api_key=os.getenv("OPENAI_API_KEY"))
+    orchestrator.add_provider(LLMProvider.OPENAI_GPT4, openai_provider)
+
+# Modificação no endpoint de chat
+@app.post("/api/chat/send")
+async def send_message(message: ChatMessage):
+    try:
+        # ... código de RAG existente para recuperar contexto ...
+        retrieved_context = await retrieve_legal_context(message.content)
+        
+        # Usar orquestrador em vez do LLM único
+        llm_response = await orchestrator.get_legal_response(
+            query=message.content,
+            retrieved_context=retrieved_context
+        )
+        
+        response_data = {
+            "response": llm_response["response"],
+            "provider_used": llm_response["provider"],
+            "citations": extract_citations(retrieved_context),
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        return response_data
+        
+    except Exception as e:
+        return {"error": str(e)}, 500
+```
+
+### 5. Variáveis de Ambiente Adicionais
+
+```bash
+# .env
+ANTHROPIC_API_KEY=sk-ant-api03-...
+CLAUDE_MODEL_VERSION=claude-3-sonnet-20240229
+LLM_FALLBACK_ORDER=claude_3_sonnet,openai_gpt4,claude_3_haiku
+MAX_TOKENS_CLAUDE=4000
+```
+
+### 6. Otimizações Específicas para Direito Moçambicano
+
+```python
+class MozambiqueLegalOptimizer:
+    @staticmethod
+    def optimize_prompt_for_claude(query: str, context: str) -> str:
+        """
+        Otimiza prompts para melhor desempenho em questões legais moçambicanas
+        """
+        legal_prefixes = {
+            "constituição": "Questão sobre direitos fundamentais e constitucionalidade",
+            "trabalho": "Questão sobre direito laboral e condições de trabalho",
+            "família": "Questão sobre direito de família, casamento e divórcio",
+            "penal": "Questão sobre direito penal e crimes",
+            "civil": "Questão sobre direito civil, contratos e obrigações"
+        }
+        
+        # Detectar tipo de questão legal
+        query_lower = query.lower()
+        legal_type = "geral"
+        
+        for keyword, description in legal_prefixes.items():
+            if keyword in query_lower:
+                legal_type = description
+                break
+        
+        optimized_prompt = f"""
+        [{legal_type}] - Direito Moçambicano
+        
+        Pergunta: {query}
+        
+        Instruções específicas:
+        - Cite sempre os artigos específicos da legislação moçambicana
+        - Use linguagem clara e acessível
+        - Forneça exemplos práticos quando relevante
+        - Indique se há procedimentos específicos a seguir
+        """
+        
+        return optimized_prompt
+```
+
+### 7. Monitoramento e Métricas
+
+```python
+class LLMMetrics:
+    def __init__(self):
+        self.usage_stats = {
+            "claude_requests": 0,
+            "openai_requests": 0,
+            "fallback_activations": 0,
+            "response_times": []
+        }
+    
+    def track_request(self, provider: str, response_time: float):
+        self.usage_stats[f"{provider}_requests"] += 1
+        self.usage_stats["response_times"].append({
+            "provider": provider,
+            "time": response_time,
+            "timestamp": datetime.now()
+        })
+    
+    def get_performance_summary(self):
+        return {
+            "total_requests": sum([v for k, v in self.usage_stats.items() if "_requests" in k]),
+            "avg_response_time": np.mean([r["time"] for r in self.usage_stats["response_times"]]),
+            "provider_distribution": {
+                k: v for k, v in self.usage_stats.items() if "_requests" in k
+            }
+        }
+```
+
+## Próximos Passos
+
+1. **Implementar as classes base** no arquivo `llm_orchestra.py`
+2. **Modificar main.py** para usar o orquestrador
+3. **Adicionar variáveis de ambiente** para a API do Claude
+4. **Testar com queries legais** específicas de Moçambique
+5. **Configurar monitoramento** de performance
+6. **Implementar cache** para respostas frequentes
+7. **Adicionar logging** detalhado para debugging
+
+## Benefícios da Integração
+
+- **Maior Disponibilidade**: Fallback automático entre provedores
+- **Melhor Performance**: Claude 3 pode ter melhor desempenho em certas consultas legais
+- **Flexibilidade**: Possibilidade de usar diferentes modelos para diferentes tipos de consulta
+- **Redundância**: Sistema mais robusto contra falhas de API

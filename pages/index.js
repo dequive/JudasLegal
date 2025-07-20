@@ -88,6 +88,13 @@ export default function HomePage() {
       href: "/glossario",
       icon: <BookOpen className="w-6 h-6" />,
       color: "bg-orange-600 hover:bg-orange-700"
+    },
+    {
+      title: "LLM Orchestra",
+      description: "Sistema multi-IA com Claude 3 + Gemini",
+      href: "/orchestra-demo",
+      icon: <Brain className="w-6 h-6" />,
+      color: "bg-indigo-600 hover:bg-indigo-700"
     }
   ];
 

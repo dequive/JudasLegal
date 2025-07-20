@@ -8,6 +8,7 @@ import os
 import json
 import asyncio
 import logging
+import time
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
@@ -63,13 +64,60 @@ except ImportError as e:
     logger.warning(f"Componentes do sistema legal não disponíveis: {e}")
     LEGAL_SYSTEM_AVAILABLE = False
 
+# Import LLM Orchestra after logger setup
+try:
+    from llm_orchestra import (
+        LLMOrchestrator, ClaudeProvider, GeminiProvider, 
+        LLMProvider, MozambiqueLegalOptimizer
+    )
+    LLM_ORCHESTRA_AVAILABLE = True
+    logger.info("✓ Sistema de orquestração LLM carregado")
+except ImportError as e:
+    logger.warning(f"Sistema de orquestração LLM não disponível: {e}")
+    LLM_ORCHESTRA_AVAILABLE = False
+
 # Initialize Gemini
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
+
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
     logger.info("✓ Gemini AI configurado")
 else:
     logger.warning("⚠️ GEMINI_API_KEY não configurada")
+
+# Initialize LLM Orchestrator
+orchestrator = None
+if LLM_ORCHESTRA_AVAILABLE:
+    try:
+        orchestrator = LLMOrchestrator()
+        
+        # Add Gemini provider
+        if GEMINI_API_KEY:
+            gemini_provider = GeminiProvider(api_key=GEMINI_API_KEY)
+            orchestrator.add_provider(LLMProvider.GEMINI_2_FLASH, gemini_provider)
+            logger.info("✓ Provedor Gemini adicionado ao orquestrador")
+        
+        # Add Claude provider if available
+        if ANTHROPIC_API_KEY:
+            claude_provider = ClaudeProvider(api_key=ANTHROPIC_API_KEY)
+            orchestrator.add_provider(LLMProvider.CLAUDE_3_SONNET, claude_provider)
+            logger.info("✓ Provedor Claude 3 adicionado ao orquestrador")
+        
+        # Set custom fallback order for legal use case
+        available_providers = []
+        if ANTHROPIC_API_KEY:
+            available_providers.append(LLMProvider.CLAUDE_3_SONNET)
+        if GEMINI_API_KEY:
+            available_providers.append(LLMProvider.GEMINI_2_FLASH)
+            
+        if available_providers:
+            orchestrator.set_fallback_order(available_providers)
+            logger.info(f"✓ Orquestrador inicializado com {len(available_providers)} provedores")
+        
+    except Exception as e:
+        logger.error(f"Erro ao inicializar orquestrador: {e}")
+        orchestrator = None
 
 # Database configuration
 DATABASE_URL = os.getenv('DATABASE_URL')
@@ -537,7 +585,7 @@ async def health_check():
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatMessage):
-    """Main chat endpoint with RAG"""
+    """Main chat endpoint with LLM Orchestra and RAG"""
     try:
         # Create or get session
         import uuid
@@ -545,9 +593,29 @@ async def chat_endpoint(request: ChatMessage):
         
         # Search for relevant documents
         citations = RAGService.search_relevant_documents(request.message)
+        context = "\n\n".join([citation.get('text', '') for citation in citations])
         
-        # Generate AI response
-        ai_response = await GeminiService.generate_response(request.message, citations)
+        # Use LLM Orchestrator if available, fallback to direct Gemini
+        if orchestrator and LLM_ORCHESTRA_AVAILABLE:
+            logger.info("Usando orquestrador de LLMs para resposta")
+            
+            # Get response from LLM orchestra with fallback
+            llm_response = await orchestrator.get_legal_response(
+                query=request.message,
+                retrieved_context=context
+            )
+            
+            ai_response = llm_response["response"]
+            provider_used = llm_response["provider"]
+            response_time = llm_response.get("response_time", 0)
+            
+            logger.info(f"Resposta gerada por {provider_used} em {response_time:.2f}s")
+            
+        else:
+            # Fallback to direct Gemini
+            logger.info("Usando GeminiService directo (fallback)")
+            ai_response = await GeminiService.generate_response(request.message, citations)
+            provider_used = "gemini_direct"
         
         # Analyze complexity
         complexity = ComplexityService.analyze_complexity(request.message)
@@ -567,11 +635,16 @@ async def chat_endpoint(request: ChatMessage):
                     VALUES (%s, %s, %s, %s)
                 """, (session_id, 'user', request.message, json.dumps(complexity)))
                 
-                # Store AI response
+                # Store AI response with provider info
+                response_metadata = {
+                    "citations": len(citations),
+                    "provider": provider_used,
+                    "orchestra_used": bool(orchestrator and LLM_ORCHESTRA_AVAILABLE)
+                }
                 cur.execute("""
                     INSERT INTO chat_messages (session_id, role, content, metadata)
                     VALUES (%s, %s, %s, %s)
-                """, (session_id, 'assistant', ai_response, json.dumps({"citations": len(citations)})))
+                """, (session_id, 'assistant', ai_response, json.dumps(response_metadata)))
                 
                 conn.commit()
         
@@ -594,6 +667,60 @@ async def analyze_complexity_endpoint(request: ComplexityRequest):
         return ComplexityResponse(**result)
     except Exception as e:
         logger.error(f"Complexity analysis error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/orchestra/status")
+async def get_orchestra_status():
+    """Get LLM Orchestra status and metrics"""
+    if not orchestrator or not LLM_ORCHESTRA_AVAILABLE:
+        return {
+            "available": False,
+            "error": "Orquestrador LLM não disponível",
+            "fallback": "Usando Gemini directo"
+        }
+    
+    try:
+        status = orchestrator.get_health_status()
+        return {
+            "available": True,
+            "status": status,
+            "available_providers": orchestrator.get_available_providers(),
+            "fallback_order": [p.value for p in orchestrator.fallback_order]
+        }
+    except Exception as e:
+        logger.error(f"Erro ao obter status do orquestrador: {e}")
+        return {
+            "available": False,
+            "error": str(e)
+        }
+
+@app.post("/api/orchestra/test")
+async def test_orchestra(request: ChatMessage):
+    """Test LLM Orchestra with a simple query"""
+    if not orchestrator or not LLM_ORCHESTRA_AVAILABLE:
+        raise HTTPException(
+            status_code=503, 
+            detail="Orquestrador LLM não disponível"
+        )
+    
+    try:
+        test_query = request.message or "Teste básico do sistema jurídico moçambicano"
+        test_context = "Contexto de teste para verificar funcionamento do orquestrador de LLMs"
+        
+        start_time = time.time()
+        response = await orchestrator.get_legal_response(test_query, test_context)
+        response_time = time.time() - start_time
+        
+        return {
+            "test_successful": response["success"],
+            "provider_used": response["provider"],
+            "response_time": response_time,
+            "response_preview": response["response"][:200] + "..." if len(response["response"]) > 200 else response["response"],
+            "metrics": orchestrator.metrics.get_performance_summary()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erro no teste do orquestrador: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/admin/upload-document")
@@ -718,12 +845,24 @@ async def get_stats():
                 cur.execute("SELECT COUNT(*) as count FROM chat_messages")
                 message_count = cur.fetchone()['count']
                 
+                # Get LLM orchestra metrics
+                orchestra_metrics = {}
+                if orchestrator:
+                    orchestra_metrics = orchestrator.metrics.get_performance_summary()
+                
                 return {
                     "documents": doc_count,
                     "chunks": chunk_count,
                     "chat_sessions": session_count,
                     "messages": message_count,
-                    "ai_status": "configured" if GEMINI_API_KEY else "not_configured"
+                    "ai_status": "configured" if GEMINI_API_KEY else "not_configured",
+                    "llm_orchestra": {
+                        "enabled": bool(orchestrator),
+                        "available_providers": orchestrator.get_available_providers() if orchestrator else [],
+                        "total_requests": orchestra_metrics.get("total_requests", 0),
+                        "success_rate": f"{orchestra_metrics.get('success_rate', 0)}%",
+                        "avg_response_time": f"{orchestra_metrics.get('avg_response_time', 0)}s"
+                    }
                 }
                 
     except Exception as e:
@@ -1129,6 +1268,11 @@ async def root():
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
+    # Get LLM orchestra status
+    orchestra_status = {}
+    if orchestrator:
+        orchestra_status = orchestrator.get_health_status()
+    
     return {
         "status": "healthy",
         "service": "Muzaia Backend",
@@ -1137,11 +1281,18 @@ async def health_check():
         "database": "connected",
         "ai": "configured" if GEMINI_API_KEY else "not_configured",
         "legal_system": "available" if LEGAL_SYSTEM_AVAILABLE else "not_available",
+        "llm_orchestra": {
+            "available": bool(orchestrator and LLM_ORCHESTRA_AVAILABLE),
+            "providers": orchestra_status.get("providers", {}),
+            "fallback_order": orchestra_status.get("fallback_order", []),
+            "metrics": orchestra_status.get("metrics", {})
+        },
         "features": {
             "basic_rag": True,
             "advanced_chunking": LEGAL_SYSTEM_AVAILABLE,
             "legal_hierarchy": LEGAL_SYSTEM_AVAILABLE,
-            "document_processing": LEGAL_SYSTEM_AVAILABLE
+            "document_processing": LEGAL_SYSTEM_AVAILABLE,
+            "multi_llm_fallback": bool(orchestrator and LLM_ORCHESTRA_AVAILABLE)
         }
     }
 
