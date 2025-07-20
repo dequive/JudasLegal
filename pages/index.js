@@ -152,7 +152,7 @@ export default function HomePage() {
                   <span className="text-sm text-gray-300">{stats.status}</span>
                 </div>
                 <Link href="/chat">
-                  <button className="btn-primary">
+                  <button className="btn btn-primary">
                     Iniciar Chat
                   </button>
                 </Link>
@@ -254,13 +254,13 @@ export default function HomePage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/chat">
-                  <button className="btn-primary text-lg px-8 py-3">
+                  <button className="btn btn-primary btn-lg">
                     <MessageCircle className="w-5 h-5 mr-2" />
                     Iniciar Conversa
                   </button>
                 </Link>
                 <Link href="/admin">
-                  <button className="btn-secondary text-lg px-8 py-3">
+                  <button className="btn btn-secondary btn-lg">
                     <Shield className="w-5 h-5 mr-2" />
                     Área Administrativa
                   </button>

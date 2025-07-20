@@ -4,6 +4,9 @@ import FeedbackSystem from './FeedbackSystem';
 import ExportSystem from './ExportSystem';
 import { useLegalHistory, useUserPreferences } from '../hooks/useLocalStorage';
 import LegalDisclaimer, { AIResponseDisclaimer, useLegalDisclaimer } from './LegalDisclaimer';
+import OptimizedButton from './OptimizedButton';
+import OptimizedCard from './OptimizedCard';
+import { LoadingSpinner, ChatMessageLoading } from './LoadingStates';
 
 export default function ModernChatInterface() {
   const [messages, setMessages] = useState([]);
@@ -110,14 +113,15 @@ Para vos ajudar melhor, preciso de alguns detalhes adicionais:
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">
       {/* Header com tema moçambicano */}
-      <div className="card-mozambique border-b border-moz-green/20 p-4">
+      <div className="glass-dark border-b border-white/10 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-semibold text-mozambique">Muzaia</h1>
-            <div className="flex items-center gap-1">
-              <span className="w-2 h-2 bg-moz-green rounded-full"></span>
-              <span className="w-2 h-2 bg-moz-red rounded-full"></span>
-              <span className="w-2 h-2 bg-moz-yellow rounded-full"></span>
+            <div className="w-10 h-10 bg-gradient-mozambique rounded-xl flex items-center justify-center">
+              <span className="text-white font-bold">M</span>
+            </div>
+            <div>
+              <h1 className="text-xl font-semibold text-gradient-legal">Muzaia</h1>
+              <p className="text-sm text-gray-300">Assistente Jurídico</p>
             </div>
           </div>
           
