@@ -33,6 +33,8 @@ dependencies = [
     "pydantic-settings>=2.10.1",
     "pyjwt>=2.10.1",
     "psutil>=7.0.0",
+    "requests>=2.32.4",
+    "bcrypt>=4.3.0",
 ]
 
 [tool.setuptools]

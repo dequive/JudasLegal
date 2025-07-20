@@ -102,6 +102,13 @@ export default function HomePage() {
       href: "/system-improvements",
       icon: <Settings className="w-6 h-6" />,
       color: "bg-slate-600 hover:bg-slate-700"
+    },
+    {
+      title: "Painel de Segurança",
+      description: "Monitorização e administração",
+      href: "/security-simple",
+      icon: <Shield className="w-6 h-6" />,
+      color: "bg-red-600 hover:bg-red-700"
     }
   ];
 

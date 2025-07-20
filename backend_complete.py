@@ -182,11 +182,17 @@ if IMPROVEMENTS_AVAILABLE:
     
     # Adicionar router de autenticação
     try:
-        from app.routers.auth import router as auth_router
+        from app.routers.auth_simple import router as auth_router
         app.include_router(auth_router)
-        logger.info("✓ Router de autenticação adicionado")
+        logger.info("✓ Router de autenticação simplificado adicionado")
     except ImportError as e:
         logger.warning(f"Router de autenticação não disponível: {e}")
+        try:
+            from app.routers.auth import router as auth_router_complex
+            app.include_router(auth_router_complex)
+            logger.info("✓ Router de autenticação complexo adicionado")
+        except ImportError as e2:
+            logger.warning(f"Nenhum router de autenticação disponível: {e2}")
     
     # Iniciar monitorização do sistema
     try:
