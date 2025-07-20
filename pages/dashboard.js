@@ -209,11 +209,111 @@ const Dashboard = () => {
               e.currentTarget.style.transform = 'translateY(0)';
               e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
             }}
-            onClick={() => window.location.href = '/tooltips-demo'}>
+            onClick={() => window.location.href = '/legal-research'}>
               <div style={{
                 width: '48px',
                 height: '48px',
                 background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '1rem',
+                fontSize: '1.5rem'
+              }}>
+                🔍
+              </div>
+              <h3 style={{
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                color: '#1f2937',
+                margin: '0 0 0.5rem 0'
+              }}>
+                Pesquisa Avançada
+              </h3>
+              <p style={{
+                fontSize: '0.9rem',
+                color: '#6b7280',
+                margin: 0,
+                lineHeight: '1.5'
+              }}>
+                Busca inteligente em documentos legais com filtros avançados e análise de relevância
+              </p>
+            </div>
+
+            {/* Complexity demo action */}
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '1.5rem',
+              border: '1px solid #e2e8f0',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+            }}
+            onClick={() => window.location.href = '/legal-analytics'}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '1rem',
+                fontSize: '1.5rem'
+              }}>
+                📊
+              </div>
+              <h3 style={{
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                color: '#1f2937',
+                margin: '0 0 0.5rem 0'
+              }}>
+                Analytics Legais
+              </h3>
+              <p style={{
+                fontSize: '0.9rem',
+                color: '#6b7280',
+                margin: 0,
+                lineHeight: '1.5'
+              }}>
+                Análises avançadas e métricas da base de conhecimento legal moçambicana
+              </p>
+            </div>
+
+            {/* Glossary action */}
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '1.5rem',
+              border: '1px solid #e2e8f0',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+            }}
+            onClick={() => window.location.href = '/tooltips-demo'}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                 borderRadius: '12px',
                 display: 'flex',
                 alignItems: 'center',
@@ -238,56 +338,6 @@ const Dashboard = () => {
                 lineHeight: '1.5'
               }}>
                 Explore termos legais com explicações contextuais e exemplos práticos
-              </p>
-            </div>
-
-            {/* Complexity demo action */}
-            <div style={{
-              background: 'white',
-              borderRadius: '12px',
-              padding: '1.5rem',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-              transition: 'all 0.2s ease',
-              cursor: 'pointer'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-            }}
-            onClick={() => window.location.href = '/complexity-demo'}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-                borderRadius: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '1rem',
-                fontSize: '1.5rem'
-              }}>
-                📊
-              </div>
-              <h3 style={{
-                fontSize: '1.1rem',
-                fontWeight: '600',
-                color: '#1f2937',
-                margin: '0 0 0.5rem 0'
-              }}>
-                Análise de Complexidade
-              </h3>
-              <p style={{
-                fontSize: '0.9rem',
-                color: '#6b7280',
-                margin: 0,
-                lineHeight: '1.5'
-              }}>
-                Veja como o sistema classifica a dificuldade de questões jurídicas
               </p>
             </div>
           </div>

@@ -847,9 +847,166 @@ async def upload_document_advanced(
     
     except Exception as e:
         logger.error(f"Erro no upload avançado: {e}")
-        if temp_file_path.exists():
+        if 'temp_file_path' in locals() and temp_file_path.exists():
             temp_file_path.unlink()
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/legal/advanced-search")
+async def advanced_search(request: dict):
+    """Busca avançada com filtros e análise de relevância"""
+    try:
+        # Importar o serviço RAG avançado
+        from services.advanced_rag_service import create_advanced_rag_service
+        
+        rag_service = create_advanced_rag_service(get_db_connection)
+        
+        query = request.get('query', '')
+        filters = request.get('filters', {})
+        max_results = request.get('max_results', 10)
+        
+        results = rag_service.advanced_search(query, filters, max_results)
+        
+        # Converter results para formato serializável
+        documents = []
+        for result in results:
+            documents.append({
+                'id': result.document_id,
+                'title': result.title,
+                'content': result.content,
+                'relevance_score': result.relevance_score,
+                'document_type': result.document_type,
+                'legal_area': result.legal_area,
+                'date_published': result.date_published,
+                'chunk_index': result.chunk_index,
+                'description': result.metadata.get('description', ''),
+                'keywords': result.metadata.get('keywords', [])
+            })
+        
+        return {
+            'documents': documents,
+            'total_found': len(documents),
+            'query_processed': query,
+            'filters_applied': filters
+        }
+        
+    except Exception as e:
+        logger.error(f"Erro na busca avançada: {e}")
+        return {
+            'documents': [],
+            'total_found': 0,
+            'error': str(e)
+        }
+
+@app.get("/api/legal/analytics")
+async def get_legal_analytics():
+    """Retorna análises avançadas da base legal"""
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                # Análise por tipo de documento
+                cur.execute("""
+                    SELECT 
+                        COALESCE(metadata->>'document_type', 'Não especificado') as doc_type,
+                        COUNT(*) as count
+                    FROM legal_documents 
+                    GROUP BY metadata->>'document_type'
+                    ORDER BY count DESC
+                """)
+                docs_by_type = dict(cur.fetchall())
+                
+                # Análise por área legal
+                cur.execute("""
+                    SELECT 
+                        COALESCE(metadata->>'legal_area', 'Não especificado') as legal_area,
+                        COUNT(*) as count
+                    FROM legal_documents 
+                    GROUP BY metadata->>'legal_area'
+                    ORDER BY count DESC
+                """)
+                docs_by_area = dict(cur.fetchall())
+                
+                # Distribuição temporal
+                cur.execute("""
+                    SELECT 
+                        EXTRACT(YEAR FROM created_at) as year,
+                        COUNT(*) as count
+                    FROM legal_documents 
+                    WHERE created_at IS NOT NULL
+                    GROUP BY EXTRACT(YEAR FROM created_at)
+                    ORDER BY year DESC
+                    LIMIT 5
+                """)
+                temporal_dist = dict(cur.fetchall())
+                
+                # Análise de complexidade (simulada baseada no tamanho do conteúdo)
+                cur.execute("""
+                    SELECT 
+                        CASE 
+                            WHEN length(content) < 1000 THEN 'Simples'
+                            WHEN length(content) < 5000 THEN 'Moderado'
+                            WHEN length(content) < 15000 THEN 'Complexo'
+                            ELSE 'Muito Complexo'
+                        END as complexity,
+                        COUNT(*) as count
+                    FROM legal_documents 
+                    GROUP BY 
+                        CASE 
+                            WHEN length(content) < 1000 THEN 'Simples'
+                            WHEN length(content) < 5000 THEN 'Moderado'
+                            WHEN length(content) < 15000 THEN 'Complexo'
+                            ELSE 'Muito Complexo'
+                        END
+                """)
+                complexity_analysis = dict(cur.fetchall())
+                
+                # Tópicos em tendência (baseado em palavras-chave mais comuns)
+                cur.execute("""
+                    WITH words AS (
+                        SELECT unnest(string_to_array(lower(title), ' ')) as word
+                        FROM legal_documents 
+                    )
+                    SELECT 
+                        word,
+                        COUNT(*) as frequency
+                    FROM words 
+                    WHERE length(word) > 4
+                    GROUP BY word
+                    ORDER BY frequency DESC
+                    LIMIT 10
+                """)
+                word_freq = cur.fetchall()
+                
+                import random
+                trending_topics = []
+                for word, freq in word_freq:
+                    if word not in ['para', 'sobre', 'como', 'quando', 'onde', 'pela', 'pelo', 'pela', 'esta', 'esse', 'isso', 'muito']:
+                        trending_topics.append({
+                            'name': word.capitalize(),
+                            'mentions': freq,
+                            'trend': random.randint(-20, 30)  # Simulação de tendência
+                        })
+                
+        return {
+            'documentsByType': docs_by_type,
+            'documentsByArea': docs_by_area,
+            'temporalDistribution': temporal_dist,
+            'complexityAnalysis': complexity_analysis,
+            'trendingTopics': trending_topics[:8],
+            'citationNetwork': [],  # Para implementação futura
+            'lastUpdated': datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erro ao gerar analytics: {e}")
+        return {
+            'documentsByType': {},
+            'documentsByArea': {},
+            'temporalDistribution': {},
+            'complexityAnalysis': {},
+            'trendingTopics': [],
+            'citationNetwork': [],
+            'error': str(e)
+        }
 
 @app.get("/api/legal/documents-advanced")
 async def list_documents_advanced():
