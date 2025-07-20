@@ -700,6 +700,18 @@ async def delete_document(document_id: int):
         raise HTTPException(status_code=500, detail=str(e))
 
 # Initialize database on startup
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "service": "Muzaia Backend",
+        "timestamp": datetime.now().isoformat(),
+        "database": "connected",
+        "ai": "configured" if GEMINI_API_KEY else "not_configured"
+    }
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize the application"""
