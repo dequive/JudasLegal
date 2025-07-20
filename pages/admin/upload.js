@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { Upload, FileText, X } from 'lucide-react';
 
 export default function UploadDocument() {
   const router = useRouter();
@@ -67,6 +68,13 @@ export default function UploadDocument() {
     }
   };
 
+  const removeFile = () => {
+    setForm(prev => ({
+      ...prev,
+      file: null
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -83,41 +91,45 @@ export default function UploadDocument() {
       formData.append('title', form.title);
       formData.append('description', form.description || '');
       formData.append('law_type', form.law_type);
-      formData.append('source', form.source);
+      formData.append('source', form.source || 'Sistema Muzaia');
 
       const response = await fetch('http://localhost:8000/api/admin/upload-document', {
         method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+        },
         body: formData,
       });
 
       if (response.ok) {
         const result = await response.json();
-        alert(`Documento carregado com sucesso! ${result.chunks_created} chunks criados.`);
+        alert(`Documento carregado com sucesso! ${result.chunks_created || 'Vários'} chunks criados.`);
         router.push('/admin');
       } else {
-        const error = await response.json();
-        alert(`Erro: ${error.detail}`);
+        const errorText = await response.text();
+        console.error('Erro do servidor:', errorText);
+        alert(`Erro no upload: ${response.status} - Verifique os logs do servidor`);
       }
     } catch (error) {
       console.error('Erro no upload:', error);
-      alert('Erro ao carregar documento');
+      alert('Erro de conexão. Verifique se o backend está em funcionamento.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
       {/* Header */}
-      <div className="bg-white shadow">
+      <div className="glass-dark border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Carregar Documento Legal</h1>
-              <p className="text-gray-600">Adicionar nova lei ou regulamento ao sistema</p>
+              <h1 className="text-3xl font-bold text-white">Carregar Documento Legal</h1>
+              <p className="text-gray-300">Adicionar nova lei ou regulamento ao sistema</p>
             </div>
             <Link href="/admin">
-              <button className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <button className="btn-secondary">
                 ← Voltar ao Painel
               </button>
             </Link>
@@ -126,17 +138,17 @@ export default function UploadDocument() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
           {/* File Upload */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="card-modern">
+            <label className="block text-sm font-medium text-gray-300 mb-4">
               Arquivo do Documento *
             </label>
             <div
-              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
+              className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 ${
                 dragActive
-                  ? 'border-blue-400 bg-blue-50'
-                  : 'border-gray-300 hover:border-gray-400'
+                  ? 'border-blue-400 bg-blue-500/10 scale-105'
+                  : 'border-gray-600 hover:border-gray-500 hover:bg-gray-700/50'
               }`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
@@ -153,117 +165,132 @@ export default function UploadDocument() {
               />
               
               {form.file ? (
-                <div className="text-green-600">
-                  <div className="text-lg mb-2">📄</div>
-                  <p className="text-sm font-medium">{form.file.name}</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {Math.round(form.file.size / 1024)} KB
+                <div className="space-y-3">
+                  <FileText className="w-12 h-12 text-green-400 mx-auto" />
+                  <div className="flex items-center justify-center space-x-2">
+                    <span className="text-white font-medium">{form.file.name}</span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeFile();
+                      }}
+                      className="text-red-400 hover:text-red-300 transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <p className="text-gray-400 text-sm">
+                    {(form.file.size / 1024 / 1024).toFixed(2)} MB
                   </p>
                 </div>
               ) : (
-                <div className="text-gray-400">
-                  <div className="text-3xl mb-2">📤</div>
-                  <p className="text-sm">
-                    Clique para seleccionar ou arraste o arquivo aqui
-                  </p>
-                  <p className="text-xs mt-1">PDF, DOCX ou TXT até 50MB</p>
+                <div className="space-y-4">
+                  <Upload className="w-12 h-12 text-gray-400 mx-auto" />
+                  <div>
+                    <p className="text-white font-medium">
+                      Arraste e solte o ficheiro aqui, ou clique para seleccionar
+                    </p>
+                    <p className="text-gray-400 text-sm mt-2">
+                      Suporte para PDF, DOCX, TXT (máx. 50MB)
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Title */}
-          <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-              Título do Documento *
-            </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={form.title}
-              onChange={handleInputChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Ex: Lei do Trabalho de Moçambique"
-            />
-          </div>
+          {/* Form Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Title */}
+            <div className="card-modern">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Título do Documento *
+              </label>
+              <input
+                type="text"
+                name="title"
+                value={form.title}
+                onChange={handleInputChange}
+                placeholder="Ex: Lei do Trabalho de Moçambique"
+                className="input-modern w-full"
+                required
+              />
+            </div>
 
-          {/* Law Type */}
-          <div>
-            <label htmlFor="law_type" className="block text-sm font-medium text-gray-700 mb-2">
-              Tipo de Lei *
-            </label>
-            <select
-              id="law_type"
-              name="law_type"
-              value={form.law_type}
-              onChange={handleInputChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Seleccione o tipo</option>
-              {lawTypes.map(type => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
+            {/* Law Type */}
+            <div className="card-modern">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Tipo de Lei *
+              </label>
+              <select
+                name="law_type"
+                value={form.law_type}
+                onChange={handleInputChange}
+                className="input-modern w-full"
+                required
+              >
+                <option value="">Seleccionar tipo</option>
+                {lawTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* Description */}
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="card-modern">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Descrição
             </label>
             <textarea
-              id="description"
               name="description"
               value={form.description}
               onChange={handleInputChange}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Breve descrição do conteúdo e aplicabilidade do documento"
+              rows="4"
+              placeholder="Descrição opcional do documento..."
+              className="textarea-modern w-full"
             />
           </div>
 
           {/* Source */}
-          <div>
-            <label htmlFor="source" className="block text-sm font-medium text-gray-700 mb-2">
-              Fonte/Origem
+          <div className="card-modern">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Fonte
             </label>
             <input
               type="text"
-              id="source"
               name="source"
               value={form.source}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Ex: Boletim da República, Assembleia da República"
+              placeholder="Ex: Boletim da República, Imprensa Nacional"
+              className="input-modern w-full"
             />
           </div>
 
           {/* Submit Button */}
-          <div className="flex justify-end space-x-4 pt-6">
+          <div className="flex justify-end space-x-4">
             <Link href="/admin">
               <button
                 type="button"
-                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                className="btn-secondary"
               >
                 Cancelar
               </button>
             </Link>
             <button
               type="submit"
-              disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              disabled={loading || !form.file || !form.title || !form.law_type}
+              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
             >
               {loading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Processando...</span>
+                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                  <span>A carregar...</span>
                 </>
               ) : (
                 <>
-                  <span>📤</span>
+                  <Upload className="w-4 h-4" />
                   <span>Carregar Documento</span>
                 </>
               )}
