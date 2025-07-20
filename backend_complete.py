@@ -52,8 +52,8 @@ logger = logging.getLogger(__name__)
 # Import new legal system components after logger setup
 try:
     from models.legal_document_hierarchy import (
-        LegalDocumentType, LegalArea, DocumentStatus, 
-        LegalDocumentHierarchy, PRIORITY_DOCUMENTS
+        LegalDocumentType, LegalArea, DocumentMetadata, 
+        LegalDocumentHierarchy
     )
     from services.legal_chunker import LegalChunker
     from services.document_ingestor import DocumentIngestor
@@ -762,7 +762,7 @@ async def get_legal_hierarchy():
     return {
         "document_types": {str(t.value): LegalDocumentHierarchy.get_type_name(t) for t in LegalDocumentType},
         "legal_areas": {str(a.value): LegalDocumentHierarchy.get_area_name(a) for a in LegalArea},
-        "priority_documents": PRIORITY_DOCUMENTS,
+        "priority_documents": LegalDocumentHierarchy.PRIORITY_DOCUMENTS,
         "hierarchy_levels": {
             "1": "Constituição (Autoridade máxima)",
             "2": "Leis ordinárias",
@@ -838,8 +838,8 @@ async def upload_document_advanced(
                 "processing_info": {
                     "chunking_method": "legal_structure",
                     "legal_concepts_extracted": len(result['metadata'].get('keywords', [])),
-                    "document_type": LegalDocumentHierarchy.get_type_name(LegalDocumentType(result['metadata']['document_type'])),
-                    "legal_area": LegalDocumentHierarchy.get_area_name(LegalArea(result['metadata']['legal_area']))
+                    "document_type": result['metadata'].get('document_type', 'Desconhecido'),
+                    "legal_area": result['metadata'].get('legal_area', 'Desconhecido')
                 }
             }
         else:
@@ -1144,6 +1144,178 @@ async def health_check():
             "document_processing": LEGAL_SYSTEM_AVAILABLE
         }
     }
+
+# APIs da Fase 3 - Sistema Hierárquico Avançado
+
+@app.post("/api/legal/upload-advanced")
+async def upload_advanced_document(
+    file: UploadFile = File(...),
+    document_type: Optional[int] = Form(None),
+    legal_area: Optional[int] = Form(None),
+    description: Optional[str] = Form(""),
+    source: Optional[str] = Form("Sistema Muzaia")
+):
+    """Upload avançado com processamento hierárquico e chunking inteligente"""
+    
+    if not LEGAL_SYSTEM_AVAILABLE:
+        return {
+            "success": False,
+            "error": "Sistema legal avançado não disponível",
+            "fallback_endpoint": "/api/admin/upload-document"
+        }
+    
+    # Validar tipo de arquivo
+    allowed_extensions = ['.pdf', '.docx', '.txt']
+    file_extension = Path(file.filename).suffix.lower()
+    
+    if file_extension not in allowed_extensions:
+        raise HTTPException(status_code=400, detail=f"Tipo de arquivo não suportado. Use: {', '.join(allowed_extensions)}")
+    
+    try:
+        # Salvar arquivo temporário
+        upload_dir = Path("uploads")
+        upload_dir.mkdir(exist_ok=True)
+        
+        temp_file_path = upload_dir / f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{file.filename}"
+        
+        with open(temp_file_path, "wb") as buffer:
+            content = await file.read()
+            buffer.write(content)
+        
+        # Processar com sistema avançado
+        from services.document_ingestor import DocumentIngestor
+        ingestor = DocumentIngestor(get_db_connection)
+        
+        override_metadata = {}
+        if document_type:
+            override_metadata['document_type'] = document_type
+        if legal_area:
+            override_metadata['legal_area'] = legal_area
+        if description:
+            override_metadata['description'] = description
+        if source:
+            override_metadata['source'] = source
+        
+        result = ingestor.process_document(
+            str(temp_file_path),
+            file.filename,
+            override_metadata if override_metadata else None
+        )
+        
+        # Remover arquivo temporário
+        temp_file_path.unlink()
+        
+        if result['success']:
+            return {
+                "message": "Documento processado com sucesso",
+                "document_id": result['document_id'],
+                "title": result['title'],
+                "chunks_created": result['chunks_created'],
+                "metadata": result['metadata'],
+                "processing_info": {
+                    **result['processing_info'],
+                    "chunking_method": "legal_hierarchical",
+                    "system": "advanced"
+                }
+            }
+        else:
+            raise HTTPException(status_code=500, detail=f"Erro no processamento: {result['error']}")
+    
+    except Exception as e:
+        logger.error(f"Erro no upload avançado: {e}")
+        if 'temp_file_path' in locals() and temp_file_path.exists():
+            temp_file_path.unlink()
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/legal/documents-advanced")
+async def get_documents_advanced():
+    """Lista documentos com metadados hierárquicos detalhados"""
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT 
+                        ld.id,
+                        ld.title,
+                        ld.metadata,
+                        ld.created_at,
+                        ld.content_hash,
+                        COUNT(dc.id) as chunk_count,
+                        AVG(length(dc.content)) as avg_chunk_size
+                    FROM legal_documents ld
+                    LEFT JOIN document_chunks dc ON ld.id = dc.document_id
+                    GROUP BY ld.id, ld.title, ld.metadata, ld.created_at, ld.content_hash
+                    ORDER BY ld.created_at DESC
+                """)
+                
+                documents = []
+                for row in cur.fetchall():
+                    doc_id, title, metadata, created_at, content_hash, chunk_count, avg_chunk_size = row
+                    
+                    # Parse metadata
+                    meta = metadata if metadata else {}
+                    
+                    documents.append({
+                        'id': doc_id,
+                        'title': title,
+                        'document_type': meta.get('document_type', 'Desconhecido'),
+                        'legal_area': meta.get('legal_area', 'Desconhecido'),
+                        'authority_weight': meta.get('authority_weight', 0.5),
+                        'status': meta.get('status', 'active'),
+                        'keywords': meta.get('keywords', []),
+                        'description': meta.get('description', ''),
+                        'source': meta.get('source', 'Sistema Muzaia'),
+                        'chunk_count': chunk_count or 0,
+                        'avg_chunk_size': int(avg_chunk_size) if avg_chunk_size else 0,
+                        'created_at': created_at.isoformat() if created_at else None,
+                        'content_hash': content_hash[:12] + '...' if content_hash else 'N/A'
+                    })
+                
+                return {
+                    'documents': documents,
+                    'total_count': len(documents)
+                }
+    
+    except Exception as e:
+        logger.error(f"Erro ao listar documentos avançados: {e}")
+        return {
+            'documents': [],
+            'total_count': 0,
+            'error': str(e)
+        }
+
+@app.get("/api/legal/processing-stats")
+async def get_processing_stats():
+    """Estatísticas detalhadas do sistema de processamento"""
+    try:
+        if LEGAL_SYSTEM_AVAILABLE:
+            from services.document_ingestor import DocumentIngestor
+            ingestor = DocumentIngestor(get_db_connection)
+            return ingestor.get_processing_stats()
+        else:
+            # Estatísticas básicas como fallback
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT COUNT(*) FROM legal_documents")
+                    doc_count = cur.fetchone()[0]
+                    
+                    cur.execute("SELECT COUNT(*) FROM document_chunks")  
+                    chunk_count = cur.fetchone()[0]
+                    
+                    return {
+                        'general': {
+                            'total_documents': doc_count,
+                            'total_chunks': chunk_count
+                        },
+                        'system': 'basic'
+                    }
+    
+    except Exception as e:
+        logger.error(f"Erro ao obter estatísticas: {e}")
+        return {
+            'general': {'total_documents': 0, 'total_chunks': 0},
+            'error': str(e)
+        }
 
 @app.on_event("startup")
 async def startup_event():

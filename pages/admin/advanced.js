@@ -1,405 +1,453 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import AuthGuard from '../../components/AuthGuard';
-import UserProfile from '../../components/UserProfile';
+import Head from 'next/head';
 
-export default function AdvancedAdmin() {
-  const [hierarchyInfo, setHierarchyInfo] = useState(null);
-  const [documents, setDocuments] = useState([]);
+const DOCUMENT_TYPES = {
+  1: 'Constituição da República',
+  2: 'Lei',
+  3: 'Decreto-Lei',
+  4: 'Decreto',
+  5: 'Regulamento',
+  6: 'Portaria',
+  7: 'Diploma Ministerial',
+  8: 'Instrução',
+  9: 'Circular',
+  10: 'Despacho'
+};
+
+const LEGAL_AREAS = {
+  1: 'Direito Constitucional',
+  2: 'Direito Civil',
+  3: 'Direito Penal',
+  4: 'Direito Comercial',
+  5: 'Direito do Trabalho',
+  6: 'Direito Administrativo',
+  7: 'Direito Fiscal',
+  8: 'Direito Fundiário',
+  9: 'Direito Ambiental',
+  10: 'Direito da Família',
+  11: 'Processo Civil',
+  12: 'Processo Penal',
+  13: 'Segurança Social',
+  14: 'Imigração',
+  15: 'Propriedade Intelectual'
+};
+
+export default function AdminAdvanced() {
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [documents, setDocuments] = useState([]);
   const [uploadFile, setUploadFile] = useState(null);
-  const [uploadMetadata, setUploadMetadata] = useState({
-    title: '',
+  const [uploadForm, setUploadForm] = useState({
     document_type: '',
     legal_area: '',
     description: '',
-    source: ''
+    source: 'Sistema Muzaia'
   });
-  const [uploadLoading, setUploadLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState(null);
+  const [activeTab, setActiveTab] = useState('upload');
 
   useEffect(() => {
-    loadAdminData();
+    fetchStats();
+    fetchDocuments();
   }, []);
 
-  const loadAdminData = async () => {
+  const fetchStats = async () => {
     try {
-      // Carregar hierarquia legal
-      const hierarchyRes = await fetch('http://localhost:8000/api/legal/hierarchy');
-      if (hierarchyRes.ok) {
-        const hierarchyData = await hierarchyRes.json();
-        setHierarchyInfo(hierarchyData);
-      }
-
-      // Carregar documentos avançados
-      const docsRes = await fetch('http://localhost:8000/api/legal/documents-advanced');
-      if (docsRes.ok) {
-        const docsData = await docsRes.json();
-        setDocuments(docsData.documents || []);
-      }
-
-      // Carregar estatísticas
-      const statsRes = await fetch('http://localhost:8000/api/legal/processing-stats');
-      if (statsRes.ok) {
-        const statsData = await statsRes.json();
-        setStats(statsData);
-      }
-
-      setLoading(false);
+      const response = await fetch('http://localhost:8000/api/legal/processing-stats');
+      const data = await response.json();
+      setStats(data);
     } catch (error) {
-      console.error('Erro ao carregar dados administrativos:', error);
-      setLoading(false);
+      console.error('Erro ao buscar estatísticas:', error);
     }
   };
 
-  const handleAdvancedUpload = async (e) => {
-    e.preventDefault();
-    if (!uploadFile) return;
-
-    setUploadLoading(true);
+  const fetchDocuments = async () => {
     try {
-      const formData = new FormData();
-      formData.append('file', uploadFile);
-      formData.append('title', uploadMetadata.title);
-      
-      if (uploadMetadata.document_type) {
-        formData.append('document_type', uploadMetadata.document_type);
-      }
-      if (uploadMetadata.legal_area) {
-        formData.append('legal_area', uploadMetadata.legal_area);
-      }
-      if (uploadMetadata.description) {
-        formData.append('description', uploadMetadata.description);
-      }
-      if (uploadMetadata.source) {
-        formData.append('source', uploadMetadata.source);
-      }
+      const response = await fetch('http://localhost:8000/api/legal/documents-advanced');
+      const data = await response.json();
+      setDocuments(data.documents || []);
+    } catch (error) {
+      console.error('Erro ao buscar documentos:', error);
+    }
+  };
 
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    if (!uploadFile) {
+      alert('Seleccione um arquivo para upload');
+      return;
+    }
+
+    setUploading(true);
+    setUploadResult(null);
+
+    const formData = new FormData();
+    formData.append('file', uploadFile);
+    
+    if (uploadForm.document_type) {
+      formData.append('document_type', uploadForm.document_type);
+    }
+    if (uploadForm.legal_area) {
+      formData.append('legal_area', uploadForm.legal_area);
+    }
+    if (uploadForm.description) {
+      formData.append('description', uploadForm.description);
+    }
+    if (uploadForm.source) {
+      formData.append('source', uploadForm.source);
+    }
+
+    try {
       const response = await fetch('http://localhost:8000/api/legal/upload-advanced', {
         method: 'POST',
         body: formData
       });
 
+      const result = await response.json();
+      
       if (response.ok) {
-        const result = await response.json();
-        alert(`Documento processado com sucesso!\n${result.chunks_created} chunks criados`);
+        setUploadResult(result);
         setUploadFile(null);
-        setUploadMetadata({
-          title: '',
+        setUploadForm({
           document_type: '',
           legal_area: '',
           description: '',
-          source: ''
+          source: 'Sistema Muzaia'
         });
-        loadAdminData(); // Recarregar dados
+        // Refresh data
+        fetchStats();
+        fetchDocuments();
       } else {
-        const error = await response.json();
-        alert(`Erro no upload: ${error.detail}`);
+        setUploadResult({ error: result.detail || 'Erro no upload' });
       }
     } catch (error) {
-      alert(`Erro: ${error.message}`);
+      setUploadResult({ error: error.message });
     } finally {
-      setUploadLoading(false);
+      setUploading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <AuthGuard>
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 p-4">
-          <UserProfile />
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-400"></div>
-          </div>
-        </div>
-      </AuthGuard>
-    );
-  }
+  const getComplexityColor = (level) => {
+    switch(level) {
+      case 1: return 'text-green-600';
+      case 2: return 'text-yellow-600';
+      case 3: return 'text-orange-600';
+      case 4: return 'text-red-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  const getComplexityText = (level) => {
+    switch(level) {
+      case 1: return 'Simples';
+      case 2: return 'Moderado';
+      case 3: return 'Complexo';
+      case 4: return 'Muito Complexo';
+      default: return 'N/A';
+    }
+  };
 
   return (
-    <AuthGuard>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 p-4">
-        <UserProfile />
-        
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent mb-4">
-              Administração Avançada Muzaia
-            </h1>
-            <p className="text-slate-300 text-lg">
-              Sistema legal hierárquico com processamento inteligente
-            </p>
-          </div>
-
-          {/* Upload Avançado */}
-          <div className="backdrop-blur-sm bg-white/10 rounded-2xl p-6 border border-white/20 shadow-2xl mb-8">
-            <h2 className="text-2xl font-bold text-white mb-6">Upload com Processamento Avançado</h2>
-            
-            <form onSubmit={handleAdvancedUpload} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <>
+      <Head>
+        <title>Administração Avançada - Sistema Muzaia</title>
+      </Head>
+      
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+        {/* Header */}
+        <div className="bg-black/20 backdrop-blur-sm border-b border-white/10">
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            <div className="flex items-center justify-between">
               <div>
-                <label className="block text-white text-sm font-medium mb-2">
-                  Arquivo Legal
-                </label>
-                <input
-                  type="file"
-                  accept=".pdf,.docx,.txt"
-                  onChange={(e) => setUploadFile(e.target.files[0])}
-                  className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white"
-                  required
-                />
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+                  Administração Avançada
+                </h1>
+                <p className="text-slate-300 mt-2">Sistema de Processamento Hierárquico Legal - Fase 3</p>
               </div>
-
-              <div>
-                <label className="block text-white text-sm font-medium mb-2">
-                  Título do Documento
-                </label>
-                <input
-                  type="text"
-                  value={uploadMetadata.title}
-                  onChange={(e) => setUploadMetadata(prev => ({...prev, title: e.target.value}))}
-                  className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white"
-                  placeholder="Ex: Lei de Terras nº 19/97"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-white text-sm font-medium mb-2">
-                  Tipo de Documento
-                </label>
-                <select
-                  value={uploadMetadata.document_type}
-                  onChange={(e) => setUploadMetadata(prev => ({...prev, document_type: e.target.value}))}
-                  className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white"
-                >
-                  <option value="">Detecção automática</option>
-                  {hierarchyInfo?.document_types && Object.entries(hierarchyInfo.document_types).map(([id, name]) => (
-                    <option key={id} value={id}>{name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-white text-sm font-medium mb-2">
-                  Área Jurídica
-                </label>
-                <select
-                  value={uploadMetadata.legal_area}
-                  onChange={(e) => setUploadMetadata(prev => ({...prev, legal_area: e.target.value}))}
-                  className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white"
-                >
-                  <option value="">Detecção automática</option>
-                  {hierarchyInfo?.legal_areas && Object.entries(hierarchyInfo.legal_areas).map(([id, name]) => (
-                    <option key={id} value={id}>{name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-white text-sm font-medium mb-2">
-                  Descrição (opcional)
-                </label>
-                <textarea
-                  value={uploadMetadata.description}
-                  onChange={(e) => setUploadMetadata(prev => ({...prev, description: e.target.value}))}
-                  className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white"
-                  rows="3"
-                  placeholder="Descrição do conteúdo do documento..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-white text-sm font-medium mb-2">
-                  Fonte (opcional)
-                </label>
-                <input
-                  type="text"
-                  value={uploadMetadata.source}
-                  onChange={(e) => setUploadMetadata(prev => ({...prev, source: e.target.value}))}
-                  className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white"
-                  placeholder="Ex: Boletim da República"
-                />
-              </div>
-
-              <div className="flex items-end">
+              <div className="flex space-x-4">
                 <button
-                  type="submit"
-                  disabled={uploadLoading || !uploadFile}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50"
+                  onClick={() => setActiveTab('upload')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                    activeTab === 'upload' 
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
+                      : 'text-slate-400 hover:text-white'
+                  }`}
                 >
-                  {uploadLoading ? 'Processando...' : 'Upload Avançado'}
+                  Upload Avançado
+                </button>
+                <button
+                  onClick={() => setActiveTab('documents')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                    activeTab === 'documents' 
+                      ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' 
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Documentos
+                </button>
+                <button
+                  onClick={() => setActiveTab('stats')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                    activeTab === 'stats' 
+                      ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' 
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Estatísticas
                 </button>
               </div>
-            </form>
-          </div>
-
-          {/* Estatísticas Avançadas */}
-          {stats && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="backdrop-blur-sm bg-white/10 rounded-2xl p-6 border border-white/20">
-                <h3 className="text-lg font-bold text-white mb-4">Documentos por Tipo</h3>
-                {stats.documents_by_type_names && Object.entries(stats.documents_by_type_names).map(([type, count]) => (
-                  <div key={type} className="flex justify-between items-center mb-2">
-                    <span className="text-slate-300 text-sm">{type}</span>
-                    <span className="text-emerald-400 font-bold">{count}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="backdrop-blur-sm bg-white/10 rounded-2xl p-6 border border-white/20">
-                <h3 className="text-lg font-bold text-white mb-4">Documentos por Área</h3>
-                {stats.documents_by_area_names && Object.entries(stats.documents_by_area_names).slice(0, 6).map(([area, count]) => (
-                  <div key={area} className="flex justify-between items-center mb-2">
-                    <span className="text-slate-300 text-sm">{area}</span>
-                    <span className="text-blue-400 font-bold">{count}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="backdrop-blur-sm bg-white/10 rounded-2xl p-6 border border-white/20">
-                <h3 className="text-lg font-bold text-white mb-4">Estatísticas Gerais</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-slate-300">Total de Documentos</span>
-                    <span className="text-purple-400 font-bold">{stats.total_documents || 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-300">Total de Chunks</span>
-                    <span className="text-purple-400 font-bold">{stats.total_chunks || 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-300">Chunks por Doc</span>
-                    <span className="text-purple-400 font-bold">{stats.average_chunks_per_document?.toFixed(1) || '0'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-300">Novos (7 dias)</span>
-                    <span className="text-purple-400 font-bold">{stats.recent_documents_7_days || 0}</span>
-                  </div>
-                </div>
-              </div>
             </div>
-          )}
-
-          {/* Lista de Documentos Avançada */}
-          <div className="backdrop-blur-sm bg-white/10 rounded-2xl p-6 border border-white/20">
-            <h2 className="text-2xl font-bold text-white mb-6">Documentos Processados</h2>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b border-slate-600">
-                    <th className="text-white font-semibold py-3 px-4">Título</th>
-                    <th className="text-white font-semibold py-3 px-4">Tipo</th>
-                    <th className="text-white font-semibold py-3 px-4">Área</th>
-                    <th className="text-white font-semibold py-3 px-4">Chunks</th>
-                    <th className="text-white font-semibold py-3 px-4">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {documents.map((doc) => (
-                    <tr key={doc.id} className="border-b border-slate-700/50 hover:bg-white/5">
-                      <td className="py-3 px-4">
-                        <div>
-                          <div className="text-white font-medium">{doc.title}</div>
-                          {doc.keywords && doc.keywords.length > 0 && (
-                            <div className="text-slate-400 text-xs mt-1">
-                              {doc.keywords.slice(0, 3).join(', ')}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="inline-block bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded text-xs">
-                          {doc.document_type?.name}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="inline-block bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs">
-                          {doc.legal_area?.name}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="text-purple-400 font-mono">{doc.chunk_count}</span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className={`inline-block px-2 py-1 rounded text-xs ${
-                          doc.status === 'active' ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300'
-                        }`}>
-                          {doc.status === 'active' ? 'Activo' : doc.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {documents.length === 0 && (
-                <div className="text-center py-8 text-slate-400">
-                  Nenhum documento processado encontrado
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Hierarquia Legal */}
-          {hierarchyInfo && (
-            <div className="backdrop-blur-sm bg-white/10 rounded-2xl p-6 border border-white/20 mt-8">
-              <h2 className="text-2xl font-bold text-white mb-6">Hierarquia Legal Moçambicana</h2>
-              
-              {hierarchyInfo.hierarchy_levels && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(hierarchyInfo.hierarchy_levels).map(([level, description]) => (
-                    <div key={level} className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">{level}</span>
-                      </div>
-                      <div className="text-slate-300">{description}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {hierarchyInfo.priority_documents && (
-                <div className="mt-6">
-                  <h3 className="text-lg font-bold text-white mb-4">Documentos Prioritários para Adicionar</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {hierarchyInfo.priority_documents.slice(0, 6).map((doc, index) => (
-                      <div key={index} className="bg-slate-800/30 p-4 rounded-lg">
-                        <div className="text-white font-medium">{doc.title}</div>
-                        <div className="text-slate-400 text-sm mt-1">{doc.description}</div>
-                        <div className="flex items-center mt-2 space-x-2">
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            doc.priority === 1 ? 'bg-red-500/20 text-red-300' : 'bg-yellow-500/20 text-yellow-300'
-                          }`}>
-                            Prioridade {doc.priority}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Navegação */}
-          <div className="flex justify-center space-x-4 mt-8">
-            <a
-              href="/admin"
-              className="bg-slate-700 hover:bg-slate-600 text-white px-6 py-3 rounded-lg transition-all duration-300"
-            >
-              ← Voltar ao Admin Básico
-            </a>
-            <a
-              href="/chat"
-              className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white px-6 py-3 rounded-lg transition-all duration-300"
-            >
-              Testar Chat →
-            </a>
           </div>
         </div>
+
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Upload Tab */}
+          {activeTab === 'upload' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Upload Form */}
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
+                <h2 className="text-2xl font-bold text-white mb-6">Upload Hierárquico</h2>
+                
+                <form onSubmit={handleUpload} className="space-y-6">
+                  {/* File Input */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                      Documento Legal
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,.docx,.txt"
+                      onChange={(e) => setUploadFile(e.target.files[0])}
+                      className="w-full px-4 py-3 bg-black/20 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500"
+                    />
+                    <p className="text-xs text-slate-400 mt-1">Formatos: PDF, DOCX, TXT</p>
+                  </div>
+
+                  {/* Document Type */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                      Tipo de Documento
+                    </label>
+                    <select
+                      value={uploadForm.document_type}
+                      onChange={(e) => setUploadForm({...uploadForm, document_type: e.target.value})}
+                      className="w-full px-4 py-3 bg-black/20 border border-white/20 rounded-lg text-white focus:outline-none focus:border-emerald-500"
+                    >
+                      <option value="">Detecção Automática</option>
+                      {Object.entries(DOCUMENT_TYPES).map(([key, value]) => (
+                        <option key={key} value={key} className="bg-slate-800">{value}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Legal Area */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                      Área Legal
+                    </label>
+                    <select
+                      value={uploadForm.legal_area}
+                      onChange={(e) => setUploadForm({...uploadForm, legal_area: e.target.value})}
+                      className="w-full px-4 py-3 bg-black/20 border border-white/20 rounded-lg text-white focus:outline-none focus:border-emerald-500"
+                    >
+                      <option value="">Detecção Automática</option>
+                      {Object.entries(LEGAL_AREAS).map(([key, value]) => (
+                        <option key={key} value={key} className="bg-slate-800">{value}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                      Descrição
+                    </label>
+                    <textarea
+                      value={uploadForm.description}
+                      onChange={(e) => setUploadForm({...uploadForm, description: e.target.value})}
+                      placeholder="Descrição opcional do documento..."
+                      rows={3}
+                      className="w-full px-4 py-3 bg-black/20 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+
+                  {/* Source */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                      Fonte
+                    </label>
+                    <input
+                      type="text"
+                      value={uploadForm.source}
+                      onChange={(e) => setUploadForm({...uploadForm, source: e.target.value})}
+                      placeholder="Fonte do documento"
+                      className="w-full px-4 py-3 bg-black/20 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    disabled={uploading || !uploadFile}
+                    className="w-full py-3 bg-gradient-to-r from-emerald-500 to-blue-500 text-white font-semibold rounded-lg hover:from-emerald-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                  >
+                    {uploading ? 'Processando...' : 'Processar Documento'}
+                  </button>
+                </form>
+              </div>
+
+              {/* Upload Result */}
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
+                <h2 className="text-2xl font-bold text-white mb-6">Resultado do Processamento</h2>
+                
+                {uploadResult ? (
+                  <div className="space-y-4">
+                    {uploadResult.error ? (
+                      <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4">
+                        <p className="text-red-300 font-medium">Erro no processamento:</p>
+                        <p className="text-red-200">{uploadResult.error}</p>
+                      </div>
+                    ) : (
+                      <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-4">
+                        <p className="text-green-300 font-medium mb-3">Documento processado com sucesso!</p>
+                        <div className="space-y-2 text-sm text-slate-300">
+                          <p><span className="font-medium">ID:</span> {uploadResult.document_id}</p>
+                          <p><span className="font-medium">Título:</span> {uploadResult.title}</p>
+                          <p><span className="font-medium">Chunks:</span> {uploadResult.chunks_created}</p>
+                          <p><span className="font-medium">Tipo:</span> {uploadResult.processing_info?.document_type}</p>
+                          <p><span className="font-medium">Área:</span> {uploadResult.processing_info?.legal_area}</p>
+                          <p><span className="font-medium">Conceitos:</span> {uploadResult.processing_info?.legal_concepts_found}</p>
+                          <p><span className="font-medium">Citações:</span> {uploadResult.processing_info?.citations_found}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center text-slate-400 py-12">
+                    <p>Resultado do processamento aparecerá aqui</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Documents Tab */}
+          {activeTab === 'documents' && (
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
+              <h2 className="text-2xl font-bold text-white mb-6">Documentos Processados</h2>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th className="text-left py-3 px-4 font-medium text-slate-300">ID</th>
+                      <th className="text-left py-3 px-4 font-medium text-slate-300">Título</th>
+                      <th className="text-left py-3 px-4 font-medium text-slate-300">Tipo</th>
+                      <th className="text-left py-3 px-4 font-medium text-slate-300">Área</th>
+                      <th className="text-left py-3 px-4 font-medium text-slate-300">Chunks</th>
+                      <th className="text-left py-3 px-4 font-medium text-slate-300">Autoridade</th>
+                      <th className="text-left py-3 px-4 font-medium text-slate-300">Data</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {documents.map((doc) => (
+                      <tr key={doc.id} className="border-b border-white/5">
+                        <td className="py-3 px-4 text-slate-300">{doc.id}</td>
+                        <td className="py-3 px-4 text-white font-medium max-w-xs truncate">{doc.title}</td>
+                        <td className="py-3 px-4 text-slate-300">{DOCUMENT_TYPES[doc.document_type] || 'N/A'}</td>
+                        <td className="py-3 px-4 text-slate-300">{LEGAL_AREAS[doc.legal_area] || 'N/A'}</td>
+                        <td className="py-3 px-4 text-slate-300">{doc.chunk_count}</td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center">
+                            <div className="w-16 bg-gray-700 rounded-full h-2 mr-2">
+                              <div 
+                                className="bg-gradient-to-r from-emerald-400 to-blue-400 h-2 rounded-full" 
+                                style={{width: `${doc.authority_weight * 100}%`}}
+                              ></div>
+                            </div>
+                            <span className="text-xs text-slate-400">{(doc.authority_weight * 100).toFixed(0)}%</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-slate-400">
+                          {doc.created_at ? new Date(doc.created_at).toLocaleDateString('pt') : 'N/A'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                
+                {documents.length === 0 && (
+                  <div className="text-center text-slate-400 py-12">
+                    <p>Nenhum documento processado ainda</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Stats Tab */}
+          {activeTab === 'stats' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {stats && (
+                <>
+                  {/* General Stats */}
+                  <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
+                    <h3 className="text-lg font-bold text-white mb-4">Estatísticas Gerais</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-slate-300">Documentos:</span>
+                        <span className="text-white font-medium">{stats.general?.total_documents || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-300">Chunks:</span>
+                        <span className="text-white font-medium">{stats.general?.total_chunks || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-300">Tipos:</span>
+                        <span className="text-white font-medium">{stats.general?.document_types || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-300">Áreas:</span>
+                        <span className="text-white font-medium">{stats.general?.legal_areas || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Type Distribution */}
+                  {stats.type_distribution && (
+                    <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
+                      <h3 className="text-lg font-bold text-white mb-4">Por Tipo</h3>
+                      <div className="space-y-3">
+                        {Object.entries(stats.type_distribution).map(([type, count]) => (
+                          <div key={type} className="flex justify-between">
+                            <span className="text-slate-300">{DOCUMENT_TYPES[type] || `Tipo ${type}`}:</span>
+                            <span className="text-white font-medium">{count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Area Distribution */}
+                  {stats.area_distribution && (
+                    <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
+                      <h3 className="text-lg font-bold text-white mb-4">Por Área Legal</h3>
+                      <div className="space-y-3">
+                        {Object.entries(stats.area_distribution).map(([area, count]) => (
+                          <div key={area} className="flex justify-between">
+                            <span className="text-slate-300">{LEGAL_AREAS[area] || `Área ${area}`}:</span>
+                            <span className="text-white font-medium">{count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </AuthGuard>
+    </>
   );
 }
