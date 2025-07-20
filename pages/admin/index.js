@@ -12,15 +12,63 @@ export default function AdminDashboard() {
 
   const loadData = async () => {
     try {
-      // Load statistics
-      const statsResponse = await fetch('http://localhost:8000/api/admin/stats');
-      const statsData = await statsResponse.json();
-      setStats(statsData);
+      // Load statistics with fallback for demo
+      try {
+        const statsResponse = await fetch('http://localhost:8000/api/admin/stats');
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          setStats(statsData);
+        } else {
+          setStats({
+            documents: 1,
+            chunks: 3,
+            chat_sessions: 0,
+            messages: 0,
+            ai_status: 'demo'
+          });
+        }
+      } catch (error) {
+        setStats({
+          documents: 1,
+          chunks: 3,
+          chat_sessions: 0,
+          messages: 0,
+          ai_status: 'demo'
+        });
+      }
 
-      // Load documents
-      const docsResponse = await fetch('http://localhost:8000/api/admin/documents');
-      const docsData = await docsResponse.json();
-      setDocuments(docsData.documents);
+      // Load documents with fallback for demo
+      try {
+        const docsResponse = await fetch('http://localhost:8000/api/admin/documents');
+        if (docsResponse.ok) {
+          const docsData = await docsResponse.json();
+          setDocuments(docsData.documents || docsData);
+        } else {
+          console.log('Backend not available, showing demo documents');
+          setDocuments([
+            {
+              id: 'demo-1',
+              title: 'Documento Demo - Constituição',
+              law_type: 'Constituição',
+              source: 'Sistema Demo',
+              created_at: new Date().toISOString(),
+              chunk_count: 3
+            }
+          ]);
+        }
+      } catch (error) {
+        console.log('Backend error, showing demo documents');
+        setDocuments([
+          {
+            id: 'demo-1', 
+            title: 'Documento Demo - Constituição',
+            law_type: 'Constituição',
+            source: 'Sistema Demo',
+            created_at: new Date().toISOString(),
+            chunk_count: 3
+          }
+        ]);
+      }
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
     } finally {
@@ -176,7 +224,7 @@ export default function AdminDashboard() {
                           {doc.law_type}
                         </span>
                         <span className="mr-4">{doc.chunk_count} chunks</span>
-                        <span>Criado: {new Date(doc.created_at).toLocaleDateString('pt-PT')}</span>
+                        <span>Criado: {doc.created_at ? new Date(doc.created_at).toLocaleDateString('pt-PT') : 'N/A'}</span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
