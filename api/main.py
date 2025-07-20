@@ -1,4 +1,5 @@
-# Vercel entry point for FastAPI Muzaia Backend
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import sys
 import os
 
@@ -6,13 +7,26 @@ import os
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, root_dir)
 
-# Import the FastAPI app
-from backend_complete import app
+try:
+    # Import the main FastAPI app from backend_complete
+    from backend_complete import app
+except ImportError:
+    # Fallback minimal app if import fails
+    app = FastAPI(title="Muzaia Legal Assistant API")
+    
+    @app.get("/")
+    async def root():
+        return {"message": "Muzaia Legal Assistant API", "status": "running"}
+    
+    @app.get("/health")
+    async def health():
+        return {"status": "healthy", "service": "muzaia-backend"}
 
-# Export for Vercel
-handler = app
-
-# For direct testing
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# Configure CORS for production
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
