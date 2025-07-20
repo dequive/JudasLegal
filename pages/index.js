@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Head from 'next/head';
 
 export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -20,7 +21,12 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 relative overflow-hidden">
+    <>
+      <Head>
+        <title>ainf - Assistente Jurídico Online</title>
+        <meta name="description" content="Assistente jurídico online baseado em inteligência artificial, especialista em leis moçambicanas" />
+      </Head>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 relative overflow-hidden">
       {/* Animated background patterns */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
@@ -40,7 +46,7 @@ export default function HomePage() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-300 to-blue-400 bg-clip-text text-transparent">
-                    MuzaIA
+                    ainf
                   </h1>
                   <p className="text-blue-200 text-sm">Assistente Jurídico com Inteligência Artificial</p>
                 </div>
@@ -71,7 +77,7 @@ export default function HomePage() {
             
             <h1 className="text-6xl md:text-7xl font-bold mb-8">
               <span className="bg-gradient-to-r from-emerald-300 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-                MuzaIA
+                ainf
               </span>
               <br />
               <span className="text-white">Assistente Jurídico Online</span>
@@ -158,7 +164,7 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-center">
               <p className="text-blue-200">
-                © 2025 MuzaIA - Assistente Jurídico Online para Legislação Moçambicana
+                © 2025 ainf - Assistente Jurídico Online para Legislação Moçambicana
               </p>
               <p className="text-blue-300 text-sm mt-2">
                 Powered by Google Gemini 2.0 Flash • RAG Technology • PostgreSQL
@@ -168,5 +174,6 @@ export default function HomePage() {
         </footer>
       </div>
     </div>
+    </>
   );
 }

@@ -6,7 +6,7 @@ import google.generativeai as genai
 import os
 import re
 
-app = FastAPI(title="Judas Legal Assistant API")
+app = FastAPI(title="ainf Legal Assistant API")
 
 # Configure CORS
 app.add_middleware(

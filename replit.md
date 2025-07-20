@@ -1,8 +1,8 @@
-# MuzaIA - Assistente Jurídico Online para Legislação Moçambicana
+# ainf - Assistente Jurídico Online para Legislação Moçambicana
 
 ## Overview
 
-MuzaIA é um assistente jurídico online baseado em inteligência artificial, especialista em leis moçambicanas. O sistema utiliza tecnologia RAG (Retrieval-Augmented Generation) para ajudar os utilizadores a compreender documentos legais e regulamentos através de consultas em linguagem natural em português. A aplicação apresenta funcionalidades offline, respostas com citações, interface de chat responsiva e utiliza Supabase como solução de base de dados.
+ainf é um assistente jurídico online baseado em inteligência artificial, especialista em leis moçambicanas. O sistema utiliza tecnologia RAG (Retrieval-Augmented Generation) para ajudar os utilizadores a compreender documentos legais e regulamentos através de consultas em linguagem natural em português. A aplicação apresenta funcionalidades offline, respostas com citações, interface de chat responsiva e utiliza Supabase como solução de base de dados.
 
 ## User Preferences
 
@@ -464,13 +464,14 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Base de dados PostgreSQL com tabelas de utilizadores
   - Todos os serviços comunicando correctamente
 
-### 2025-07-20 - Renomeação para MuzaIA e Preparação GitHub
+### 2025-07-20 - Renomeação para ainf e Preparação GitHub
 
-- **Aplicação Renomeada para MuzaIA**
-  - Nome actualizado em toda a aplicação: MuzaIA
+- **Aplicação Renomeada para ainf**
+  - Nome actualizado em toda a aplicação: ainf
   - Descrição: Assistente jurídico online baseado em inteligência artificial
   - Especialização: Especialista em leis moçambicanas
-  - Todas as interfaces e mensagens actualizadas
+  - Todas as interfaces, logs e mensagens actualizadas
+  - Frontend, backend e servidor de autenticação com novo branding
 
 - **Preparação para Integração GitHub + Vercel**
   - Scripts de configuração criados para GitHub
