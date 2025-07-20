@@ -1,0 +1,51 @@
+# Backend files
+api-backend-temp/
+backend_complete.py
+auth-server.js
+*.py
+app.py
+main.py
+run.py
+requirements*.txt
+pyproject.toml
+uv.lock
+
+# Auth and config files
+auth-server*.js
+server/
+shared/
+.env*
+!.env.local
+
+# Documentation
+*.md
+!README.md
+DEPLOYMENT*.md
+RAILWAY*.md
+VERCEL*.md
+DROPLET*.md
+QUICK*.md
+
+# Scripts
+*.sh
+deploy*
+railway*
+vercel-*
+setup-*
+monitor-*
+configure-*
+
+# Temporary files
+processed/
+uploads/
+judas_legal_assistant.egg-info/
+.dockerignore
+docker-compose.yml
+Dockerfile
+nixpacks.toml
+railway.json
+render.yaml
+app.yaml
+
+# Keep only essential frontend files
+# Next.js app files are kept by default
