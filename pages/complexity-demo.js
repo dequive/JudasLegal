@@ -75,9 +75,30 @@ export default function ComplexityDemoPage() {
     }
   ];
 
-  const analyzeText = (text) => {
-    const result = getComplexityRating(text);
-    setComplexity(result);
+  const analyzeText = async (text) => {
+    try {
+      const response = await fetch('http://localhost:80/api/complexity', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: text })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setComplexity(result);
+      } else {
+        // Fallback to local analysis
+        const result = getComplexityRating(text);
+        setComplexity(result);
+      }
+    } catch (error) {
+      console.error('Erro ao analisar complexidade:', error);
+      // Fallback to local analysis
+      const result = getComplexityRating(text);
+      setComplexity(result);
+    }
     setInputText(text);
   };
 

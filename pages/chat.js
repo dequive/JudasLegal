@@ -71,47 +71,51 @@ export default function ChatPage() {
     scrollToBottom();
   }, [messages]);
 
-  const simulateAIResponse = async (userMessage) => {
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simula delay da API
-    
-    const responses = [
-      {
-        text: `Com base na vossa pergunta sobre "${userMessage}", posso explicar que na legislação moçambicana este aspecto é regulamentado pelo Código Civil. Aqui está a informação relevante: [resposta detalhada seria gerada pelo Gemini AI]`,
-        citations: [
-          {
-            title: 'Código Civil de Moçambique',
-            source: 'Artigo 123 - Disposições Gerais',
-            relevance: 0.95
-          },
-          {
-            title: 'Lei do Trabalho',
-            source: 'Capítulo III - Contratos',
-            relevance: 0.78
-          }
-        ]
-      },
-      {
-        text: `A vossa questão sobre "${userMessage}" é muito importante. De acordo com a legislação moçambicana vigente, especificamente na Constituição da República, encontramos as seguintes disposições: [resposta contextual seria fornecida pelo sistema RAG]`,
-        citations: [
-          {
-            title: 'Constituição da República de Moçambique',
-            source: 'Artigo 56 - Direitos Fundamentais',
-            relevance: 0.92
-          }
-        ]
+  const getAIResponse = async (userMessage) => {
+    try {
+      const response = await fetch('http://localhost:80/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: userMessage })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    ];
-    
-    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-    
-    return {
-      id: Date.now().toString(),
-      text: randomResponse.text,
-      isUser: false,
-      timestamp: new Date(),
-      citations: randomResponse.citations,
-      complexity: getComplexityRating(randomResponse.text)
-    };
+
+      const data = await response.json();
+      
+      return {
+        id: Date.now().toString(),
+        text: data.text,
+        isUser: false,
+        timestamp: new Date(),
+        citations: data.citations,
+        complexity: data.complexity
+      };
+    } catch (error) {
+      console.error('Erro ao chamar API:', error);
+      
+      // Fallback response se a API falhar
+      const fallbackText = `Com base na vossa pergunta sobre "${userMessage}", posso explicar que na legislação moçambicana este aspecto é regulamentado pelos códigos legais aplicáveis. Para informações mais específicas, recomendo consultar os documentos oficiais.`;
+      
+      return {
+        id: Date.now().toString(),
+        text: fallbackText,
+        isUser: false,
+        timestamp: new Date(),
+        citations: [
+          {
+            title: 'Legislação Moçambicana',
+            source: 'Documentos oficiais',
+            relevance: 0.8
+          }
+        ],
+        complexity: getComplexityRating(fallbackText)
+      };
+    }
   };
 
   const handleSendMessage = async () => {
@@ -130,7 +134,7 @@ export default function ChatPage() {
     setIsLoading(true);
 
     try {
-      const aiResponse = await simulateAIResponse(currentMessage);
+      const aiResponse = await getAIResponse(currentMessage);
       setMessages(prev => [...prev, aiResponse]);
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);

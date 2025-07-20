@@ -1,155 +1,184 @@
-import os
-import uvicorn
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, RedirectResponse
-import httpx
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
-from sqlalchemy.ext.declarative import declarative_base
-from contextlib import asynccontextmanager
+from pydantic import BaseModel
+from typing import List, Optional
+import google.generativeai as genai
+import os
+import re
 
-# Import models and services
-from models import Base, LegalDocument, ChatSession, DocumentEmbedding, User, UploadedDocument
-from api.chat import router as chat_router
-from api.auth import router as auth_router
-from api.admin import router as admin_router
-from database.init_data import initialize_legal_documents
+app = FastAPI(title="Judas Legal Assistant API")
 
-# Database setup
-from database.connection import engine, SessionLocal
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup
-    print("Starting up...")
-    
-    # Create tables
-    Base.metadata.create_all(bind=engine)
-    
-    # Initialize legal documents
-    db = SessionLocal()
-    try:
-        await initialize_legal_documents(db)
-    finally:
-        db.close()
-    
-    yield
-    
-    # Shutdown
-    print("Shutting down...")
-
-# FastAPI app
-app = FastAPI(
-    title="Judas Legal Assistant API",
-    description="RAG-powered legal chatbot for Mozambican law",
-    version="1.0.0",
-    lifespan=lifespan
-)
-
-# CORS middleware
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for deployment
+    allow_origins=["http://localhost:5000", "http://0.0.0.0:5000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(chat_router, prefix="/api/chat", tags=["chat"])
-app.include_router(auth_router, prefix="/api", tags=["auth"])
-app.include_router(admin_router, prefix="/api", tags=["admin"])
+# Configure Gemini AI
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel('gemini-2.0-flash-preview')
+
+# Data models
+class ChatMessage(BaseModel):
+    text: str
+
+class ComplexityRating(BaseModel):
+    level: int
+    emoji: str
+    label: str
+    color: str
+
+class Citation(BaseModel):
+    title: str
+    source: str
+    relevance: float
+
+class ChatResponse(BaseModel):
+    text: str
+    citations: List[Citation]
+    complexity: ComplexityRating
+
+# Legal complexity rating system
+def get_complexity_rating(text: str) -> ComplexityRating:
+    legal_terms = [
+        'constituição', 'código civil', 'código penal', 'código comercial',
+        'habeas corpus', 'mandado de segurança', 'usucapião', 'prescrição',
+        'jurisprudência', 'acórdão', 'recurso', 'apelação', 'cassação',
+        'responsabilidade civil', 'danos morais', 'indenização',
+        'contrato', 'obrigação', 'direito real', 'propriedade',
+        'sucessão', 'herança', 'testamento', 'inventário',
+        'processo civil', 'processo penal', 'processo administrativo'
+    ]
+    
+    complex_words = [
+        'interpretação', 'aplicação', 'competência', 'jurisdição',
+        'legitimidade', 'interesse processual', 'mérito',
+        'preliminar', 'prejudicial', 'conexão', 'continência'
+    ]
+    
+    text_lower = text.lower()
+    complexity = 0
+    
+    # Count legal terms
+    for term in legal_terms:
+        if term in text_lower:
+            complexity += 1
+    
+    # Count complex words (worth more)
+    for word in complex_words:
+        if word in text_lower:
+            complexity += 2
+    
+    # Text length factor
+    if len(text) > 500:
+        complexity += 1
+    if len(text) > 1000:
+        complexity += 2
+    
+    # Return rating object
+    if complexity <= 2:
+        return ComplexityRating(level=1, emoji='🟢', label='Simples', color='#10b981')
+    elif complexity <= 5:
+        return ComplexityRating(level=2, emoji='🟡', label='Moderado', color='#f59e0b')
+    elif complexity <= 8:
+        return ComplexityRating(level=3, emoji='🟠', label='Complexo', color='#ef4444')
+    else:
+        return ComplexityRating(level=4, emoji='🔴', label='Muito Complexo', color='#dc2626')
+
+# Generate AI response with Gemini
+async def generate_ai_response(user_message: str) -> ChatResponse:
+    try:
+        prompt = f"""
+        Você é o Judas, um assistente jurídico especializado em legislação moçambicana.
+        Responda em português europeu (use "vosso/vossa" em vez de "seu/sua").
+        
+        Pergunta do usuário: {user_message}
+        
+        Forneça uma resposta detalhada e fundamentada sobre a legislação moçambicana.
+        Seja preciso e cite fontes legais relevantes quando possível.
+        """
+        
+        response = model.generate_content(prompt)
+        ai_text = response.text if response.text else "Desculpe, não consegui processar a vossa pergunta neste momento."
+        
+        # Generate mock citations (in production, these would come from a RAG system)
+        citations = [
+            Citation(
+                title="Código Civil de Moçambique",
+                source=f"Artigo relacionado à {user_message[:30]}...",
+                relevance=0.85
+            ),
+            Citation(
+                title="Constituição da República de Moçambique",
+                source="Direitos e deveres fundamentais",
+                relevance=0.72
+            )
+        ]
+        
+        complexity = get_complexity_rating(ai_text)
+        
+        return ChatResponse(
+            text=ai_text,
+            citations=citations,
+            complexity=complexity
+        )
+        
+    except Exception as e:
+        # Fallback response
+        fallback_text = f"Com base na vossa pergunta sobre '{user_message}', posso explicar que na legislação moçambicana este aspecto é regulamentado pelos códigos legais aplicáveis. Para informações mais específicas, recomendo consultar os documentos oficiais."
+        
+        return ChatResponse(
+            text=fallback_text,
+            citations=[
+                Citation(
+                    title="Legislação Moçambicana",
+                    source="Documentos oficiais",
+                    relevance=0.8
+                )
+            ],
+            complexity=get_complexity_rating(fallback_text)
+        )
 
 @app.get("/")
-def root():
-    """Simple root endpoint for health checks - synchronous for speed"""
-    return {"status": "ok", "service": "judas-legal-api"}
+async def root():
+    return {"message": "Judas Legal Assistant API", "status": "running"}
 
-@app.get("/health")
-def health_check():
-    """Fast health check endpoint"""
-    return {"status": "healthy", "service": "judas-legal-api"}
+@app.post("/api/chat", response_model=ChatResponse)
+async def chat_endpoint(message: ChatMessage):
+    """
+    Process user message and return AI response with complexity rating
+    """
+    if not message.text.strip():
+        raise HTTPException(status_code=400, detail="Mensagem não pode estar vazia")
+    
+    response = await generate_ai_response(message.text)
+    return response
 
-# Auth proxy routes
-@app.get("/api/login")
-async def proxy_login(request: Request):
-    """Proxy login to auth server"""
-    return RedirectResponse(url="http://localhost:3001/api/login", status_code=302)
+@app.post("/api/complexity", response_model=ComplexityRating)
+async def analyze_complexity(message: ChatMessage):
+    """
+    Analyze text complexity without generating AI response
+    """
+    if not message.text.strip():
+        raise HTTPException(status_code=400, detail="Texto não pode estar vazio")
+    
+    complexity = get_complexity_rating(message.text)
+    return complexity
 
-@app.get("/api/logout")
-async def proxy_logout(request: Request):
-    """Proxy logout to auth server"""
-    return RedirectResponse(url="http://localhost:3001/api/logout", status_code=302)
-
-@app.get("/api/callback")
-async def proxy_callback(request: Request):
-    """Proxy auth callback to auth server"""
-    query_string = str(request.url.query)
-    callback_url = f"http://localhost:3001/api/callback?{query_string}" if query_string else "http://localhost:3001/api/callback"
-    return RedirectResponse(url=callback_url, status_code=302)
-
-@app.get("/api/auth/user")
-async def proxy_auth_user(request: Request):
-    """Proxy user info from auth server"""
-    try:
-        async with httpx.AsyncClient() as client:
-            # Forward cookies and headers
-            headers = dict(request.headers)
-            cookies = dict(request.cookies)
-            
-            response = await client.get(
-                "http://localhost:3001/api/auth/user",
-                headers=headers,
-                cookies=cookies
-            )
-            
-            if response.status_code == 200:
-                return response.json()
-            else:
-                return JSONResponse(
-                    status_code=response.status_code,
-                    content={"message": "Not authenticated"}
-                )
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"message": "Auth service unavailable"}
-        )
-
-@app.get("/api/status")
-async def api_status():
-    try:
-        # Test database connection
-        db = SessionLocal()
-        db.execute(text("SELECT 1"))
-        db.close()
-        
-        return {
-            "status": "healthy",
-            "database": "connected",
-            "message": "All systems operational"
+@app.get("/api/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "gemini_configured": bool(os.getenv("GEMINI_API_KEY")),
+        "services": {
+            "api": "running",
+            "ai": "available" if os.getenv("GEMINI_API_KEY") else "not_configured"
         }
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={
-                "status": "error",
-                "database": "disconnected",
-                "message": f"Database error: {str(e)}"
-            }
-        )
+    }
 
 if __name__ == "__main__":
-    # Always use port 80 for deployment
-    port = int(os.getenv("PORT", 80))
-    
-    uvicorn.run(
-        app,  # Direct app reference instead of string
-        host="0.0.0.0",
-        port=port,
-        reload=False,  # No reload in production
-        workers=1,
-        access_log=True,
-        log_level="info"
-    )
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
