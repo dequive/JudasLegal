@@ -1,70 +1,43 @@
-# 🚀 Deploy Rápido - Judas Legal Assistant
+# 🚀 Deploy Rápido - Problema Identificado
 
-## Suas Credenciais (Já Obtidas ✅)
+## O que Aconteceu
+O deploy anterior teve problemas de configuração. O Vercel tentou fazer deploy de múltiplos serviços ao mesmo tempo com configurações conflitantes.
 
-- **GEMINI_API_KEY**: `AIzaSyCUe9dn9580M9stl1IgEGwnmANUqtEDNMs`
-- **DATABASE_URL**: `postgresql://postgres:Wez0@821722@db.dcqftukouimxugezypwd.supabase.co:5432/postgres`
+## Solução Simples
 
-## Falta Apenas: REPL_ID
-
-### Como Encontrar o REPL_ID:
-
-1. **Olhe na URL** do seu projeto Replit
-2. **Formato**: `https://replit.com/@seu-usuario/nome-do-projeto`
-3. **REPL_ID**: Pode ser `nome-do-projeto` ou um ID único
-
-### Exemplos:
-- Se a URL é: `https://replit.com/@joao/judas-legal`
-- Então REPL_ID é: `judas-legal`
-
-## Deploy em 3 Comandos
-
-### 1. Configurar Variáveis
+### 1. Deploy Apenas do Frontend (Next.js)
 ```bash
-./configure-env.sh
-```
-(Você será solicitado a fornecer apenas o REPL_ID)
-
-### 2. Deploy Completo
-```bash
-./deploy-vercel.sh
+./quick-deploy.sh
 ```
 
-### 3. URLs Finais
-- **Frontend**: https://judas-legal-assistant.vercel.app
-- **Backend**: https://judas-backend.vercel.app  
-- **Auth**: https://judas-auth.vercel.app
+Este script fará deploy apenas do frontend Next.js, que é a parte principal da aplicação.
 
-## Verificação Rápida
+### 2. Para Sistema Completo
+Se precisar do sistema completo (auth + backend), faremos deploy separado de cada parte:
 
-Teste se tudo funciona:
 ```bash
 # Frontend
-curl -I https://judas-legal-assistant.vercel.app
+vercel --prod
 
-# Backend
-curl https://judas-backend.vercel.app/api/health
+# Backend (em pasta separada)
+mkdir backend && cp deploy_server.py requirements.txt backend/
+cd backend && vercel --prod
 
-# Auth
-curl https://judas-auth.vercel.app/api/health
+# Auth Server (em pasta separada)  
+mkdir auth && cp auth-server.js package.json auth/
+cd auth && vercel --prod
 ```
 
-## Troubleshooting
+## URLs Esperadas
+- **Frontend**: `https://judas-XXXXXXX.vercel.app`
+- **Backend** (opcional): `https://backend-XXXXXXX.vercel.app`
+- **Auth** (opcional): `https://auth-XXXXXXX.vercel.app`
 
-### Se der erro "Environment variable not found":
-1. Vá no [dashboard do Vercel](https://vercel.com/dashboard)
-2. Selecione o projeto
-3. Settings > Environment Variables
-4. Adicione a variável faltante
-5. Redeploy
-
-### Se der erro de conexão com banco:
-1. Teste a connection string localmente
-2. Verifique se não há espaços extras
-3. Confirme que a senha está correta
+## Próximos Passos
+1. Execute `./quick-deploy.sh`
+2. Acesse a URL fornecida
+3. Se funcionar, configuramos o restante
 
 ---
 
-⏰ **Tempo Total**: ~5 minutos
-💰 **Custo**: R$ 0,00 (100% gratuito)
-🎯 **Resultado**: Aplicação jurídica online e funcionando!
+**Execute agora: `./quick-deploy.sh`**
