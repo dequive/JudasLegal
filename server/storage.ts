@@ -1,5 +1,6 @@
 import {
   users,
+  verificationCodes,
   chatSessions,
   chatMessages,
   legalDocuments,
@@ -7,6 +8,9 @@ import {
   researchHistory,
   type User,
   type UpsertUser,
+  type InsertUser,
+  type VerificationCode,
+  type InsertVerificationCode,
   type ChatSession,
   type InsertChatSession,
   type ChatMessage,
@@ -23,9 +27,19 @@ import { eq, desc, and, like, ilike } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
-  // User operations - mandatory for Replit Auth
+  // User operations
   getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByPhone(phone: string): Promise<User | undefined>;
+  getUserByGoogleId(googleId: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUser(id: string, updates: Partial<User>): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
+  
+  // Verification codes
+  createVerificationCode(code: InsertVerificationCode): Promise<VerificationCode>;
+  getVerificationCode(userId: string, type: string): Promise<VerificationCode | undefined>;
+  markCodeAsUsed(id: string): Promise<void>;
   
   // Chat operations
   createChatSession(session: InsertChatSession): Promise<ChatSession>;
@@ -54,9 +68,41 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // User operations - mandatory for Replit Auth
+  // User operations
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async getUserByPhone(phone: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.phone, phone));
+    return user;
+  }
+
+  async getUserByGoogleId(googleId: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.googleId, googleId));
+    return user;
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .returning();
+    return user;
+  }
+
+  async updateUser(id: string, updates: Partial<User>): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
     return user;
   }
 
@@ -73,6 +119,38 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return user;
+  }
+
+  // Verification codes
+  async createVerificationCode(codeData: InsertVerificationCode): Promise<VerificationCode> {
+    const [code] = await db
+      .insert(verificationCodes)
+      .values(codeData)
+      .returning();
+    return code;
+  }
+
+  async getVerificationCode(userId: string, type: string): Promise<VerificationCode | undefined> {
+    const [code] = await db
+      .select()
+      .from(verificationCodes)
+      .where(
+        and(
+          eq(verificationCodes.userId, userId),
+          eq(verificationCodes.type, type),
+          eq(verificationCodes.isUsed, false)
+        )
+      )
+      .orderBy(desc(verificationCodes.createdAt))
+      .limit(1);
+    return code;
+  }
+
+  async markCodeAsUsed(id: string): Promise<void> {
+    await db
+      .update(verificationCodes)
+      .set({ isUsed: true })
+      .where(eq(verificationCodes.id, id));
   }
 
   // Chat operations

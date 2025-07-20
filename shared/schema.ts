@@ -21,15 +21,33 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table - mandatory for Replit Auth
+// User storage table with comprehensive authentication
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().notNull(),
   email: varchar("email").unique(),
+  phone: varchar("phone").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  password: varchar("password"), // hashed password for email/phone auth
+  isEmailVerified: boolean("is_email_verified").default(false),
+  isPhoneVerified: boolean("is_phone_verified").default(false),
+  authProvider: varchar("auth_provider").default("email"), // 'email', 'phone', 'google'
+  googleId: varchar("google_id"),
+  lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Verification codes for email/phone verification
+export const verificationCodes = pgTable("verification_codes", {
+  id: varchar("id").primaryKey().notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  code: varchar("code").notNull(),
+  type: varchar("type").notNull(), // 'email', 'phone', 'reset'
+  expiresAt: timestamp("expires_at").notNull(),
+  isUsed: boolean("is_used").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Chat sessions for conversation management
@@ -105,6 +123,14 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   legalDocuments: many(legalDocuments),
   preferences: one(userPreferences),
   researchHistory: many(researchHistory),
+  verificationCodes: many(verificationCodes),
+}));
+
+export const verificationCodesRelations = relations(verificationCodes, ({ one }) => ({
+  user: one(users, {
+    fields: [verificationCodes.userId],
+    references: [users.id],
+  }),
 }));
 
 export const chatSessionsRelations = relations(chatSessions, ({ one, many }) => ({
@@ -154,6 +180,9 @@ export const researchHistoryRelations = relations(researchHistory, ({ one }) => 
 // Type exports
 export type User = typeof users.$inferSelect;
 export type UpsertUser = typeof users.$inferInsert;
+export type InsertUser = typeof users.$inferInsert;
+export type VerificationCode = typeof verificationCodes.$inferSelect;
+export type InsertVerificationCode = typeof verificationCodes.$inferInsert;
 export type ChatSession = typeof chatSessions.$inferSelect;
 export type InsertChatSession = typeof chatSessions.$inferInsert;
 export type ChatMessage = typeof chatMessages.$inferSelect;

@@ -421,41 +421,48 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Servidor de autenticação na porta 3001
   - Todas as funcionalidades integradas e operacionais
 
-### 2025-07-20 - Sistema de Autenticação Replit Auth Corrigido e Funcional
+### 2025-07-20 - Sistema de Autenticação Completo com Email, Telemóvel e Google Auth
 
-- **Implementação Replit Auth Verdadeiro**
-  - Substituição completa do sistema mock por Replit Auth real
-  - Integração com openid-client para autenticação OAuth
-  - Sistema de fallback inteligente para desenvolvimento local
-  - Configuração de strategies dinâmicas por domínio
-  - Gestão automática de tokens e refresh tokens
+- **Sistema de Autenticação Multi-Método Implementado**
+  - Substituição completa do Replit Auth por sistema personalizado robusto
+  - Autenticação via email com verificação por código
+  - Autenticação via telemóvel com SMS (Twilio integrado)
+  - Login com Google OAuth 2.0
+  - Sistema de registo e verificação em duas etapas
 
-- **Correcções de Compatibilidade**
-  - Resolução de problemas ES modules com import dinâmico
-  - Tratamento de hostnames não configurados em desenvolvimento
-  - Sistema híbrido que funciona tanto em produção quanto desenvolvimento
-  - Verificação automática de ambiente e configuração
+- **Backend de Autenticação Avançado**
+  - Servidor Express.js dedicado com Passport.js
+  - Hash de passwords com bcryptjs (12 rounds)
+  - Gestão de códigos de verificação com expiração
+  - Sessões persistentes com PostgreSQL
+  - APIs RESTful para todos os métodos de autenticação
 
-- **Arquitectura de Autenticação Robusta**
-  - Servidor Express.js dedicado na porta 3001 para autenticação
-  - Integração com React Query para gestão de estado
-  - Hooks personalizados `useAuth` para verificação de autenticação
-  - Componente `AuthGuard` para proteger rotas privadas
-  - Sistema de redirecionamento automático para utilizadores não autenticados
+- **Interface de Utilizador Moderna**
+  - Página de autenticação com design glassmorphic
+  - Formulários separados para login e registo
+  - Fluxo de verificação em tempo real
+  - Suporte para reenvio de códigos
+  - Integração completa com Google Auth
 
-- **Funcionalidades de Autenticação Avançadas**
-  - Login/logout via Replit Auth em produção
-  - Fallback para autenticação mock em desenvolvimento
-  - Sessões persistentes com cookies httpOnly
-  - Verificação e renovação automática de tokens
-  - Protecção de rotas do chat e dashboard
+- **Funcionalidades de Autenticação**
+  - Registo com email ou telemóvel obrigatório
+  - Verificação automática via código enviado
+  - Login persistente com sessões seguras
+  - Password reset com códigos temporários
+  - Gestão de perfis com informações completas
 
-- **Sistema Multi-Serviços Totalmente Operacional**
-  - Frontend Next.js (porta 5000) - Interface principal carregando
-  - Auth Server Express.js (porta 3001) - Autenticação funcionando
-  - Backend FastAPI (porta 80) - IA e processamento activo
+- **Integração e Comunicação**
+  - Hook useAuth actualizado para novo sistema
+  - Comunicação segura entre frontend e auth server
+  - Suporte para desenvolvimento e produção
+  - Sistema de fallback para emails/SMS não configurados
+
+- **Sistema Multi-Serviços Operacional**
+  - Frontend Next.js (porta 5000) - Interface principal
+  - Auth Server Express.js (porta 3001) - Autenticação multi-método
+  - Backend FastAPI (porta 80) - IA e processamento
+  - Base de dados PostgreSQL com tabelas de utilizadores
   - Todos os serviços comunicando correctamente
-  - Workflows Replit configurados e em execução
 
 ### 2025-07-20 - Sistema de Tooltips Jurídicos Contextuais Implementado
 
