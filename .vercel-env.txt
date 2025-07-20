@@ -1,0 +1,9 @@
+# Variáveis de ambiente para MuzaIA no Vercel
+GEMINI_API_KEY=AIzaSyAwx_RItGZMpaBcmnKNWUDVnSCxqm6XxN8
+DATABASE_URL=postgresql://postgres.haqlhwzoecdpgtfuzstw:Unica2024@aws-0-sa-east-1.pooler.supabase.com:6543/postgres
+REPL_ID=MuzaIA
+SESSION_SECRET=muzaia-super-secret-session-key-2024
+NODE_ENV=production
+FRONTEND_URL=https://workspace-eight-mocha.vercel.app
+AUTH_URL=https://workspace-eight-mocha.vercel.app
+BACKEND_URL=https://workspace-eight-mocha.vercel.app

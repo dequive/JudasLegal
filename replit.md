@@ -464,13 +464,20 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Base de dados PostgreSQL com tabelas de utilizadores
   - Todos os serviços comunicando correctamente
 
-### 2025-07-20 - Renomeação para MuzaIA e Sistema Completo Operacional
+### 2025-07-20 - Renomeação para MuzaIA e Preparação GitHub
 
 - **Aplicação Renomeada para MuzaIA**
   - Nome actualizado em toda a aplicação: MuzaIA
   - Descrição: Assistente jurídico online baseado em inteligência artificial
   - Especialização: Especialista em leis moçambicanas
   - Todas as interfaces e mensagens actualizadas
+
+- **Preparação para Integração GitHub + Vercel**
+  - Scripts de configuração criados para GitHub
+  - Documentação completa para deploy automático
+  - .gitignore configurado adequadamente
+  - Arquivos prontos para repositório público
+  - Workflow de desenvolvimento automatizado preparado
 
 ### 2025-07-20 - Migração para Supabase e Sistema Completo Operacional
 
