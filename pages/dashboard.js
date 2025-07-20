@@ -60,7 +60,7 @@ const Dashboard = () => {
                 color: 'transparent',
                 margin: 0
               }}>
-                Judas
+                Muzaia
               </h1>
               <span style={{
                 display: 'inline-flex',

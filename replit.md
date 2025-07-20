@@ -301,9 +301,9 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Guias específicos para Supabase em todos os documentos
   - Integração completa Supabase + Vercel + Gemini AI
   - Deploy gratuito com 0 custos de infraestrutura
-  - REPL_ID configurado: "Judas"
+  - REPL_ID configurado: "Muzaia"
 
-### 2025-07-20 - Aplicação Judas Reconstruída com Sucesso
+### 2025-07-20 - Aplicação Muzaia Reconstruída com Sucesso
 
 - **Deploy Vercel Funcional Confirmado**
   - URL funcionando: https://workspace-eight-mocha.vercel.app/
@@ -470,11 +470,13 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Nome correcto "Muzaia" actualizado em toda a aplicação
   - Homepage: Título e loading screen "Carregando Muzaia..."
   - API Backend: "Muzaia Legal Assistant API"
-  - Backend logs: "Iniciando Muzaia Backend"
+  - Backend logs: "Iniciando Muzaia Backend"  
   - Auth Server: "Setting up Muzaia authentication server"
+  - Dashboard: Título "Muzaia" em vez de "Judas"
   - Painel Admin: "Gestão do Muzaia"
   - Footer: Copyright "© 2025 Muzaia"
   - Documentação: replit.md totalmente actualizado
+  - **Nota**: URL Vercel mantém "workspace" (nome do projecto no Vercel, não afecta funcionalidade)
 
 - **Sistema Muzaia Totalmente Funcional**
   - Frontend Next.js operacional na porta 5000
