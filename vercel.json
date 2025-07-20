@@ -1,11 +1,6 @@
 {
-  "name": "muzaia-legal-assistant",
   "version": 2,
   "builds": [
-    {
-      "src": "pages/**/*.js",
-      "use": "@vercel/next"
-    },
     {
       "src": "backend_complete.py",
       "use": "@vercel/python"
@@ -13,27 +8,19 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/backend_complete.py"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/pages/$1"
+      "dest": "/backend_complete.py"
     }
   ],
   "env": {
     "GEMINI_API_KEY": "@gemini_api_key",
     "DATABASE_URL": "@database_url",
-    "REPL_ID": "MuzaIA",
-    "SESSION_SECRET": "@session_secret",
-    "NODE_ENV": "production"
+    "PYTHONPATH": "/var/task"
   },
   "functions": {
-    "pages/**/*.js": {
-      "runtime": "nodejs18.x"
-    },
     "backend_complete.py": {
-      "runtime": "python3.9"
+      "runtime": "python3.9",
+      "maxDuration": 60
     }
   }
 }

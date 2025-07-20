@@ -13,64 +13,20 @@ fi
 # Verificar dependências
 echo "📦 Verificando dependências..."
 
-# Criar requirements.txt específico para Vercel se não existir
-if [ ! -f "requirements.txt" ]; then
-    echo "📝 Criando requirements.txt para Vercel..."
-    cat > requirements.txt << 'EOF'
-fastapi==0.104.1
-uvicorn==0.24.0
-psycopg2-binary==2.9.9
-google-generativeai==0.3.2
-python-multipart==0.0.6
-PyPDF2==3.0.1
-python-docx==0.8.11
-pytesseract==0.3.10
-trafilatura==1.6.4
-numpy==1.24.3
-python-jose==3.3.0
-passlib==1.7.4
-aiofiles==23.2.1
-httpx==0.24.1
-chardet==5.2.0
-sqlalchemy==2.0.23
-pydantic==2.5.0
-EOF
-    echo "✅ requirements.txt criado"
+# Usar requirements.txt otimizado para Vercel
+if [ ! -f "requirements.txt" ] || [ "requirements-vercel.txt" -nt "requirements.txt" ]; then
+    echo "📝 Copiando requirements.txt otimizado para Vercel..."
+    cp requirements-vercel.txt requirements.txt
+    echo "✅ requirements.txt atualizado"
 fi
 
-# Verificar se vercel.json existe e está correctamente configurado
-if [ ! -f "vercel.json" ]; then
-    echo "📝 Criando vercel.json para backend..."
-    cat > vercel.json << 'EOF'
-{
-  "name": "muzaia-backend",
-  "version": 2,
-  "builds": [
-    {
-      "src": "backend_complete.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/backend_complete.py"
-    }
-  ],
-  "env": {
-    "GEMINI_API_KEY": "@gemini_api_key",
-    "DATABASE_URL": "@database_url",
-    "PYTHONPATH": "/var/task"
-  },
-  "functions": {
-    "backend_complete.py": {
-      "runtime": "python3.9",
-      "maxDuration": 60
-    }
-  }
-}
-EOF
-    echo "✅ vercel.json criado para backend"
+# Verificar vercel.json
+echo "📝 Verificando vercel.json..."
+if [ -f "vercel.json" ]; then
+    echo "✅ vercel.json encontrado e já está configurado para backend"
+else
+    echo "❌ vercel.json não encontrado!"
+    exit 1
 fi
 
 echo ""
