@@ -367,6 +367,33 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Mensagens do assistente virtual ajustadas
   - Placeholders de pesquisa actualizados ("pesquisar" em vez de "buscar")
 
+### 2025-07-20 - Sistema de Classificação de Complexidade Jurídica Implementado
+
+- **Sistema de Análise de Complexidade Automático**
+  - Algoritmo inteligente que avalia textos jurídicos automaticamente
+  - Classificação em 4 níveis: 🟢 Simples, 🟡 Moderado, 🟠 Complexo, 🔴 Muito Complexo
+  - Baseado em termos jurídicos, conceitos especializados e extensão do texto
+  - Rating visual com emojis e barras de progresso coloridas
+
+- **Integração com Interface de Chat**
+  - Badges de complexidade automáticos em todas as mensagens
+  - Design responsivo que se adapta a mensagens de usuário e assistente
+  - Indicadores visuais com cores específicas para cada nível
+  - Barras de progresso que mostram o nível de complexidade
+
+- **Página de Demonstração Completa**
+  - Nova página `/complexity-demo` para testar o sistema
+  - Exemplos práticos dos 4 níveis de complexidade
+  - Interface interactiva para análise de texto em tempo real
+  - Explicação detalhada do funcionamento do algoritmo
+  - Navegação integrada entre chat e demonstração
+
+- **Funcionalidades Educativas**
+  - Ajuda usuários a compreender a dificuldade de questões jurídicas
+  - Prepara expectativas sobre o tipo de resposta a receber
+  - Identifica automaticamente quando questões requerem conhecimento especializado
+  - Melhora a experiência do usuário com feedback visual imediato
+
 ### 2025-07-19 - Configuração de Deploy Completa para 3 Plataformas
 
 - **Arquivos de Deploy Criados**

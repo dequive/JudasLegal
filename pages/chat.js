@@ -2,6 +2,53 @@ import { useState, useRef, useEffect } from 'react';
 
 // JavaScript component
 
+// Legal complexity rating system
+const getComplexityRating = (text) => {
+  const legalTerms = [
+    'constituição', 'código civil', 'código penal', 'código comercial',
+    'habeas corpus', 'mandado de segurança', 'usucapião', 'prescrição',
+    'jurisprudência', 'acórdão', 'recurso', 'apelação', 'cassação',
+    'responsabilidade civil', 'danos morais', 'indenização',
+    'contrato', 'obrigação', 'direito real', 'propriedade',
+    'sucessão', 'herança', 'testamento', 'inventário',
+    'processo civil', 'processo penal', 'processo administrativo'
+  ];
+  
+  const complexWords = [
+    'interpretação', 'aplicação', 'competência', 'jurisdição',
+    'legitimidade', 'interesse processual', 'mérito',
+    'preliminar', 'prejudicial', 'conexão', 'continência'
+  ];
+  
+  const textLower = text.toLowerCase();
+  let complexity = 0;
+  
+  // Count legal terms
+  legalTerms.forEach(term => {
+    if (textLower.includes(term)) complexity += 1;
+  });
+  
+  // Count complex words (worth more)
+  complexWords.forEach(word => {
+    if (textLower.includes(word)) complexity += 2;
+  });
+  
+  // Text length factor
+  if (text.length > 500) complexity += 1;
+  if (text.length > 1000) complexity += 2;
+  
+  // Return rating object
+  if (complexity <= 2) {
+    return { level: 1, emoji: '🟢', label: 'Simples', color: '#10b981' };
+  } else if (complexity <= 5) {
+    return { level: 2, emoji: '🟡', label: 'Moderado', color: '#f59e0b' };
+  } else if (complexity <= 8) {
+    return { level: 3, emoji: '🟠', label: 'Complexo', color: '#ef4444' };
+  } else {
+    return { level: 4, emoji: '🔴', label: 'Muito Complexo', color: '#dc2626' };
+  }
+};
+
 export default function ChatPage() {
   const [messages, setMessages] = useState([
     {
@@ -9,6 +56,7 @@ export default function ChatPage() {
       text: 'Olá! Sou o Judas Legal Assistant, o vosso assistente jurídico especializado em legislação moçambicana. Como vos posso ajudar hoje?',
       isUser: false,
       timestamp: new Date(),
+      complexity: getComplexityRating('Olá! Sou o Judas Legal Assistant, o vosso assistente jurídico especializado em legislação moçambicana. Como vos posso ajudar hoje?')
     }
   ]);
   const [currentMessage, setCurrentMessage] = useState('');
@@ -61,7 +109,8 @@ export default function ChatPage() {
       text: randomResponse.text,
       isUser: false,
       timestamp: new Date(),
-      citations: randomResponse.citations
+      citations: randomResponse.citations,
+      complexity: getComplexityRating(randomResponse.text)
     };
   };
 
@@ -73,6 +122,7 @@ export default function ChatPage() {
       text: currentMessage,
       isUser: true,
       timestamp: new Date(),
+      complexity: getComplexityRating(currentMessage)
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -139,28 +189,52 @@ export default function ChatPage() {
               Online
             </span>
           </div>
-          <button 
-            onClick={() => window.location.href = '/'}
-            style={{
-              background: 'white',
-              border: '1px solid #d1d5db',
-              color: '#374151',
-              padding: '0.5rem 1rem',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              (e.target).style.background = '#f9fafb';
-            }}
-            onMouseLeave={(e) => {
-              (e.target).style.background = 'white';
-            }}
-          >
-            ← Voltar
-          </button>
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button 
+              onClick={() => window.location.href = '/complexity-demo'}
+              style={{
+                background: '#f3f4f6',
+                border: '1px solid #d1d5db',
+                color: '#374151',
+                padding: '0.5rem 1rem',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = '#e5e7eb';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = '#f3f4f6';
+              }}
+            >
+              Sistema de Complexidade
+            </button>
+            <button 
+              onClick={() => window.location.href = '/'}
+              style={{
+                background: 'white',
+                border: '1px solid #d1d5db',
+                color: '#374151',
+                padding: '0.5rem 1rem',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = '#f9fafb';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = 'white';
+              }}
+            >
+              ← Voltar
+            </button>
+          </div>
         </div>
       </header>
 
@@ -202,6 +276,42 @@ export default function ChatPage() {
                     lineHeight: '1.6'
                   }}
                 >
+                  {/* Complexity Rating Badge */}
+                  {message.complexity && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      marginBottom: '0.75rem',
+                      padding: '0.375rem 0.75rem',
+                      background: message.isUser ? 'rgba(255,255,255,0.1)' : '#f8fafc',
+                      borderRadius: '20px',
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      color: message.isUser ? 'rgba(255,255,255,0.9)' : message.complexity.color,
+                      border: message.isUser ? '1px solid rgba(255,255,255,0.2)' : `1px solid ${message.complexity.color}20`
+                    }}>
+                      <span style={{ fontSize: '14px' }}>{message.complexity.emoji}</span>
+                      <span>Complexidade: {message.complexity.label}</span>
+                      <div style={{
+                        width: '40px',
+                        height: '4px',
+                        background: message.isUser ? 'rgba(255,255,255,0.2)' : '#e5e7eb',
+                        borderRadius: '2px',
+                        marginLeft: '0.5rem',
+                        position: 'relative'
+                      }}>
+                        <div style={{
+                          background: message.isUser ? 'rgba(255,255,255,0.8)' : message.complexity.color,
+                          height: '100%',
+                          borderRadius: '2px',
+                          width: `${(message.complexity.level / 4) * 100}%`,
+                          transition: 'width 0.3s ease'
+                        }} />
+                      </div>
+                    </div>
+                  )}
+                  
                   <p style={{ margin: 0, fontSize: '16px' }}>{message.text}</p>
                   <div style={{ 
                     fontSize: '12px', 

@@ -172,7 +172,7 @@ export default function HomePage() {
               </button>
               
               <button 
-                onClick={() => window.location.href = '/glossario'}
+                onClick={() => window.location.href = '/complexity-demo'}
                 style={{
                   background: 'white',
                   color: '#374151',
@@ -197,7 +197,7 @@ export default function HomePage() {
                   target.style.boxShadow = 'none';
                 }}
               >
-                Explorar Glossário
+                Sistema de Complexidade
               </button>
             </div>
           </div>
