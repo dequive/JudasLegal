@@ -13,6 +13,24 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
+# Import das melhorias implementadas
+try:
+    import logging.config
+    from app.core.config import settings, LOGGING_CONFIG
+    from app.middleware.rate_limiting import rate_limit_middleware, legal_chat_rate_limit, admin_rate_limit
+    from app.services.cache_service import cache_service, cached
+    
+    IMPROVEMENTS_AVAILABLE = True
+    logging.config.dictConfig(LOGGING_CONFIG)
+    logger = logging.getLogger(__name__)
+    logger.info("✓ Melhorias de infraestrutura carregadas com sucesso")
+except ImportError as e:
+    IMPROVEMENTS_AVAILABLE = False
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    logger.warning(f"Melhorias não disponíveis: {e}")
+    logger.info("Usando configuração básica")
+
 # FastAPI imports
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -130,6 +148,20 @@ app = FastAPI(
     description="Sistema RAG avançado para legislação moçambicana com IA especializada",
     version="2.0.0"
 )
+
+# Configurar middleware de melhorias se disponível
+if IMPROVEMENTS_AVAILABLE:
+    @app.middleware("http")
+    async def add_improvements_middleware(request, call_next):
+        return await rate_limit_middleware(request, call_next)
+    
+    # Adicionar router de melhorias
+    try:
+        from app.routers.improvements import router as improvements_router
+        app.include_router(improvements_router)
+        logger.info("✓ Router de melhorias adicionado")
+    except ImportError as e:
+        logger.warning(f"Router de melhorias não disponível: {e}")
 
 # CORS configuration
 app.add_middleware(

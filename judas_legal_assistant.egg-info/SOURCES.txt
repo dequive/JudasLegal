@@ -8,3 +8,5 @@ judas_legal_assistant.egg-info/dependency_links.txt
 judas_legal_assistant.egg-info/entry_points.txt
 judas_legal_assistant.egg-info/requires.txt
 judas_legal_assistant.egg-info/top_level.txt
+tests/test_cache_service.py
+tests/test_rate_limiting.py

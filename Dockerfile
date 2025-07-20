@@ -1,31 +1,45 @@
+# Dockerfile para Muzaia Legal Assistant Backend
+# Baseado nas melhores práticas de containerização
+
 FROM python:3.11-slim
 
-WORKDIR /app
+# Metadados
+LABEL maintainer="Muzaia Team"
+LABEL description="Assistente Jurídico AI para Legislação Moçambicana"
+LABEL version="2.0.0"
 
 # Instalar dependências do sistema
 RUN apt-get update && apt-get install -y \
-    gcc \
-    postgresql-client \
+    build-essential \
+    curl \
+    software-properties-common \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Copiar requirements primeiro para cache
+# Criar usuário não-root para segurança
+RUN groupadd -r muzaia && useradd -r -g muzaia muzaia
+
+# Configurar diretório de trabalho
+WORKDIR /app
+
+# Copiar e instalar dependências Python
 COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar código da aplicação
 COPY . .
 
-# Criar utilizador não-root
-RUN useradd --create-home --shell /bin/bash app \
-    && chown -R app:app /app
-USER app
+# Configurar permissões
+RUN chown -R muzaia:muzaia /app
+USER muzaia
 
 # Expor porta
-EXPOSE 8080
+EXPOSE 8000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
 
-# Comando de inicialização
-CMD ["python", "-m", "uvicorn", "backend_complete:app", "--host", "0.0.0.0", "--port", "8080"]
+# Comando de execução
+CMD ["uvicorn", "backend_complete:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

@@ -95,6 +95,13 @@ export default function HomePage() {
       href: "/orchestra-demo",
       icon: <Brain className="w-6 h-6" />,
       color: "bg-indigo-600 hover:bg-indigo-700"
+    },
+    {
+      title: "Melhorias Sistema",
+      description: "Infraestrutura e optimizações",
+      href: "/system-improvements",
+      icon: <Settings className="w-6 h-6" />,
+      color: "bg-slate-600 hover:bg-slate-700"
     }
   ];
 

@@ -1,40 +1,106 @@
+# Docker Compose para desenvolvimento Muzaia
+# Facilita setup completo do ambiente de desenvolvimento
+
 version: '3.8'
 
 services:
-  judas-app:
-    build: .
+  # Backend FastAPI
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "5000:5000"
-      - "3001:3001" 
-      - "80:80"
+      - "8000:8000"
     environment:
-      - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=postgresql://muzaia:muzaia123@db:5432/muzaia_legal
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - SESSION_SECRET=${SESSION_SECRET}
-      - REPL_ID=${REPL_ID}
-      - REPLIT_DOMAINS=${REPLIT_DOMAINS}
-      - ISSUER_URL=${ISSUER_URL}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
     depends_on:
-      - postgres
+      - db
+      - redis
+    volumes:
+      - .:/app
+      - uploaded_documents:/app/uploads
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    networks:
+      - muzaia-network
 
-  postgres:
+  # Frontend Next.js
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+      - NODE_ENV=development
+    depends_on:
+      - backend
+    volumes:
+      - ./pages:/app/pages
+      - ./components:/app/components
+      - ./styles:/app/styles
+    restart: unless-stopped
+    networks:
+      - muzaia-network
+
+  # Base de dados PostgreSQL
+  db:
     image: postgres:15-alpine
     environment:
-      - POSTGRES_DB=judas
-      - POSTGRES_USER=judas
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - POSTGRES_DB=muzaia_legal
+      - POSTGRES_USER=muzaia
+      - POSTGRES_PASSWORD=muzaia123
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     restart: unless-stopped
+    networks:
+      - muzaia-network
+
+  # Redis para cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - muzaia-network
+    command: redis-server --appendonly yes
+
+  # Nginx para load balancing (opcional)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    networks:
+      - muzaia-network
 
 volumes:
   postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  uploaded_documents:
+    driver: local
+
+networks:
+  muzaia-network:
+    driver: bridge

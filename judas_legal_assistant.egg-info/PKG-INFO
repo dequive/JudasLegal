@@ -23,4 +23,10 @@ Requires-Dist: httpx>=0.28.1
 Requires-Dist: trafilatura>=2.0.0
 Requires-Dist: numpy>=2.3.1
 Requires-Dist: anthropic>=0.58.2
+Requires-Dist: pytest>=8.4.1
+Requires-Dist: pytest-asyncio>=1.1.0
+Requires-Dist: redis>=6.2.0
+Requires-Dist: slowapi>=0.1.9
+Requires-Dist: python-json-logger>=3.3.0
+Requires-Dist: pydantic-settings>=2.10.1
 Dynamic: license-file
