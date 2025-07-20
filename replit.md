@@ -7,6 +7,7 @@ Judas is a Progressive Web Application (PWA) that provides an intelligent legal 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Language: Portuguese European (use "vosso/vossa" instead of "seu/sua", "optimizar" instead of "otimizar", etc.)
 
 ## System Architecture
 
@@ -349,6 +350,22 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Sistema administrativo para upload de leis
   - Tooltips jurídicos contextuais
   - Interface responsiva moderna
+
+### 2025-07-20 - Localização para Português Europeu Implementada
+
+- **Adequação Linguística Completa**
+  - Conversão de todos os textos para português europeu
+  - Substituição de "seu/sua" por "vosso/vossa" em todas as interfaces
+  - Alteração de "otimizar" para "optimizar" e outras adequações
+  - Actualização de placeholders e mensagens do sistema
+  - Manutenção da terminologia jurídica moçambicana apropriada
+
+- **Páginas Actualizadas**
+  - Landing page com linguagem europeia
+  - Interface de chat com tratamento formal adequado
+  - Glossário jurídico com terminologia correcta
+  - Mensagens do assistente virtual ajustadas
+  - Placeholders de pesquisa actualizados ("pesquisar" em vez de "buscar")
 
 ### 2025-07-19 - Configuração de Deploy Completa para 3 Plataformas
 

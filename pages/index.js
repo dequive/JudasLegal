@@ -116,7 +116,7 @@ export default function HomePage() {
               marginBottom: '1.5rem',
               letterSpacing: '-0.025em'
             }}>
-              Simplifique a sua advocacia com{' '}
+              Simplifique a vossa advocacia com{' '}
               <span style={{ color: '#2563eb' }}>
                 Inteligência Artificial
               </span>
@@ -129,8 +129,8 @@ export default function HomePage() {
               marginBottom: '3rem',
               fontWeight: '400'
             }}>
-              O Judas é o seu assistente jurídico virtual que automatiza tarefas, 
-              otimiza processos e eleva a sua produtividade especializado em 
+              O Judas é o vosso assistente jurídico virtual que automatiza tarefas, 
+              optimiza processos e eleva a vossa produtividade especializado em 
               legislação moçambicana.
             </p>
 
@@ -231,7 +231,7 @@ export default function HomePage() {
                 maxWidth: '600px',
                 margin: '0 auto'
               }}>
-                Descubra como o Judas pode revolucionar o seu dia a dia jurídico.
+                Descubra como o Judas pode revolucionar o vosso dia a dia jurídico.
               </p>
             </div>
 
@@ -374,7 +374,7 @@ export default function HomePage() {
                 color: '#111827',
                 marginBottom: '1rem'
               }}>
-                Como o Judas simplifica o seu dia
+                Como o Judas simplifica o vosso dia
               </h2>
               <p style={{
                 fontSize: '1.125rem',
@@ -382,7 +382,7 @@ export default function HomePage() {
                 maxWidth: '600px',
                 margin: '0 auto'
               }}>
-                Um fluxo de trabalho otimizado que valoriza o seu tempo e conhecimento.
+                Um fluxo de trabalho optimizado que valoriza o vosso tempo e conhecimento.
               </p>
             </div>
 
@@ -394,7 +394,7 @@ export default function HomePage() {
               {[
                 {
                   step: '1',
-                  title: 'Faça sua pergunta',
+                  title: 'Faça a vossa pergunta',
                   description: 'Digite qualquer questão jurídica em linguagem natural, sobre qualquer área do direito moçambicano.'
                 },
                 {

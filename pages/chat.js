@@ -6,7 +6,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([
     {
       id: '1',
-      text: 'Olá! Sou o Judas Legal Assistant, seu assistente jurídico especializado em legislação moçambicana. Como posso ajudá-lo hoje?',
+      text: 'Olá! Sou o Judas Legal Assistant, o vosso assistente jurídico especializado em legislação moçambicana. Como vos posso ajudar hoje?',
       isUser: false,
       timestamp: new Date(),
     }
@@ -28,7 +28,7 @@ export default function ChatPage() {
     
     const responses = [
       {
-        text: `Baseado na sua pergunta sobre "${userMessage}", posso explicar que na legislação moçambicana este aspecto é regulamentado pelo Código Civil. Aqui está a informação relevante: [resposta detalhada seria gerada pelo Gemini AI]`,
+        text: `Com base na vossa pergunta sobre "${userMessage}", posso explicar que na legislação moçambicana este aspecto é regulamentado pelo Código Civil. Aqui está a informação relevante: [resposta detalhada seria gerada pelo Gemini AI]`,
         citations: [
           {
             title: 'Código Civil de Moçambique',
@@ -43,7 +43,7 @@ export default function ChatPage() {
         ]
       },
       {
-        text: `Sua questão sobre "${userMessage}" é muito importante. De acordo com a legislação moçambicana vigente, especificamente na Constituição da República, encontramos as seguintes disposições: [resposta contextual seria fornecida pelo sistema RAG]`,
+        text: `A vossa questão sobre "${userMessage}" é muito importante. De acordo com a legislação moçambicana vigente, especificamente na Constituição da República, encontramos as seguintes disposições: [resposta contextual seria fornecida pelo sistema RAG]`,
         citations: [
           {
             title: 'Constituição da República de Moçambique',
@@ -342,7 +342,7 @@ export default function ChatPage() {
             value={currentMessage}
             onChange={(e) => setCurrentMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Digite a sua pergunta jurídica aqui..."
+            placeholder="Digite a vossa pergunta jurídica aqui..."
             disabled={isLoading}
             style={{
               flex: 1,
