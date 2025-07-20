@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
+import TextWithTooltips from '../components/TextWithTooltips';
+import LegalGlossaryPanel from '../components/LegalGlossaryPanel';
 
 // JavaScript component
 
@@ -61,6 +63,7 @@ export default function ChatPage() {
   ]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showGlossary, setShowGlossary] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -195,6 +198,50 @@ export default function ChatPage() {
           </div>
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <button 
+              onClick={() => setShowGlossary(true)}
+              style={{
+                background: '#f0f9ff',
+                border: '1px solid #0ea5e9',
+                color: '#0369a1',
+                padding: '0.5rem 1rem',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = '#e0f2fe';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = '#f0f9ff';
+              }}
+            >
+              📚 Glossário Jurídico
+            </button>
+            <button 
+              onClick={() => window.location.href = '/tooltips-demo'}
+              style={{
+                background: '#fef3c7',
+                border: '1px solid #f59e0b',
+                color: '#92400e',
+                padding: '0.5rem 1rem',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = '#fde68a';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = '#fef3c7';
+              }}
+            >
+              💡 Demo Tooltips
+            </button>
+            <button 
               onClick={() => window.location.href = '/complexity-demo'}
               style={{
                 background: '#f3f4f6',
@@ -214,7 +261,7 @@ export default function ChatPage() {
                 e.target.style.background = '#f3f4f6';
               }}
             >
-              Sistema de Complexidade
+              📊 Complexidade
             </button>
             <button 
               onClick={() => window.location.href = '/'}
@@ -316,7 +363,9 @@ export default function ChatPage() {
                     </div>
                   )}
                   
-                  <p style={{ margin: 0, fontSize: '16px' }}>{message.text}</p>
+                  <div style={{ margin: 0, fontSize: '16px' }}>
+                    <TextWithTooltips text={message.text} />
+                  </div>
                   <div style={{ 
                     fontSize: '12px', 
                     opacity: 0.7, 
@@ -515,6 +564,12 @@ export default function ChatPage() {
             )}
           </button>
         </div>
+
+        {/* Legal Glossary Panel */}
+        <LegalGlossaryPanel 
+          isOpen={showGlossary} 
+          onClose={() => setShowGlossary(false)} 
+        />
       </div>
 
       {/* CSS Animations */}
