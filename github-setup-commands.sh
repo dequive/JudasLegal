@@ -1,111 +1,53 @@
 #!/bin/bash
 
-echo "📚 Setup GitHub para Deploy Automático"
-echo "======================================"
+echo "🐙 Configuração GitHub para Deploy Render"
+echo "=========================================="
+echo ""
 
-# Verificar se git está configurado
-echo "🔍 Verificando configuração Git..."
-
-if ! git config --global user.name > /dev/null 2>&1; then
-    echo "📝 Configurar Git:"
-    echo "git config --global user.name 'Vosso Nome'"
-    echo "git config --global user.email 'vosso@email.com'"
-    echo ""
-    read -p "Quer configurar agora? (y/n): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        read -p "Nome: " git_name
-        read -p "Email: " git_email
-        git config --global user.name "$git_name"
-        git config --global user.email "$git_email"
-        echo "✅ Git configurado"
-    fi
+# Verificar se git está instalado
+if ! command -v git &> /dev/null; then
+    echo "❌ Git não está instalado"
+    echo "Instalar: apt install git (Ubuntu) ou brew install git (Mac)"
+    exit 1
 fi
 
-echo ""
-echo "📦 COMANDOS PARA CRIAR REPOSITÓRIO:"
-echo "==================================="
-echo ""
-
-# Verificar se já é repositório git
-if [ -d ".git" ]; then
-    echo "✅ Já é repositório Git"
-    echo ""
-    echo "Status actual:"
-    git status --short
-    echo ""
-    echo "Para actualizar repositório existente:"
-    echo "git add ."
-    echo "git commit -m 'Configuração deployment completa'"
-    echo "git push"
-else
-    echo "📋 Comandos para novo repositório:"
-    echo ""
-    echo "# 1. Inicializar repositório local"
-    echo "git init"
-    echo ""
-    echo "# 2. Adicionar todos os arquivos"
-    echo "git add ."
-    echo ""
-    echo "# 3. Commit inicial"
-    echo 'git commit -m "Initial Muzaia deployment setup"'
-    echo ""
-    echo "# 4. Criar repositório no GitHub:"
-    echo "#    - Ir para github.com"
-    echo "#    - New repository"
-    echo "#    - Nome: muzaia-backend"
-    echo "#    - Não inicializar com README"
-    echo ""
-    echo "# 5. Conectar com GitHub (substituir URL)"
-    echo "git remote add origin https://github.com/VOSSO-USERNAME/muzaia-backend.git"
-    echo "git branch -M main"
-    echo "git push -u origin main"
-    echo ""
-fi
-
-echo "🔗 LINKS ÚTEIS:"
-echo "==============="
-echo ""
-echo "• GitHub: https://github.com/new"
-echo "• Render: https://dashboard.render.com/select-repo?type=web"
-echo "• DigitalOcean: https://cloud.digitalocean.com/apps/new"
+echo "📋 Este script vai:"
+echo "1. Configurar repositório Git local"
+echo "2. Adicionar todos os arquivos"
+echo "3. Fazer commit inicial" 
+echo "4. Mostrar comandos para GitHub"
 echo ""
 
-echo "📋 ARQUIVOS IMPORTANTES PARA DEPLOY:"
-echo "===================================="
-echo ""
-echo "✅ backend_complete.py (aplicação principal)"
-echo "✅ requirements.txt (dependências Python)"
-echo "✅ railway.json (configuração Railway)"
-echo "✅ render.yaml (configuração Render)"
-echo "✅ Dockerfile (configuração DigitalOcean)"
-echo "✅ vercel.json (configuração Vercel)"
-echo ""
-
-echo "🚀 PRÓXIMOS PASSOS:"
-echo "=================="
-echo ""
-echo "1. Escolher plataforma:"
-echo "   • Render.com ($7/mês, fácil)"
-echo "   • DigitalOcean ($12/mês, robusto)"
-echo "   • Vercel (gratuito, limitações)"
-echo ""
-echo "2. Criar repositório GitHub"
-echo "3. Conectar repositório à plataforma escolhida"
-echo "4. Configurar variáveis de ambiente"
-echo "5. Deploy automático!"
-echo ""
-
-read -p "Quer executar setup Git agora? (y/n): " -n 1 -r
+read -p "Continuar? (y/n): " -n 1 -r
 echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    if [ ! -d ".git" ]; then
-        echo ""
-        echo "🔧 Inicializando repositório..."
-        git init
-        echo ""
-        echo "📝 Criando .gitignore..."
-        cat > .gitignore << 'EOF'
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    exit 1
+fi
+
+# Configurar Git se necessário
+echo "🔧 Configurando Git..."
+if [ -z "$(git config --global user.name)" ]; then
+    read -p "Nome Git: " git_name
+    git config --global user.name "$git_name"
+fi
+
+if [ -z "$(git config --global user.email)" ]; then
+    read -p "Email Git: " git_email
+    git config --global user.email "$git_email"
+fi
+
+# Inicializar repositório
+echo "📁 Inicializando repositório..."
+if [ ! -d ".git" ]; then
+    git init
+    echo "✅ Git repo inicializado"
+else
+    echo "ℹ️ Git repo já existe"
+fi
+
+# Criar .gitignore
+echo "📝 Criando .gitignore..."
+cat > .gitignore << 'EOF'
 # Python
 __pycache__/
 *.py[cod]
@@ -133,77 +75,134 @@ venv/
 env/
 ENV/
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+logs/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Environment variables
-.env
-.env.local
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# Logs
-*.log
+# Uploads
+uploads/
+*.pdf
+*.docx
+
+# Backups
+*.backup
+*.bak
+
+# Temporary files
+*.tmp
+temp/
 
 # Database
 *.db
 *.sqlite
+*.sqlite3
 
-# Temporary files
-*.tmp
-*.temp
+# Cache
+.cache/
+.pytest_cache/
 
-# Node modules (para frontend)
-node_modules/
-
-# Build outputs
-dist/
-build/
+# Coverage
+.coverage
+htmlcov/
 EOF
-        
-        echo "📦 Adicionando arquivos..."
-        git add .
-        
-        echo "💾 Commit inicial..."
-        git commit -m "Initial Muzaia deployment setup
 
-- Backend FastAPI completo
-- Configurações para Railway, Render, DigitalOcean
-- Sistema RAG com Gemini AI
-- Suporte para 15 áreas legais moçambicanas
-- Scripts de deploy automatizados"
-        
-        echo ""
-        echo "✅ Repositório local criado!"
-        echo ""
-        echo "📋 Próximo passo:"
-        echo "1. Ir para https://github.com/new"
-        echo "2. Nome: muzaia-backend"
-        echo "3. Criar repositório"
-        echo "4. Executar comandos mostrados pelo GitHub"
-        
-    else
-        echo ""
-        echo "📦 Actualizando repositório existente..."
-        git add .
-        git commit -m "Deploy configuration updated
+# Adicionar arquivos importantes
+echo "📦 Adicionando arquivos..."
+git add backend_complete.py
+git add requirements.txt
+git add render.yaml
+git add Procfile
+git add .gitignore
+git add README.md 2>/dev/null || true
+git add RENDER_ENV_SETUP.md 2>/dev/null || true
 
-- Fixed Railway and Vercel configurations
-- Added Render and DigitalOcean options
-- Complete deployment automation"
-        
-        if git remote get-url origin > /dev/null 2>&1; then
-            echo "🚀 Fazendo push..."
-            git push
-            echo "✅ Repositório actualizado!"
-        else
-            echo "❌ Remote origin não configurado"
-            echo "Configure com: git remote add origin https://github.com/USERNAME/REPO.git"
-        fi
-    fi
-fi
+# Verificar o que será commitado
+echo ""
+echo "📋 Arquivos a serem commitados:"
+git status --porcelain
+
+# Fazer commit
+echo ""
+echo "💾 Fazendo commit..."
+git commit -m "Initial commit: Muzaia backend for Render deployment
+
+- FastAPI backend with Gemini AI integration
+- PostgreSQL/Supabase database support
+- Legal document processing and RAG system
+- Admin interface for document management
+- Ready for Render.com deployment"
+
+echo "✅ Commit realizado"
+echo ""
+
+# Instruções para GitHub
+echo "🌐 PRÓXIMOS PASSOS - GITHUB:"
+echo "============================"
+echo ""
+echo "1. Criar repositório no GitHub:"
+echo "   • Ir para: https://github.com/new"
+echo "   • Nome: muzaia-backend"
+echo "   • Descrição: Muzaia Legal Assistant Backend"
+echo "   • Público (recomendado para Render gratuito)"
+echo ""
+
+# Perguntar o username GitHub
+read -p "Qual o vosso username GitHub? " github_username
+
+echo ""
+echo "2. Conectar e fazer push:"
+echo "   git remote add origin https://github.com/${github_username}/muzaia-backend.git"
+echo "   git branch -M main"
+echo "   git push -u origin main"
+echo ""
+
+echo "3. Após push, ir para Render:"
+echo "   • https://render.com"
+echo "   • New > Web Service"
+echo "   • Connect GitHub repository: ${github_username}/muzaia-backend"
+echo ""
+
+echo "4. Configurar no Render:"
+echo "   • Name: muzaia-backend"
+echo "   • Branch: main"
+echo "   • Build Command: pip install -r requirements.txt"
+echo "   • Start Command: uvicorn backend_complete:app --host 0.0.0.0 --port \$PORT"
+echo ""
+
+echo "5. Environment Variables no Render:"
+echo "   GEMINI_API_KEY = [vossa chave]"
+echo "   DATABASE_URL = [vossa URL Supabase]"
+echo ""
+
+echo "✨ COMANDOS PRONTOS PARA COPIAR:"
+echo "================================"
+echo ""
+echo "# Conectar ao GitHub:"
+echo "git remote add origin https://github.com/${github_username}/muzaia-backend.git"
+echo "git branch -M main"
+echo "git push -u origin main"
+echo ""
+
+echo "🎯 Após executar estes comandos:"
+echo "• Repositório estará no GitHub"
+echo "• Pronto para deploy no Render"
+echo "• Backend funcionando em ~5 minutos"
+echo ""
+
+echo "💡 URL final será:"
+echo "https://muzaia-backend.onrender.com"

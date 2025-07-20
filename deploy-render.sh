@@ -1,15 +1,37 @@
 #!/bin/bash
 
-echo "🎨 Deploy Muzaia no Render.com"
+echo "🚀 Deploy Muzaia no Render.com"
 echo "==============================="
+echo ""
 
-# Verificar se está no directório correcto
+# Verificar se temos os arquivos necessários
 if [ ! -f "backend_complete.py" ]; then
-    echo "❌ Erro: backend_complete.py não encontrado!"
+    echo "❌ Arquivo backend_complete.py não encontrado"
     exit 1
 fi
 
-echo "📦 Criando configuração Render..."
+echo "📦 Preparando arquivos para Render..."
+
+# Criar requirements.txt otimizado para Render
+cat > requirements.txt << 'EOF'
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+psycopg2-binary==2.9.9
+google-generativeai==0.3.2
+python-multipart==0.0.6
+PyPDF2==3.0.1
+python-docx==0.8.11
+numpy==1.24.3
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+aiofiles==23.2.1
+httpx==0.24.1
+chardet==5.2.0
+sqlalchemy==2.0.23
+pydantic==2.5.0
+python-dateutil==2.8.2
+gunicorn==21.2.0
+EOF
 
 # Criar render.yaml
 cat > render.yaml << 'EOF'
@@ -17,113 +39,116 @@ services:
   - type: web
     name: muzaia-backend
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python -m uvicorn backend_complete:app --host 0.0.0.0 --port $PORT
-    plan: starter
-    healthCheckPath: /health
+    region: oregon
+    plan: free
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn backend_complete:app --host 0.0.0.0 --port $PORT --workers 1
     envVars:
       - key: GEMINI_API_KEY
         sync: false
-      - key: DATABASE_URL
+      - key: DATABASE_URL  
         sync: false
       - key: PYTHONPATH
         value: /opt/render/project/src
-      - key: PYTHON_VERSION
-        value: 3.11.0
+      - key: PORT
+        value: 10000
 EOF
 
-# Criar build script específico para Render
-cat > build.sh << 'EOF'
+# Criar Procfile (alternativo)
+cat > Procfile << 'EOF'
+web: uvicorn backend_complete:app --host 0.0.0.0 --port $PORT
+EOF
+
+# Criar arquivo de configuração para produção
+cat > render-start.sh << 'EOF'
 #!/bin/bash
-echo "🔧 Build script para Render"
-pip install --upgrade pip
-pip install -r requirements.txt
-echo "✅ Build concluído"
+export PYTHONPATH=/opt/render/project/src:$PYTHONPATH
+uvicorn backend_complete:app --host 0.0.0.0 --port $PORT --workers 1 --log-level info
 EOF
 
-chmod +x build.sh
+chmod +x render-start.sh
 
-echo "✅ Configuração Render criada"
-echo ""
-echo "📋 INSTRUÇÕES PARA RENDER:"
-echo "=========================="
-echo ""
-echo "1. Criar conta em: https://render.com"
-echo "2. Conectar GitHub:"
-echo "   - New → Web Service"
-echo "   - Connect GitHub repository"
-echo "   - Seleccionar este repositório"
-echo ""
-echo "3. Configurar serviço:"
-echo "   - Environment: Python 3"
-echo "   - Build Command: pip install -r requirements.txt"
-echo "   - Start Command: python -m uvicorn backend_complete:app --host 0.0.0.0 --port \$PORT"
-echo ""
-echo "4. Configurar variáveis de ambiente:"
-echo "   - GEMINI_API_KEY: vossa chave Google"
-echo "   - DATABASE_URL: vossa URL Supabase"
-echo "   - PYTHONPATH: /opt/render/project/src"
-echo ""
-echo "💰 CUSTO:"
-echo "Starter plan: $7/mês"
-echo "Free tier: Disponível (com limitações)"
-echo ""
-echo "🌐 URL FINAL:"
-echo "https://vossa-app.onrender.com"
-echo ""
-echo "📁 Arquivos criados:"
-echo "- render.yaml (configuração automática)"
-echo "- build.sh (script de build)"
+echo "✅ Arquivos criados:"
+echo "• requirements.txt - Dependências Python"
+echo "• render.yaml - Configuração Render"
+echo "• Procfile - Comando de inicialização"
+echo "• render-start.sh - Script de start personalizado"
 echo ""
 
-echo "🔗 PASSOS DETALHADOS:"
-echo "===================="
+echo "🌐 PRÓXIMOS PASSOS:"
+echo "==================="
 echo ""
-echo "1. Ir para: https://dashboard.render.com/select-repo?type=web"
-echo "2. Conectar GitHub se ainda não fez"
-echo "3. Seleccionar repositório com código Muzaia"
-echo "4. Configurar:"
-echo "   - Name: muzaia-backend"
-echo "   - Environment: Python 3"
-echo "   - Region: Frankfurt (mais próximo)"
-echo "   - Branch: main"
-echo "   - Build Command: pip install -r requirements.txt"
-echo "   - Start Command: python -m uvicorn backend_complete:app --host 0.0.0.0 --port \$PORT"
+echo "1. Criar repositório GitHub:"
+echo "   • Ir para https://github.com/new"
+echo "   • Nome: muzaia-backend"
+echo "   • Público ou privado"
 echo ""
-echo "5. Environment Variables:"
-echo "   - Clicar 'Advanced' → 'Add Environment Variable'"
-echo "   - GEMINI_API_KEY = vossa_chave_aqui"
-echo "   - DATABASE_URL = vossa_url_supabase"
+echo "2. Push do código:"
+echo "   git init"
+echo "   git add ."
+echo "   git commit -m 'Deploy Muzaia backend'"
+echo "   git remote add origin https://github.com/SEU_USUARIO/muzaia-backend.git"
+echo "   git push -u origin main"
 echo ""
-echo "6. Clicar 'Create Web Service'"
-echo "7. Aguardar deploy (5-10 minutos)"
+echo "3. Deploy no Render:"
+echo "   • Ir para https://render.com"
+echo "   • Criar conta (gratuito)"
+echo "   • New > Web Service"
+echo "   • Conectar repositório GitHub"
+echo "   • Configurar:"
+echo "     - Build Command: pip install -r requirements.txt"
+echo "     - Start Command: uvicorn backend_complete:app --host 0.0.0.0 --port \$PORT"
+echo "     - Environment Variables:"
+echo "       * GEMINI_API_KEY=vossa_chave"
+echo "       * DATABASE_URL=vossa_url_supabase"
 echo ""
+echo "4. Aguardar deploy (2-3 minutos)"
+echo ""
+echo "📱 RESULTADO:"
+echo "Backend estará disponível em:"
+echo "https://muzaia-backend.onrender.com"
+echo ""
+echo "🧪 TESTAR:"
+echo "curl https://muzaia-backend.onrender.com/health"
+echo ""
+echo "💡 VANTAGENS RENDER:"
+echo "• Deploy gratuito (750h/mês)"
+echo "• HTTPS automático"
+echo "• Restart automático"
+echo "• Logs completos"
+echo "• Zero configuração de servidor"
 
-read -p "Deseja ver instruções de setup GitHub? (y/n): " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo ""
-    echo "📚 SETUP GITHUB PARA RENDER:"
-    echo "============================"
-    echo ""
-    echo "Se ainda não tem repositório GitHub:"
-    echo ""
-    echo "1. Criar repositório:"
-    echo "   git init"
-    echo "   git add ."
-    echo "   git commit -m 'Initial Muzaia commit'"
-    echo ""
-    echo "2. Ir para github.com → New repository"
-    echo "   - Nome: muzaia-backend"
-    echo "   - Público ou Privado"
-    echo "   - Criar repositório"
-    echo ""
-    echo "3. Conectar local com GitHub:"
-    echo "   git remote add origin https://github.com/vosso-username/muzaia-backend.git"
-    echo "   git branch -M main"
-    echo "   git push -u origin main"
-    echo ""
-    echo "4. Voltar para Render e conectar este repositório"
-    echo ""
-    echo "✅ Render detectará automaticamente Python e fará deploy!"
-fi
+# Criar instruções para variáveis de ambiente
+cat > RENDER_ENV_SETUP.md << 'EOF'
+# Configuração Variáveis Render
+
+## No painel Render.com:
+
+### Environment Variables:
+```
+GEMINI_API_KEY = sua_chave_gemini_aqui
+DATABASE_URL = postgresql://postgres:senha@db.xxx.supabase.co:5432/postgres
+PYTHONPATH = /opt/render/project/src
+PORT = 10000
+```
+
+### Build Settings:
+- **Build Command**: `pip install -r requirements.txt`
+- **Start Command**: `uvicorn backend_complete:app --host 0.0.0.0 --port $PORT`
+- **Python Version**: 3.11
+
+### Auto-Deploy:
+- ✅ Activar auto-deploy no push
+- ✅ Branch: main
+
+## URLs Resultantes:
+- Backend: https://muzaia-backend.onrender.com
+- Health: https://muzaia-backend.onrender.com/health
+- Docs: https://muzaia-backend.onrender.com/docs
+EOF
+
+echo ""
+echo "📖 Documentação criada: RENDER_ENV_SETUP.md"
+echo ""
+echo "✨ Render é muito mais simples que DigitalOcean!"
+echo "🎯 Deploy em 5 minutos vs 30 minutos"
