@@ -1,0 +1,567 @@
+# JudasLegal - Melhorias de CSS para Estilo ChatGPT
+
+## Problemas Identificados e Soluções
+
+### 1. Layout Principal - Estrutura Similar ao ChatGPT
+
+**Arquivo: `frontend/src/app/layout.tsx`**
+```tsx
+import './globals.css'
+import { Inter } from 'next/font/google'
+import { Providers } from './providers'
+
+const inter = Inter({ subsets: ['latin'] })
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="pt" className="dark">
+      <body className={`${inter.className} bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100`}>
+        <Providers>
+          <div className="min-h-screen flex flex-col">
+            {children}
+          </div>
+        </Providers>
+      </body>
+    </html>
+  )
+}
+```
+
+### 2. Componente de Chat Principal
+
+**Arquivo: `frontend/src/components/ChatInterface.tsx`**
+```tsx
+'use client'
+
+import { useState, useRef, useEffect } from 'react'
+import { Send, Bot, User, Loader2 } from 'lucide-react'
+import { useChatStore } from '@/store/chatStore'
+
+export default function ChatInterface() {
+  const [input, setInput] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const { messages, addMessage } = useChatStore()
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!input.trim() || isLoading) return
+
+    const userMessage = input.trim()
+    setInput('')
+    setIsLoading(true)
+
+    // Adicionar mensagem do usuário
+    addMessage({
+      id: Date.now().toString(),
+      content: userMessage,
+      role: 'user',
+      timestamp: new Date()
+    })
+
+    try {
+      const response = await fetch('/api/chat/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage })
+      })
+
+      const data = await response.json()
+      
+      addMessage({
+        id: (Date.now() + 1).toString(),
+        content: data.response,
+        role: 'assistant',
+        timestamp: new Date(),
+        sources: data.sources
+      })
+    } catch (error) {
+      console.error('Erro ao enviar mensagem:', error)
+      addMessage({
+        id: (Date.now() + 1).toString(),
+        content: 'Desculpe, ocorreu um erro. Tente novamente.',
+        role: 'assistant',
+        timestamp: new Date()
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col h-screen bg-white dark:bg-gray-900">
+      {/* Header */}
+      <div className="border-b border-gray-200 dark:border-gray-700 p-4">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <Bot className="w-6 h-6 text-green-600" />
+            JudasLegal - Assistente Jurídico
+          </h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Assistente inteligente para questões legais de Moçambique
+          </p>
+        </div>
+      </div>
+
+      {/* Messages Container */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          {messages.length === 0 ? (
+            <WelcomeScreen />
+          ) : (
+            <div className="space-y-6">
+              {messages.map((message) => (
+                <MessageBubble key={message.id} message={message} />
+              ))}
+              {isLoading && <LoadingMessage />}
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      {/* Input Area */}
+      <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+        <div className="max-w-4xl mx-auto p-4">
+          <form onSubmit={handleSubmit} className="relative">
+            <div className="flex items-end gap-3">
+              <div className="flex-1 relative">
+                <textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Faça uma pergunta sobre direito moçambicano..."
+                  className="w-full resize-none border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 pr-12 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent max-h-32 min-h-[52px]"
+                  rows={1}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      handleSubmit(e)
+                    }
+                  }}
+                  disabled={isLoading}
+                />
+                <button
+                  type="submit"
+                  disabled={!input.trim() || isLoading}
+                  className="absolute right-2 bottom-2 p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+          </form>
+          <div className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+            JudasLegal pode cometer erros. Verifique informações importantes.
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Componente para mensagens individuais
+function MessageBubble({ message }: { message: any }) {
+  return (
+    <div className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+      <div className={`flex gap-3 max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+        {/* Avatar */}
+        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+          message.role === 'user' 
+            ? 'bg-green-600 text-white' 
+            : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+        }`}>
+          {message.role === 'user' ? (
+            <User className="w-4 h-4" />
+          ) : (
+            <Bot className="w-4 h-4" />
+          )}
+        </div>
+
+        {/* Message Content */}
+        <div className={`rounded-2xl px-4 py-3 ${
+          message.role === 'user'
+            ? 'bg-green-600 text-white'
+            : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
+        }`}>
+          <div className="whitespace-pre-wrap text-sm leading-relaxed">
+            {message.content}
+          </div>
+          
+          {/* Sources */}
+          {message.sources && message.sources.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+              <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">Fontes:</div>
+              {message.sources.map((source: any, index: number) => (
+                <div key={index} className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                  • {source.title || source.document}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Tela de boas-vindas
+function WelcomeScreen() {
+  return (
+    <div className="text-center py-12">
+      <Bot className="w-16 h-16 text-green-600 mx-auto mb-4" />
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+        Bem-vindo ao JudasLegal
+      </h2>
+      <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+        Seu assistente inteligente para questões jurídicas em Moçambique. 
+        Faça uma pergunta para começar.
+      </p>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+        {[
+          "Quais são os direitos fundamentais?",
+          "Idade mínima para trabalhar",
+          "Como funciona o casamento civil?",
+          "Contratos e obrigações"
+        ].map((question) => (
+          <button
+            key={question}
+            className="p-4 text-left bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-700"
+          >
+            <div className="text-sm text-gray-900 dark:text-white">{question}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// Componente de loading
+function LoadingMessage() {
+  return (
+    <div className="flex gap-3">
+      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+        <Bot className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+      </div>
+      <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl px-4 py-3">
+        <div className="flex items-center gap-2">
+          <Loader2 className="w-4 h-4 animate-spin text-gray-600 dark:text-gray-400" />
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            Analisando sua pergunta...
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+
+### 3. Store Zustand para Gerenciamento de Estado
+
+**Arquivo: `frontend/src/store/chatStore.ts`**
+```typescript
+import { create } from 'zustand'
+
+interface Message {
+  id: string
+  content: string
+  role: 'user' | 'assistant'
+  timestamp: Date
+  sources?: any[]
+}
+
+interface ChatStore {
+  messages: Message[]
+  addMessage: (message: Message) => void
+  clearMessages: () => void
+}
+
+export const useChatStore = create<ChatStore>((set) => ({
+  messages: [],
+  addMessage: (message) =>
+    set((state) => ({
+      messages: [...state.messages, message]
+    })),
+  clearMessages: () => set({ messages: [] })
+}))
+```
+
+### 4. Estilos Globais Atualizados
+
+**Arquivo: `frontend/src/app/globals.css`**
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Scrollbar personalizada similar ao ChatGPT */
+  .chat-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .chat-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .chat-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+  }
+
+  .chat-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400 dark:bg-gray-500;
+  }
+
+  /* Animações suaves */
+  .message-enter {
+    animation: messageSlideIn 0.3s ease-out;
+  }
+
+  @keyframes messageSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Estilo para código */
+  .message-content pre {
+    @apply bg-gray-100 dark:bg-gray-800 rounded-lg p-4 my-2 overflow-x-auto;
+  }
+
+  .message-content code {
+    @apply bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm;
+  }
+
+  /* Estilo para links */
+  .message-content a {
+    @apply text-green-600 hover:text-green-700 underline;
+  }
+
+  /* Textarea auto-resize */
+  .auto-resize {
+    field-sizing: content;
+  }
+}
+
+/* Tema escuro aprimorado */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 17 24 39;
+    --foreground: 243 244 246;
+  }
+}
+
+/* Responsividade aprimorada */
+@media (max-width: 768px) {
+  .chat-container {
+    @apply px-2;
+  }
+  
+  .message-bubble {
+    @apply max-w-[90%];
+  }
+}
+
+/* Melhorias de acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus states melhorados */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  @apply outline-none ring-2 ring-green-500 ring-offset-2 ring-offset-white dark:ring-offset-gray-900;
+}
+```
+
+### 5. Configuração do Tailwind Atualizada
+
+**Arquivo: `frontend/tailwind.config.ts`**
+```typescript
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: [
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        // Cores principais do JudasLegal (Moçambique)
+        primary: {
+          50: '#f0fdf4',
+          100: '#dcfce7',
+          200: '#bbf7d0',
+          300: '#86efac',
+          400: '#4ade80',
+          500: '#22c55e', // Verde principal
+          600: '#16a34a',
+          700: '#15803d',
+          800: '#166534',
+          900: '#14532d',
+        },
+        // Tons de cinza otimizados para chat
+        gray: {
+          50: '#fafafa',
+          100: '#f5f5f5',
+          200: '#e5e5e5',
+          300: '#d4d4d4',
+          400: '#a3a3a3',
+          500: '#737373',
+          600: '#525252',
+          700: '#404040',
+          800: '#262626',
+          900: '#171717',
+        }
+      },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+      },
+      spacing: {
+        '18': '4.5rem',
+        '88': '22rem',
+      },
+      maxWidth: {
+        '8xl': '88rem',
+        '9xl': '96rem',
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-in-out',
+        'slide-up': 'slideUp 0.3s ease-out',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideUp: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+    },
+  },
+  plugins: [
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/forms'),
+  ],
+}
+
+export default config
+```
+
+### 6. Componente de Providers
+
+**Arquivo: `frontend/src/app/providers.tsx`**
+```tsx
+'use client'
+
+import { ThemeProvider } from 'next-themes'
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      {children}
+    </ThemeProvider>
+  )
+}
+```
+
+## Principais Melhorias Implementadas
+
+### 1. **Design System Consistente**
+- Paleta de cores verde inspirada na bandeira de Moçambique
+- Tipografia Inter para melhor legibilidade
+- Espaçamentos consistentes baseados no Tailwind
+
+### 2. **Interface Estilo ChatGPT**
+- Layout de conversa com bolhas de mensagem
+- Avatar para usuário e assistente
+- Área de input responsiva com auto-resize
+- Indicador de carregamento elegante
+
+### 3. **Tema Escuro/Claro**
+- Suporte completo a modo escuro
+- Transições suaves entre temas
+- Cores otimizadas para ambos os modos
+
+### 4. **Responsividade**
+- Design mobile-first
+- Breakpoints otimizados
+- Interface adaptável a todos os tamanhos de tela
+
+### 5. **Acessibilidade**
+- Focus states visíveis
+- Suporte a leitores de tela
+- Contraste de cores adequado
+- Respeito às preferências de movimento reduzido
+
+### 6. **Performance**
+- Componentes otimizados
+- Lazy loading onde apropriado
+- Gerenciamento de estado eficiente com Zustand
+
+## Próximos Passos
+
+1. **Instalar Dependências**:
+   ```bash
+   cd frontend
+   npm install @tailwindcss/typography @tailwindcss/forms next-themes zustand lucide-react
+   ```
+
+2. **Implementar os Componentes**:
+   - Copiar os arquivos fornecidos
+   - Ajustar imports se necessário
+   - Testar a funcionalidade
+
+3. **Personalizar Cores** (Opcional):
+   - Ajustar as cores primárias no `tailwind.config.ts`
+   - Modificar o tema para refletir melhor a identidade visual
+
+4. **Testes**:
+   - Testar em diferentes dispositivos
+   - Verificar acessibilidade
+   - Validar performance
+
+Esta implementação transforma o JudasLegal em uma aplicação moderna com interface similar ao ChatGPT, mantendo a identidade visual moçambicana e garantindo excelente usabilidade.

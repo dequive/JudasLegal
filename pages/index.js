@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { MessageCircle, Upload, Brain, BarChart3, BookOpen, Shield, Zap, Globe, Settings } from 'lucide-react';
+import LegalDisclaimer from '../components/LegalDisclaimer';
 
 export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -121,6 +122,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+      {/* Banner Legal Principal */}
+      <LegalDisclaimer type="banner" variant="warning" />
+      
       {/* Animated background patterns */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
@@ -276,6 +280,11 @@ export default function HomePage() {
             <p className="text-gray-400">
               © 2025 Muzaia. Assistente jurídico inteligente para Moçambique.
             </p>
+            
+            {/* Footer Legal Disclaimer */}
+            <div className="mt-6 max-w-2xl mx-auto">
+              <LegalDisclaimer type="footer" variant="professional" />
+            </div>
           </div>
         </footer>
       </div>

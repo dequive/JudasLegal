@@ -3,6 +3,7 @@ import { Send, Paperclip, Mic, MoreHorizontal, Lightbulb, FileText, Scale, Map }
 import FeedbackSystem from './FeedbackSystem';
 import ExportSystem from './ExportSystem';
 import { useLegalHistory, useUserPreferences } from '../hooks/useLocalStorage';
+import LegalDisclaimer, { AIResponseDisclaimer, useLegalDisclaimer } from './LegalDisclaimer';
 
 export default function ModernChatInterface() {
   const [messages, setMessages] = useState([]);
@@ -14,6 +15,7 @@ export default function ModernChatInterface() {
   // Novos hooks para funcionalidades avançadas
   const { addToHistory, history, getFavorites } = useLegalHistory();
   const { preferences } = useUserPreferences();
+  const { shouldShowModal, markAsShown } = useLegalDisclaimer();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -216,6 +218,11 @@ Para vos ajudar melhor, preciso de alguns detalhes adicionais:
                     </div>
                   )}
                   
+                  {/* Aviso Legal para respostas da IA */}
+                  {message.role === 'assistant' && (
+                    <AIResponseDisclaimer severity="high" />
+                  )}
+                  
                   {/* Sistema de Feedback para respostas do assistente */}
                   {message.role === 'assistant' && (
                     <FeedbackSystem 
@@ -248,6 +255,11 @@ Para vos ajudar melhor, preciso de alguns detalhes adicionais:
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Modal de Aviso Legal */}
+      {shouldShowModal && (
+        <LegalDisclaimer type="modal" />
+      )}
 
       {/* Input Area */}
       <div className="p-4 border-t border-gray-800">
@@ -295,8 +307,13 @@ Para vos ajudar melhor, preciso de alguns detalhes adicionais:
           </div>
           
           <p className="text-xs text-gray-500 text-center mt-2">
-            Muzaia pode cometer erros. Verifique informações importantes com fontes oficiais.
+            Prima Enter para enviar, Shift+Enter para nova linha
           </p>
+          
+          {/* Footer Legal Disclaimer */}
+          <div className="mt-4">
+            <LegalDisclaimer type="footer" variant="warning" />
+          </div>
         </form>
       </div>
     </div>
