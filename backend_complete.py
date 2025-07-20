@@ -187,6 +187,14 @@ if IMPROVEMENTS_AVAILABLE:
         logger.info("✓ Router de autenticação simplificado adicionado")
     except ImportError as e:
         logger.warning(f"Router de autenticação não disponível: {e}")
+    
+    # Adicionar router Redis
+    try:
+        from app.routers.redis_router import router as redis_router
+        app.include_router(redis_router)
+        logger.info("✓ Router Redis adicionado")
+    except ImportError as e:
+        logger.warning(f"Router de autenticação não disponível: {e}")
         try:
             from app.routers.auth import router as auth_router_complex
             app.include_router(auth_router_complex)

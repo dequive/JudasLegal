@@ -856,6 +856,47 @@ The system is designed to be easily deployable on cloud platforms with environme
   - **Database**: Supabase PostgreSQL - 11 documentos legais processados
   - **IA**: Google Gemini 2.0 Flash - Respostas jurídicas inteligentes
 
+### 2025-07-20 - SISTEMA REDIS CACHE COMPLETO IMPLEMENTADO (Alta Performance)
+
+- **Sistema Redis com Fallback Inteligente Implementado**
+  - RedisService robusto com conexão automática e fallback para memória
+  - Cache hierárquico com prefixos configuráveis (muzaia:, admin:, func:)
+  - TTL configurável por chave e serialização JSON/Pickle automática
+  - Health checks e reconexão automática em caso de falha
+  - Suporte a operações CRUD completas no cache
+
+- **APIs Redis Administrativas Implementadas**
+  - `GET /api/redis/health` - Health check do serviço Redis
+  - `GET /api/redis/stats` - Estatísticas detalhadas (hit ratio, memória)
+  - `POST /api/redis/cache/set` - Definir valores com TTL
+  - `GET /api/redis/cache/get/{key}` - Obter valores do cache
+  - `DELETE /api/redis/cache/delete/{key}` - Remover chaves
+  - `POST /api/redis/cache/clear` - Limpar cache por prefixo
+  - `GET /api/redis/cache/exists/{key}` - Verificar existência
+  - APIs especiais para documentos legais e sessões de chat
+
+- **Painel Redis Dashboard Frontend Implementado**
+  - Nova página `/redis-dashboard` com interface moderna
+  - Operações em tempo real: SET, GET, DELETE, CLEAR
+  - Monitorização de estatísticas e health do Redis
+  - Histórico de operações com timestamps
+  - Interface para cache de documentos legais
+  - Design glassmorphic responsivo integrado
+
+- **Funcionalidades Avançadas de Performance**
+  - Decorador `@cached(ttl, prefix)` para cache automático de funções
+  - Cache multi-camadas com Redis + Memory fallback
+  - Serialização inteligente (JSON, string, pickle para objectos complexos)
+  - Limpeza automática de entradas expiradas
+  - Estatísticas de hit ratio e performance
+
+- **Integração com Ecosistema Muzaia**
+  - Cache automático de respostas da IA Gemini
+  - Cache de documentos legais processados
+  - Cache de sessões de utilizador
+  - Cache de resultados de pesquisa legal
+  - Integração com sistema de monitorização existente
+
 ### 2025-07-20 - SISTEMA DE SEGURANÇA COMPLETO IMPLEMENTADO (Prioridade Média - CONCLUÍDO)
 
 - **Funcionalidades de Prioridade Média 100% Implementadas**

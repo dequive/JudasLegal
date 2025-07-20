@@ -109,6 +109,13 @@ export default function HomePage() {
       href: "/security-simple",
       icon: <Shield className="w-6 h-6" />,
       color: "bg-red-600 hover:bg-red-700"
+    },
+    {
+      title: "Painel Redis",
+      description: "Cache e performance",
+      href: "/redis-dashboard",
+      icon: <Globe className="w-6 h-6" />,
+      color: "bg-emerald-600 hover:bg-emerald-700"
     }
   ];
 
