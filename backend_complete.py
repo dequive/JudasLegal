@@ -162,6 +162,41 @@ if IMPROVEMENTS_AVAILABLE:
         logger.info("✓ Router de melhorias adicionado")
     except ImportError as e:
         logger.warning(f"Router de melhorias não disponível: {e}")
+    
+    # Adicionar middleware de segurança
+    try:
+        from app.middleware.security_middleware import SecurityMiddleware, RequestLoggingMiddleware
+        app.add_middleware(SecurityMiddleware)
+        app.add_middleware(RequestLoggingMiddleware, log_body=False)
+        logger.info("✓ Middleware de segurança adicionado")
+    except ImportError as e:
+        logger.warning(f"Middleware de segurança não disponível: {e}")
+    
+    # Adicionar router de segurança
+    try:
+        from app.routers.security import router as security_router
+        app.include_router(security_router)
+        logger.info("✓ Router de segurança adicionado")
+    except ImportError as e:
+        logger.warning(f"Router de segurança não disponível: {e}")
+    
+    # Adicionar router de autenticação
+    try:
+        from app.routers.auth import router as auth_router
+        app.include_router(auth_router)
+        logger.info("✓ Router de autenticação adicionado")
+    except ImportError as e:
+        logger.warning(f"Router de autenticação não disponível: {e}")
+    
+    # Iniciar monitorização do sistema
+    try:
+        from app.monitoring.system_monitor import system_monitor
+        import asyncio
+        loop = asyncio.get_event_loop()
+        loop.create_task(system_monitor.start_monitoring(interval=300))  # 5 minutos
+        logger.info("✓ Monitorização do sistema iniciada")
+    except Exception as e:
+        logger.warning(f"Monitorização do sistema não disponível: {e}")
 
 # CORS configuration
 app.add_middleware(

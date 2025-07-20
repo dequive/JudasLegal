@@ -856,49 +856,79 @@ The system is designed to be easily deployable on cloud platforms with environme
   - **Database**: Supabase PostgreSQL - 11 documentos legais processados
   - **IA**: Google Gemini 2.0 Flash - Respostas jurídicas inteligentes
 
-### 2025-07-20 - Sistema de Melhorias de Infraestrutura Totalmente Implementado
+### 2025-07-20 - Sistema de Segurança e Monitorização Avançados Implementados (Prioridade Média)
 
-- **Módulos de Infraestrutura Avançada Integrados**
-  - Sistema de configuração centralizada com Pydantic Settings
-  - Rate limiting robusto com tracking por cliente e múltiplos limites
-  - Cache service inteligente com fallback Redis → Memory
-  - Middleware de monitorização em tempo real
-  - Logging estruturado em JSON para observabilidade
+- **Sistema de Autenticação JWT Completo Implementado**
+  - Autenticação baseada em JWT com tokens de 8 horas
+  - Hash de passwords com bcrypt para máxima segurança
+  - Utilizadores demo: admin/admin123 e superadmin/super123
+  - Sistema de roles (user, admin, superadmin) com verificação
+  - API `/api/auth/login` para obtenção de tokens
+  - API `/api/auth/verify` para validação de tokens
+  - API `/api/auth/logout` para terminação de sessões
 
-- **APIs de Melhorias Funcionais**
-  - `GET /api/improvements/status` - Estado completo do sistema
-  - `POST /api/improvements/test-cache` - Teste de cache com métricas
-  - Rate limiting: 30 req/min, 500 req/h com headers informativos
-  - Cache: Hit ratio 100% em testes, fallback automático
-  - Configuration: Validação Pydantic com variáveis de ambiente
+- **Middleware de Segurança Avançado Implementado**
+  - SecurityMiddleware com protecção contra ameaças comuns
+  - Detecção de SQL injection, XSS e path traversal
+  - Validação de tamanho de requests (máx 50MB)
+  - Headers de segurança automáticos (CSP, HSTS, X-Frame-Options)
+  - Rate limiting integrado com bloqueio automático de IPs
+  - Logging detalhado de requests e eventos de segurança
+  - IPWhitelistMiddleware para protecção de endpoints críticos
 
-- **Sistema de Rate Limiting Avançado**
-  - AdvancedRateLimiter com tracking por IP + User-Agent
-  - Limpeza automática de entradas antigas (>1 hora)
-  - Bypass para endpoints de health check
-  - Headers X-RateLimit-* para informação ao cliente
-  - Tracking de clientes activos em tempo real
+- **Sistema de Monitorização Completo Implementado**
+  - SystemMonitor com colecta automática de métricas do sistema
+  - Métricas de CPU, memória, disco, rede e processos
+  - Métricas de API: requests/min, tempo resposta, taxa de erro
+  - Health checks automáticos com alertas configuráveis
+  - Histórico de métricas com retenção configurável
+  - Monitorização contínua com intervalo de 5 minutos
+  - Alertas automáticos para CPU >80%, memória >85%, disco >90%
 
-- **Sistema de Cache Multi-Camadas**
-  - CacheService com algoritmo LRU e TTL configurável
-  - Decorador @cached para cache automático de funções
-  - Estatísticas detalhadas: hits, misses, ratios, uso de memória
-  - Fallback transparente Redis → Memory → Direct call
-  - Limpeza automática de entradas expiradas
+- **Logging Estruturado JSON Implementado**
+  - StructuredLogger com formato JSON para observabilidade
+  - Context variables para rastreamento de requests
+  - Loggers especializados: API, AI, database, cache, security
+  - AuditLogger para tracking de acções administrativas
+  - Correlação de requests com IDs únicos
+  - Logs categorizados por severity e módulo
+  - Suporte a metadata e campos extras automáticos
 
-- **Monitorização e Observabilidade**
-  - Status completo: 5 módulos, 8 features, métricas detalhadas
-  - Teste de cache funcionando com dados reais
-  - Sistema de health checks expandido
-  - Logs estruturados para debugging avançado
-  - Tracking de performance e disponibilidade
+- **APIs de Segurança Administrativas Implementadas**
+  - `GET /api/security/stats` - Estatísticas de segurança
+  - `GET /api/security/events` - Eventos de segurança recentes
+  - `GET /api/security/blocked-ips` - Lista de IPs bloqueados
+  - `POST /api/security/unblock-ip/{ip}` - Desbloquear IP específico
+  - `POST /api/security/block-ip/{ip}` - Bloquear IP manualmente
+  - `GET /api/security/audit-log` - Log de auditoria detalhado
+  - `GET /api/security/system-health` - Estado de saúde do sistema
+  - Todas APIs protegidas com autenticação JWT e roles
 
-- **Integração Backend Completa**
-  - Router de melhorias integrado no backend principal
-  - Middleware aplicado automaticamente quando disponível
-  - Fallback gracioso para operação sem melhorias
-  - Zero impacto em funcionalidades existentes
-  - Sistema modular para fácil expansão
+- **Painel de Segurança Frontend Implementado**
+  - Página `/security-dashboard` com autenticação
+  - Interface para login administrativo
+  - Dashboard com estatísticas em tempo real
+  - Gestão de IPs bloqueados com desbloquear
+  - Visualização de eventos de segurança
+  - Métricas de requests, bloqueios e tentativas
+  - Estado do sistema com indicadores visuais
+  - Design responsivo com Tailwind CSS
+
+- **Dependências de Segurança Instaladas**
+  - pyjwt 2.10.1 - Tokens JWT seguros
+  - psutil 7.0.0 - Métricas do sistema
+  - passlib - Hash de passwords bcrypt
+  - python-multipart - Upload seguro de ficheiros
+  - Integração completa no backend FastAPI
+
+- **Sistema de Segurança Totalmente Operacional**
+  - Middleware de segurança activo em todas as requests
+  - Monitorização em tempo real com alertas
+  - Logging estruturado em JSON funcionando
+  - Authentication JWT com roles funcionais
+  - APIs administrativas protegidas e testadas
+  - Painel web para gestão de segurança
+  - Sistema robusto pronto para produção
 
 ### 2025-07-20 - Frontend Muzaia Completamente Restaurado
 

@@ -29,4 +29,6 @@ Requires-Dist: redis>=6.2.0
 Requires-Dist: slowapi>=0.1.9
 Requires-Dist: python-json-logger>=3.3.0
 Requires-Dist: pydantic-settings>=2.10.1
+Requires-Dist: pyjwt>=2.10.1
+Requires-Dist: psutil>=7.0.0
 Dynamic: license-file
