@@ -1,182 +1,188 @@
 #!/bin/bash
 
-echo "🚀 Deploy Muzaia Backend no Railway"
-echo "===================================="
+echo "🚂 Deploy Muzaia no Railway"
+echo "==========================="
+echo ""
 
-# Verificar se está no directório correcto
+# Verificar se temos os arquivos necessários
 if [ ! -f "backend_complete.py" ]; then
-    echo "❌ Erro: backend_complete.py não encontrado!"
-    echo "Execute este script no directório raiz do projecto."
+    echo "❌ Arquivo backend_complete.py não encontrado"
     exit 1
 fi
 
-# Verificar Railway CLI
-if ! command -v railway &> /dev/null; then
-    echo "❌ Railway CLI não instalado"
-    echo ""
-    echo "Para instalar:"
-    echo "npm install -g @railway/cli"
-    echo ""
-    echo "Ou baixar de: https://railway.app/cli"
-    exit 1
+echo "📦 Preparando arquivos para Railway..."
+
+# Criar requirements.txt otimizado para Railway
+cat > requirements.txt << 'EOF'
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+psycopg2-binary==2.9.9
+google-generativeai==0.3.2
+python-multipart==0.0.6
+PyPDF2==3.0.1
+python-docx==0.8.11
+numpy==1.24.3
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+aiofiles==23.2.1
+httpx==0.24.1
+chardet==5.2.0
+sqlalchemy==2.0.23
+pydantic==2.5.0
+python-dateutil==2.8.2
+gunicorn==21.2.0
+EOF
+
+# Criar railway.json
+cat > railway.json << 'EOF'
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "startCommand": "uvicorn backend_complete:app --host 0.0.0.0 --port $PORT",
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 100,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  }
+}
+EOF
+
+# Criar nixpacks.toml para Railway
+cat > nixpacks.toml << 'EOF'
+[phases.setup]
+nixPkgs = ['python311', 'postgresql']
+
+[phases.install]
+cmds = [
+    'pip install --upgrade pip',
+    'pip install -r requirements.txt'
+]
+
+[phases.build]
+cmds = ['python -c "print(\"Build completed\")"']
+
+[start]
+cmd = 'uvicorn backend_complete:app --host 0.0.0.0 --port $PORT --workers 1'
+EOF
+
+# Criar Procfile para Railway
+cat > Procfile << 'EOF'
+web: uvicorn backend_complete:app --host 0.0.0.0 --port $PORT --workers 1
+EOF
+
+# Criar script de inicialização
+cat > railway-start.sh << 'EOF'
+#!/bin/bash
+echo "🚀 Iniciando Muzaia no Railway..."
+echo "PORT: $PORT"
+echo "PYTHONPATH: $PYTHONPATH"
+
+# Verificar variáveis essenciais
+if [ -z "$GEMINI_API_KEY" ]; then
+    echo "⚠️ GEMINI_API_KEY não configurada"
 fi
 
-echo "✅ Railway CLI encontrado"
-
-# Login se necessário
-if ! railway whoami &> /dev/null; then
-    echo "🔐 Fazendo login no Railway..."
-    railway login
-    
-    if [ $? -ne 0 ]; then
-        echo "❌ Erro no login. Tente novamente."
-        exit 1
-    fi
+if [ -z "$DATABASE_URL" ]; then
+    echo "⚠️ DATABASE_URL não configurada"
 fi
 
-echo "✅ Login Railway confirmado"
+# Iniciar aplicação
+exec uvicorn backend_complete:app --host 0.0.0.0 --port $PORT --workers 1 --log-level info
+EOF
 
-# Verificar se já existe projeto
-if [ ! -f "railway.toml" ]; then
-    echo "📋 Inicializando projeto Railway..."
-    echo ""
-    echo "Seleccione as opções:"
-    echo "1. Empty project"
-    echo "2. Nome: muzaia-backend"
-    echo "3. Público: No"
-    echo ""
-    
-    railway init
-    
-    if [ $? -ne 0 ]; then
-        echo "❌ Erro na inicialização do projeto"
-        exit 1
-    fi
-else
-    echo "✅ Projeto Railway já configurado"
-fi
+chmod +x railway-start.sh
 
-# Configurar variáveis de ambiente
-echo ""
-echo "🔧 Configuração de Variáveis de Ambiente"
-echo "========================================"
+# Criar README específico para Railway
+cat > README.md << 'EOF'
+# Muzaia Legal Assistant Backend
 
-# Verificar variáveis existentes
-echo "📋 Variáveis actuais:"
-railway variables
+Sistema de assistente jurídico especializado em legislação moçambicana.
 
-echo ""
-echo "Configurar novas variáveis:"
+## Deploy no Railway
 
-# GEMINI_API_KEY
-echo ""
-echo "GEMINI_API_KEY (vossa chave do Google Gemini):"
-echo "(Pressione Enter para manter actual se já existe)"
-read -r gemini_key
-if [ ! -z "$gemini_key" ]; then
-    railway variables set GEMINI_API_KEY="$gemini_key"
-    echo "✅ GEMINI_API_KEY configurado"
-fi
+### Configuração Automática
+Este repositório está configurado para deploy automático no Railway.
 
-# DATABASE_URL
-echo ""
-echo "DATABASE_URL (vossa URL do Supabase PostgreSQL):"
-echo "Formato: postgresql://postgres:password@db.xxx.supabase.co:5432/postgres"
-echo "(Pressione Enter para manter actual se já existe)"
-read -r database_url
-if [ ! -z "$database_url" ]; then
-    railway variables set DATABASE_URL="$database_url"
-    echo "✅ DATABASE_URL configurado"
-fi
+### Variáveis de Ambiente Necessárias
+```
+GEMINI_API_KEY=sua_chave_gemini
+DATABASE_URL=postgresql://user:password@host:port/database
+```
 
-# Configurar variáveis de sistema
-railway variables set PYTHONPATH="/app"
-railway variables set PORT="8000"
-echo "✅ Variáveis de sistema configuradas"
+### URLs de Produção
+- Backend: https://muzaia-backend-production.up.railway.app
+- Health: https://muzaia-backend-production.up.railway.app/health
+- Docs: https://muzaia-backend-production.up.railway.app/docs
 
-# Mostrar configuração final
-echo ""
-echo "📋 Configuração final:"
-railway variables
+### Funcionalidades
+- Chat jurídico com IA Gemini
+- Upload e processamento de documentos legais
+- Sistema RAG para pesquisa legal
+- Interface administrativa
+- APIs RESTful completas
 
-# Confirmar deploy
-echo ""
-echo "🚀 PRONTO PARA DEPLOY"
-echo "===================="
-echo ""
-echo "Configuração:"
-echo "- Backend: backend_complete.py"
-echo "- Dependências: requirements.txt"
-echo "- Configuração: railway.json + nixpacks.toml"
+### Tecnologias
+- FastAPI
+- Google Gemini AI
+- PostgreSQL/Supabase
+- Railway Platform
+EOF
+
+echo "✅ Arquivos criados para Railway:"
+echo "• requirements.txt - Dependências Python"
+echo "• railway.json - Configuração Railway"
+echo "• nixpacks.toml - Build configuration"
+echo "• Procfile - Comando de inicialização"
+echo "• railway-start.sh - Script personalizado"
+echo "• README.md - Documentação"
 echo ""
 
-read -p "Deseja prosseguir com o deploy? (y/n): " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "❌ Deploy cancelado pelo utilizador"
-    exit 1
-fi
-
-# Fazer deploy
+echo "🌐 PRÓXIMOS PASSOS - RAILWAY:"
+echo "============================"
 echo ""
-echo "🚀 Fazendo deploy no Railway..."
-echo "Isto pode demorar alguns minutos..."
+echo "MÉTODO 1 - GitHub (Recomendado):"
+echo "1. Criar repositório GitHub público"
+echo "2. Push do código para GitHub"
+echo "3. Conectar Railway ao repositório"
+echo ""
+echo "MÉTODO 2 - Railway CLI:"
+echo "1. Instalar CLI: npm install -g @railway/cli"
+echo "2. Login: railway login"
+echo "3. Deploy: railway deploy"
+echo ""
 
-railway up
+echo "📋 CONFIGURAÇÃO RAILWAY:"
+echo "========================"
+echo ""
+echo "1. Ir para https://railway.app"
+echo "2. Criar conta (gratuito - $5 de crédito)"
+echo "3. New Project > Deploy from GitHub repo"
+echo "4. Selecionar repositório muzaia-backend"
+echo "5. Configurar variáveis de ambiente:"
+echo "   • GEMINI_API_KEY = [vossa chave]"
+echo "   • DATABASE_URL = [vossa URL Supabase]"
+echo ""
+echo "6. Deploy automático será iniciado"
+echo ""
 
-if [ $? -eq 0 ]; then
-    echo ""
-    echo "✅ DEPLOY CONCLUÍDO COM SUCESSO!"
-    echo "==============================="
-    echo ""
-    
-    # Obter informações do deploy
-    echo "📊 Informações do deploy:"
-    railway status
-    
-    echo ""
-    echo "🌐 Vosso backend está disponível em:"
-    BACKEND_URL=$(railway status --json 2>/dev/null | python3 -c "import json,sys; data=json.load(sys.stdin); print(data.get('deployments', [{}])[0].get('url', 'URL não disponível'))" 2>/dev/null || echo "Executar 'railway status' para ver URL")
-    echo "$BACKEND_URL"
-    
-    echo ""
-    echo "🧪 TESTES RECOMENDADOS:"
-    echo "======================"
-    echo ""
-    echo "1. Health check:"
-    echo "   curl $BACKEND_URL/health"
-    echo ""
-    echo "2. Testar chat:"
-    echo "   curl -X POST $BACKEND_URL/api/chat \\"
-    echo "     -H 'Content-Type: application/json' \\"
-    echo "     -d '{\"message\": \"Olá Muzaia!\"}'"
-    echo ""
-    echo "3. Testar hierarquia legal:"
-    echo "   curl $BACKEND_URL/api/legal/hierarchy"
-    echo ""
-    echo "📋 PRÓXIMOS PASSOS:"
-    echo "=================="
-    echo ""
-    echo "1. Testar os endpoints acima"
-    echo "2. Configurar frontend para usar:"
-    echo "   BACKEND_URL=$BACKEND_URL"
-    echo "3. Deploy frontend no Vercel:"
-    echo "   vercel --prod --env BACKEND_URL=$BACKEND_URL"
-    echo ""
-    echo "📖 Monitorização:"
-    echo "   railway logs --follow (logs em tempo real)"
-    echo "   railway status (status do serviço)"
-    
-else
-    echo ""
-    echo "❌ ERRO NO DEPLOY"
-    echo "================"
-    echo ""
-    echo "Possíveis soluções:"
-    echo "1. Verificar logs: railway logs"
-    echo "2. Verificar variáveis: railway variables"
-    echo "3. Verificar requirements.txt"
-    echo "4. Tentar novamente: railway up"
-    echo ""
-    echo "Para suporte: https://railway.app/help"
-fi
+echo "🎯 URLs FINAIS:"
+echo "Backend: https://[seu-projeto].up.railway.app"
+echo "Health: https://[seu-projeto].up.railway.app/health"
+echo "Docs: https://[seu-projeto].up.railway.app/docs"
+echo ""
+
+echo "💡 VANTAGENS RAILWAY:"
+echo "• $5 de crédito grátis"
+echo "• Deploy em ~2 minutos"
+echo "• HTTPS automático"
+echo "• Logs em tempo real"
+echo "• Métricas detalhadas"
+echo "• Domínios personalizados"
+echo "• Restart automático"
+echo ""
+
+echo "🚀 Railway é perfeito para projetos Python!"
+echo "Muito mais estável que muitas alternativas."

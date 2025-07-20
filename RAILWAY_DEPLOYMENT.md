@@ -1,279 +1,202 @@
-# Deploy do Backend Muzaia no Railway
+# Deploy Railway - Guia Completo
 
-## Vantagens do Railway para o Muzaia
+## 🚂 Por que Railway?
 
-- **Sempre ativo**: Sem cold starts como no Vercel
-- **Sem timeouts**: Processamento de documentos sem limite de 60s
-- **PostgreSQL nativo**: Suporte completo para Supabase
-- **Logs em tempo real**: Monitorização completa
-- **Custo fixo**: $5/mês independente do uso
+Railway é uma plataforma moderna de deploy que oferece:
+- ✅ **$5 grátis** para começar
+- ✅ **Deploy em 2-3 minutos**
+- ✅ **HTTPS automático**
+- ✅ **Logs em tempo real**
+- ✅ **Métricas detalhadas**
+- ✅ **Restart automático**
+- ✅ **Domínios personalizados**
 
-## Passo-a-Passo: Deploy no Railway
+## 🎯 Processo Completo
 
-### 1. Preparação Local
+### Método 1: Script Automatizado (Recomendado)
+
 ```bash
-# Verificar se backend funciona
-curl http://localhost:8000/health
+# Preparar arquivos Railway
+./deploy-railway.sh
 
-# Instalar Railway CLI
-npm install -g @railway/cli
-
-# Fazer login
-railway login
+# Configurar Git + GitHub + Railway
+./railway-setup-complete.sh
 ```
 
-### 2. Inicializar Projeto Railway
+### Método 2: Manual
+
+#### Passo 1: Preparar Arquivos
 ```bash
-# No directório do projecto
-railway init
-
-# Escolher opções:
-# - "Empty project"
-# - Nome: "muzaia-backend"
-# - Público: No
+./deploy-railway.sh
 ```
 
-### 3. Configurar Variáveis de Ambiente
+#### Passo 2: GitHub
+1. Criar repositório: https://github.com/new
+2. Nome: `muzaia-backend`
+3. Push código:
 ```bash
-# Configurar Gemini AI
-railway variables set GEMINI_API_KEY=vossa-chave-google-gemini
-
-# Configurar Supabase
-railway variables set DATABASE_URL=postgresql://postgres:password@db.xxx.supabase.co:5432/postgres
-
-# Configurar outras variáveis
-railway variables set PYTHONPATH=/app
-railway variables set PORT=8000
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/SEU_USUARIO/muzaia-backend.git
+git push -u origin main
 ```
 
-### 4. Deploy Inicial
-```bash
-# Fazer primeiro deploy
-railway up
+#### Passo 3: Railway
+1. Ir para https://railway.app
+2. Criar conta (recomendo GitHub)
+3. **New Project** > **Deploy from GitHub repo**
+4. Selecionar `muzaia-backend`
+5. Configurar variáveis:
+   - `GEMINI_API_KEY` = vossa chave
+   - `DATABASE_URL` = vossa URL Supabase
 
-# Monitorizar logs
-railway logs --follow
-```
+## 📋 Arquivos Criados
 
-### 5. Verificar Deploy
-```bash
-# Obter URL do serviço
-railway status
-
-# Testar endpoints
-curl https://vosso-projeto.railway.app/health
-curl https://vosso-projeto.railway.app/api/legal/hierarchy
-```
-
-## Estrutura de Arquivos para Railway
-
-O Railway detecta automaticamente:
-
-### requirements.txt (já existe)
-```
-fastapi==0.104.1
-uvicorn==0.24.0
-psycopg2-binary==2.9.9
-google-generativeai==0.3.2
-python-multipart==0.0.6
-...
-```
-
-### railway.json (criado)
+### `railway.json`
 ```json
 {
+  "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "python -m uvicorn backend_complete:app --host 0.0.0.0 --port $PORT",
-    "healthcheckPath": "/health"
+    "startCommand": "uvicorn backend_complete:app --host 0.0.0.0 --port $PORT",
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 100,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
   }
 }
 ```
 
-### nixpacks.toml (criado)
+### `nixpacks.toml`
 ```toml
 [phases.setup]
-nixPkgs = ["python311", "postgresql"]
+nixPkgs = ['python311', 'postgresql']
+
+[phases.install]
+cmds = [
+    'pip install --upgrade pip',
+    'pip install -r requirements.txt'
+]
 
 [start]
-cmd = "python -m uvicorn backend_complete:app --host 0.0.0.0 --port $PORT"
+cmd = 'uvicorn backend_complete:app --host 0.0.0.0 --port $PORT --workers 1'
 ```
 
-## Scripts Automatizados
-
-### Script de Deploy Completo
-```bash
-#!/bin/bash
-# deploy-railway.sh
-
-echo "🚀 Deploy Muzaia Backend no Railway"
-
-# 1. Verificar Railway CLI
-if ! command -v railway &> /dev/null; then
-    echo "❌ Railway CLI não instalado"
-    echo "Execute: npm install -g @railway/cli"
-    exit 1
-fi
-
-# 2. Login se necessário
-if ! railway whoami &> /dev/null; then
-    echo "🔐 Fazendo login no Railway..."
-    railway login
-fi
-
-# 3. Inicializar se necessário
-if [ ! -f "railway.toml" ]; then
-    echo "📋 Inicializando projeto Railway..."
-    railway init
-fi
-
-# 4. Configurar variáveis
-echo "🔧 Configurando variáveis de ambiente..."
-echo "GEMINI_API_KEY (pressione Enter para manter actual):"
-read -r gemini_key
-if [ ! -z "$gemini_key" ]; then
-    railway variables set GEMINI_API_KEY="$gemini_key"
-fi
-
-echo "DATABASE_URL (pressione Enter para manter actual):"
-read -r database_url
-if [ ! -z "$database_url" ]; then
-    railway variables set DATABASE_URL="$database_url"
-fi
-
-# 5. Deploy
-echo "🚀 Fazendo deploy..."
-railway up
-
-# 6. Mostrar informações
-echo "✅ Deploy concluído!"
-railway status
-echo ""
-echo "🌐 Vosso backend está disponível em:"
-railway status --json | jq -r '.deployments[0].url'
+### `requirements.txt`
+```
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+psycopg2-binary==2.9.9
+google-generativeai==0.3.2
+python-multipart==0.0.6
+PyPDF2==3.0.1
+python-docx==0.8.11
+numpy==1.24.3
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+aiofiles==23.2.1
+httpx==0.24.1
+chardet==5.2.0
+sqlalchemy==2.0.23
+pydantic==2.5.0
+python-dateutil==2.8.2
+gunicorn==21.2.0
 ```
 
-### Script de Monitorização
+## 🔧 Variáveis de Ambiente
+
+No painel Railway, configurar:
+
+```
+GEMINI_API_KEY = vossa_chave_gemini_aqui
+DATABASE_URL = postgresql://postgres:senha@db.xxx.supabase.co:5432/postgres
+```
+
+## 🌐 URLs Resultantes
+
+Após deploy:
+- **Backend**: `https://muzaia-backend-production-xxxx.up.railway.app`
+- **Health**: `https://muzaia-backend-production-xxxx.up.railway.app/health`
+- **Docs**: `https://muzaia-backend-production-xxxx.up.railway.app/docs`
+- **Chat**: `https://muzaia-backend-production-xxxx.up.railway.app/api/chat`
+
+## 🧪 Testes
+
 ```bash
-#!/bin/bash
-# monitor-railway.sh
-
-echo "📊 Monitorização Railway"
-echo "======================"
-
-# Status do serviço
-echo "📈 Status:"
-railway status
-
-# Últimos logs
-echo ""
-echo "📋 Últimos logs:"
-railway logs --tail 50
-
 # Health check
-echo ""
-echo "🏥 Health check:"
-URL=$(railway status --json | jq -r '.deployments[0].url')
-curl -s "$URL/health" | python3 -c "import json,sys; data=json.load(sys.stdin); print(f'Status: {data[\"status\"]} | Service: {data[\"service\"]} | Version: {data[\"version\"]}')"
+curl https://vossa-url.up.railway.app/health
+
+# Chat API
+curl -X POST https://vossa-url.up.railway.app/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "O que é um contrato?"}'
+
+# Hierarquia legal
+curl https://vossa-url.up.railway.app/api/legal/hierarchy
 ```
 
-## Configuração Frontend para Railway
+## 💰 Custos Railway
 
-Após deploy do backend, actualizar frontend:
+- **$5 grátis** para começar
+- **~$0.10/hora** quando em uso
+- **$0/hora** quando inactivo (suspende automaticamente)
+- **Estimativa**: $2-5/mês para uso moderado
 
-### next.config.js
-```javascript
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: process.env.BACKEND_URL + '/:path*',
-      },
-    ]
-  },
-  env: {
-    BACKEND_URL: process.env.BACKEND_URL || 'http://localhost:8000',
-  },
-}
+## 📊 Monitorização
 
-module.exports = nextConfig
-```
+Railway fornece:
+- **Logs em tempo real**
+- **Métricas de CPU/RAM**
+- **Tempo de resposta**
+- **Número de requests**
+- **Status de deploy**
 
-### Deploy Frontend no Vercel
+## 🔧 Gestão
+
+### Logs
 ```bash
-# Definir URL do backend Railway
-vercel --prod --env BACKEND_URL=https://vosso-backend.railway.app
+# Via CLI (se instalado)
+railway logs
+
+# Via web: https://railway.app > Projeto > Logs
 ```
 
-## URLs Finais
-
-Após deploy completo:
-
-- **Backend Railway**: `https://vosso-projeto.railway.app`
-- **Frontend Vercel**: `https://vosso-frontend.vercel.app`
-
-### APIs Disponíveis:
-- Health: `https://vosso-projeto.railway.app/health`
-- Chat: `https://vosso-projeto.railway.app/api/chat`
-- Upload: `https://vosso-projeto.railway.app/api/admin/upload-document`
-- Hierarquia: `https://vosso-projeto.railway.app/api/legal/hierarchy`
-- Admin Avançado: `https://vosso-projeto.railway.app/api/legal/upload-advanced`
-
-## Monitorização e Logs
-
+### Restart
 ```bash
-# Ver logs em tempo real
-railway logs --follow
-
-# Ver uso de recursos
-railway status
-
-# Reiniciar serviço
+# Via CLI
 railway restart
 
-# Ver variáveis
-railway variables
+# Via web: https://railway.app > Projeto > Settings > Restart
 ```
 
-## Custos
-
-- **Railway**: $5/mês (500 horas de execução)
-- **Vercel Frontend**: Gratuito
-- **Supabase**: Gratuito (até 500MB)
-- **Google Gemini**: Gratuito (até quota)
-
-**Total: $5/mês para sistema completo**
-
-## Troubleshooting
-
-### Build Fails
+### Variáveis
 ```bash
-# Ver logs detalhados
-railway logs --deployment <deployment-id>
+# Via CLI
+railway variables set GEMINI_API_KEY=nova_chave
 
-# Verificar requirements.txt
-railway shell
-pip install -r requirements.txt
+# Via web: https://railway.app > Projeto > Variables
 ```
 
-### Database Connection
+## ⚡ Vantagens vs Outras Plataformas
+
+| Aspecto | Railway | Render | Vercel | DigitalOcean |
+|---------|---------|---------|---------|--------------|
+| **Setup** | 2 min | 5 min | 3 min | 30+ min |
+| **Custo** | $5 grátis | 750h grátis | Grátis | $12+/mês |
+| **Python** | ✅ Excelente | ✅ Bom | ⚠️ Serverless | ✅ Manual |
+| **Logs** | ✅ Tempo real | ✅ Bom | ⚠️ Limitado | ⚠️ Manual |
+| **Domínios** | ✅ Grátis | ✅ Grátis | ✅ Grátis | ⚠️ Manual |
+
+## 🚀 Comando Rápido
+
+Para deploy imediato:
+
 ```bash
-# Testar conexão dentro do Railway
-railway shell
-python3 -c "import psycopg2; print('DB OK')"
+# Tudo em um comando
+./railway-setup-complete.sh
 ```
 
-### Memory Issues
-```bash
-# Verificar uso de memória
-railway metrics
-
-# Aumentar plano se necessário
-railway upgrade
-```
-
-O Railway é ideal para o Muzaia porque suporta o processamento pesado de documentos legais e mantém o sistema sempre ativo para consultas rápidas de IA.
+Railway é perfeito para o Muzaia - estável, rápido e com excelente suporte para Python!
