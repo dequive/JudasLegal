@@ -505,9 +505,9 @@ async def chat_endpoint(request: ChatMessage):
             with conn.cursor() as cur:
                 # Ensure session exists
                 cur.execute("""
-                    INSERT INTO chat_sessions (id) VALUES (%s) 
+                    INSERT INTO chat_sessions (id, user_id) VALUES (%s, %s) 
                     ON CONFLICT (id) DO NOTHING
-                """, (session_id,))
+                """, (session_id, 'anonymous'))
                 
                 # Store user message
                 cur.execute("""

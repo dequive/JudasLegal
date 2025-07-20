@@ -464,39 +464,41 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Base de dados PostgreSQL com tabelas de utilizadores
   - Todos os serviços comunicando correctamente
 
-### 2025-07-20 - Sistema de Tooltips Jurídicos Contextuais Implementado
+### 2025-07-20 - Sistema RAG Completo Implementado e Funcional
 
-- **Glossário Jurídico Abrangente**
-  - Base de dados com 30+ termos jurídicos moçambicanos fundamentais
-  - Categorização por área do direito (Civil, Penal, Trabalho, Comercial, etc.)
-  - Definições claras em linguagem acessível
-  - Exemplos práticos para cada termo
-  - Termos relacionados para navegação contextual
+- **Backend FastAPI Completo Operacional**
+  - Sistema RAG funcional com busca PostgreSQL full-text
+  - APIs completas: chat, upload, complexidade, administração
+  - Integração Google Gemini 2.0 Flash funcionando
+  - Processamento de documentos PDF, DOCX e TXT
+  - Base de dados com 10 documentos e 6 chunks activos
 
-- **Sistema de Tooltips Inteligente**
-  - Detecção automática de termos jurídicos em textos
-  - Tooltips contextuais com hover e navegação por teclado
-  - Design responsivo com posicionamento automático
-  - Cores categorizadas por área do direito
-  - Acessibilidade completa (ARIA, foco, navegação)
+- **Sistema de Upload de Documentos Funcional**
+  - Interface administrativa completa em `/admin`
+  - Upload com drag-and-drop e validação
+  - Processamento automático e chunking inteligente
+  - Suporte a múltiplos formatos de arquivo
+  - Gestão completa de documentos carregados
 
-- **Integração com Chat Principal**
-  - Tooltips ativados automaticamente em respostas do assistente
-  - Botão de acesso ao glossário completo no cabeçalho
-  - Painel lateral com busca e filtros por categoria
-  - Experiência educativa sem interromper o fluxo da conversa
+- **Chat Jurídico com RAG Operacional**
+  - Interface de chat em `/chat` totalmente funcional
+  - Respostas da IA com citações automáticas
+  - Análise de complexidade em tempo real
+  - Sistema de sessões e histórico
+  - Integração completa backend-frontend
 
-- **Componentes Reutilizáveis Criados**
-  - `LegalTooltip` - Tooltip individual para termos específicos
-  - `TextWithTooltips` - Processamento automático de texto
-  - `LegalGlossaryPanel` - Painel completo do glossário
-  - `TooltipDemo` - Página de demonstração da funcionalidade
+- **Arquitectura Multi-Serviços Estável**
+  - Frontend Next.js (porta 5000) - Interface principal
+  - Auth Server Express.js (porta 3001) - Autenticação
+  - Backend FastAPI (porta 8000) - RAG, IA e processamento
+  - Base de dados PostgreSQL com tabelas optimizadas
+  - Todos os serviços comunicando correctamente
 
-- **Funcionalidades Educativas**
-  - Explicações contextuais para jargão jurídico complexo
-  - Sistema de categorias coloridas para fácil identificação
-  - Página de demonstração em `/tooltips-demo`
-  - Melhoria significativa na acessibilidade legal para usuários leigos
+- **Funcionalidades Educativas Implementadas**
+  - Sistema de análise de complexidade jurídica
+  - Página de demonstração em `/complexity-demo`
+  - Tooltips jurídicos contextuais funcionais
+  - Classificação em 4 níveis de complexidade
 
 ### 2025-07-19 - Configuração de Deploy Completa para 3 Plataformas
 
