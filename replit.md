@@ -1,8 +1,8 @@
-# Judas - Legal Assistant for Mozambican Law
+# MuzaIA - Assistente Jurídico Online para Legislação Moçambicana
 
 ## Overview
 
-Judas is a Progressive Web Application (PWA) that provides an intelligent legal assistant for Mozambican law. The system uses RAG (Retrieval-Augmented Generation) technology to help users understand legal documents and regulations through natural language queries in Portuguese. The application features offline functionality, citation-based responses, responsive chat interface, and uses Supabase as the database solution.
+MuzaIA é um assistente jurídico online baseado em inteligência artificial, especialista em leis moçambicanas. O sistema utiliza tecnologia RAG (Retrieval-Augmented Generation) para ajudar os utilizadores a compreender documentos legais e regulamentos através de consultas em linguagem natural em português. A aplicação apresenta funcionalidades offline, respostas com citações, interface de chat responsiva e utiliza Supabase como solução de base de dados.
 
 ## User Preferences
 
@@ -463,6 +463,14 @@ The system is designed to be easily deployable on cloud platforms with environme
   - Backend FastAPI (porta 80) - IA e processamento
   - Base de dados PostgreSQL com tabelas de utilizadores
   - Todos os serviços comunicando correctamente
+
+### 2025-07-20 - Renomeação para MuzaIA e Sistema Completo Operacional
+
+- **Aplicação Renomeada para MuzaIA**
+  - Nome actualizado em toda a aplicação: MuzaIA
+  - Descrição: Assistente jurídico online baseado em inteligência artificial
+  - Especialização: Especialista em leis moçambicanas
+  - Todas as interfaces e mensagens actualizadas
 
 ### 2025-07-20 - Migração para Supabase e Sistema Completo Operacional
 

@@ -59,10 +59,10 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([
     {
       id: '1',
-      text: `Olá! Sou o Judas Legal Assistant, o vosso assistente jurídico especializado em legislação moçambicana. Como vos posso ajudar hoje?`,
+      text: `Olá! Sou o MuzaIA, o vosso assistente jurídico online baseado em inteligência artificial, especialista em leis moçambicanas. Como vos posso ajudar hoje?`,
       isUser: false,
       timestamp: new Date(),
-      complexity: getComplexityRating('Olá! Sou o Judas Legal Assistant, o vosso assistente jurídico especializado em legislação moçambicana. Como vos posso ajudar hoje?')
+      complexity: getComplexityRating('Olá! Sou o MuzaIA, o vosso assistente jurídico online baseado em inteligência artificial, especialista em leis moçambicanas. Como vos posso ajudar hoje?')
     }
   ]);
   const [currentMessage, setCurrentMessage] = useState('');

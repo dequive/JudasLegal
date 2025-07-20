@@ -13,7 +13,7 @@ export default function HomePage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white text-lg">Carregando Judas Legal Assistant...</p>
+          <p className="text-white text-lg">Carregando MuzaIA...</p>
         </div>
       </div>
     );
@@ -40,9 +40,9 @@ export default function HomePage() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-300 to-blue-400 bg-clip-text text-transparent">
-                    Judas Legal Assistant
+                    MuzaIA
                   </h1>
-                  <p className="text-blue-200 text-sm">Assistente Jurídico Inteligente</p>
+                  <p className="text-blue-200 text-sm">Assistente Jurídico com Inteligência Artificial</p>
                 </div>
               </div>
               <div className="flex space-x-4">
@@ -71,15 +71,15 @@ export default function HomePage() {
             
             <h1 className="text-6xl md:text-7xl font-bold mb-8">
               <span className="bg-gradient-to-r from-emerald-300 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Assistente Jurídico
+                MuzaIA
               </span>
               <br />
-              <span className="text-white">para Moçambique</span>
+              <span className="text-white">Assistente Jurídico Online</span>
             </h1>
             
             <p className="text-xl md:text-2xl text-blue-200 mb-12 max-w-4xl mx-auto leading-relaxed">
-              Plataforma inteligente que utiliza IA avançada para responder às vossas questões sobre 
-              legislação moçambicana com citações precisas e análise de complexidade jurídica.
+              Assistente jurídico online baseado em inteligência artificial, especialista em leis moçambicanas. 
+              Responde às vossas questões legais com citações precisas e análise de complexidade.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -158,7 +158,7 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-center">
               <p className="text-blue-200">
-                © 2025 Judas Legal Assistant - Assistente Jurídico para Legislação Moçambicana
+                © 2025 MuzaIA - Assistente Jurídico Online para Legislação Moçambicana
               </p>
               <p className="text-blue-300 text-sm mt-2">
                 Powered by Google Gemini 2.0 Flash • RAG Technology • PostgreSQL
