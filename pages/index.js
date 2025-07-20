@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { MessageCircle, Upload, Brain, BarChart3, BookOpen, Shield, Zap, Globe } from 'lucide-react';
+import { MessageCircle, Upload, Brain, BarChart3, BookOpen, Shield, Zap, Globe, Settings } from 'lucide-react';
 
 export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false);
