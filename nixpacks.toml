@@ -1,18 +1,11 @@
 [phases.setup]
-nixPkgs = ["nodejs-20", "python311", "postgresql"]
+nixPkgs = ["python311", "python311Packages.pip", "gcc", "postgresql"]
 
 [phases.install]
-dependsOn = ["setup"]
-cmds = [
-  "npm ci",
-  "pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart python-jose[cryptography] passlib[bcrypt] google-generativeai httpx aiofiles python-docx pypdf2 pytesseract chardet pydantic"
-]
+cmds = ["pip install -r requirements.txt"]
 
-[phases.build] 
-dependsOn = ["install"]
-cmds = [
-  "npm run build"
-]
+[phases.build]
+cmds = ["echo 'Build phase completed'"]
 
 [start]
-cmd = "python3 start_production.py"
+cmd = "python -m uvicorn backend_complete:app --host 0.0.0.0 --port $PORT"
