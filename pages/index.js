@@ -1,10 +1,7 @@
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
 
 export default function HomePage() {
-  // Remover loading artificial para mostrar conteúdo imediatamente
-
   return (
     <>
       <Head>
