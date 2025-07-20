@@ -405,10 +405,10 @@ app.post('/api/auth/resend-code', async (req, res) => {
 
 // Start server
 function startServer() {
-  console.log('🔐 Setting up ainf authentication server...');
+  console.log('🔐 Setting up Muzaia authentication server...');
   
   app.listen(PORT, () => {
-    console.log(`🚀 ainf Auth Server running on port ${PORT}`);
+    console.log(`🚀 Muzaia Auth Server running on port ${PORT}`);
     console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🔗 Health check: http://localhost:${PORT}/health`);
     console.log(`🔑 Authentication: http://localhost:${PORT}/api/auth`);

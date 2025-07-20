@@ -64,7 +64,7 @@ export default function AdminDashboard() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Painel Administrativo</h1>
-              <p className="text-gray-600">Gestão do ainf</p>
+              <p className="text-gray-600">Gestão do Muzaia</p>
             </div>
             <Link href="/admin/upload">
               <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">

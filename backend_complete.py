@@ -703,7 +703,7 @@ async def delete_document(document_id: int):
 @app.on_event("startup")
 async def startup_event():
     """Initialize the application"""
-    logger.info("🚀 Iniciando ainf Backend")
+    logger.info("🚀 Iniciando Muzaia Backend")
     init_database()
     logger.info("✓ Sistema pronto para uso")
 
